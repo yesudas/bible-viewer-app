@@ -223,7 +223,7 @@ if (file_exists($chapterPath)) {
 <header>
     <h1>Online Bible</h1>
     <nav class="main-menu">
-        <a href="/" class="menu-link">Home</a>
+        <a href="https://wordofgod.in/bibles" class="menu-link">Home</a>
         <a href="https://wordofgod.in/bible-wallpapers" target="_blank" rel="noopener" class="menu-link">Bible Wallpapers</a>
         <a href="https://wordofgod.in/bibledictionary/" target="_blank" rel="noopener" class="menu-link">Bible Dictionaries</a>
         <a href="sitemap.xml" target="_blank" rel="noopener" class="menu-link">Sitemap</a>
