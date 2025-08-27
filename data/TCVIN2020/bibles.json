@@ -1,7 +1,7 @@
 {
   "bibles" : [ {
-    "id" : 9,
-    "isDefault" : false,
+    "id" : 1,
+    "isDefault" : true,
     "info" : {
       "abbr" : "TCVIN2020NT",
       "commonName" : "தமிழ் இந்திய சமகால மொழிபெயர்ப்பு 2020 NT",

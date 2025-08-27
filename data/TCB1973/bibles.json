@@ -1,7 +1,7 @@
 {
   "bibles" : [ {
-    "id" : 2,
-    "isDefault" : false,
+    "id" : 1,
+    "isDefault" : true,
     "info" : {
       "abbr" : "TCB1973",
       "commonName" : "கத்தோலிக்க பரிசுத்த வேதாகமம் 1973 - Tamil Catholic Holy Bible 1973",

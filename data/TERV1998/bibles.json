@@ -1,7 +1,7 @@
 {
   "bibles" : [ {
-    "id" : 5,
-    "isDefault" : false,
+    "id" : 1,
+    "isDefault" : true,
     "info" : {
       "abbr" : "TERV1998",
       "commonName" : "பரிசுத்த பைபிள்",

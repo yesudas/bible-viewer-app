@@ -1,7 +1,7 @@
 {
   "bibles" : [ {
-    "id" : 3,
-    "isDefault" : false,
+    "id" : 1,
+    "isDefault" : true,
     "info" : {
       "abbr" : "TOV1986",
       "commonName" : "பரிசுத்த வேதாகமம்",

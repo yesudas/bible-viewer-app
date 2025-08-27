@@ -267,7 +267,7 @@ if (file_exists($chapterPath)) {
             <?php foreach ($chapterData['verses'] as $verse): ?>
                 <div class="verse" data-verse-number="<?= $verse['number'] ?>">
                     <span class="verse-number"><?= $verse['number'] ?></span>
-                    <span class="verse-text"><?= htmlspecialchars($verse['verse']) ?></span>
+                    <span class="verse-text"><?= $verse['verse'] ?></span>
                     <button class="copy-btn" title="Copy">&#128203;</button>
                 </div>
             <?php endforeach; ?>

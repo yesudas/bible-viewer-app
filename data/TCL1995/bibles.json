@@ -1,7 +1,7 @@
 {
   "bibles" : [ {
-    "id" : 4,
-    "isDefault" : false,
+    "id" : 1,
+    "isDefault" : true,
     "info" : {
       "abbr" : "TCL1995",
       "commonName" : "திருவிவிலியம் - Thiruviviliam",

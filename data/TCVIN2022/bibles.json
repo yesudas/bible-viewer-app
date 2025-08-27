@@ -1,7 +1,7 @@
 {
   "bibles" : [ {
-    "id" : 10,
-    "isDefault" : false,
+    "id" : 1,
+    "isDefault" : true,
     "info" : {
       "abbr" : "TCVIN2022",
       "commonName" : "தமிழ் இந்திய சமகால மொழிபெயர்ப்பு 2022",

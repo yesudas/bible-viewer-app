@@ -1,7 +1,7 @@
 {
   "bibles" : [ {
-    "id" : 7,
-    "isDefault" : false,
+    "id" : 1,
+    "isDefault" : true,
     "info" : {
       "abbr" : "TIRV2017",
       "commonName" : "தமிழ் IRV 2017",

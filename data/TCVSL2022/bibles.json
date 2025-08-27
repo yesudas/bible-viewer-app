@@ -1,7 +1,7 @@
 {
   "bibles" : [ {
-    "id" : 11,
-    "isDefault" : false,
+    "id" : 1,
+    "isDefault" : true,
     "info" : {
       "abbr" : "TCVSL2022",
       "commonName" : "தமிழ் இலங்கை சமகால/இலகு தமிழ் மொழிபெயர்ப்பு 2022",
