@@ -277,6 +277,8 @@ if (file_exists($chapterPath)) {
         <button id="prev-chapter-btn-bottom" class="chapter-nav-btn" title="Previous Chapter" disabled>&larr; Previous</button>
         <button id="next-chapter-btn-bottom" class="chapter-nav-btn" title="Next Chapter">&rarr; Next</button>
     </div>
+    <div id="bible-details">
+    </div>
 </main>
 <footer>
     <p>&nbsp; &nbsp; No Copyright, Freely Copy and Distribute (as per Matthew 10:8), <a target="_blank" href="https://www.wordofgod.in/">www.WordOfGod.in</a> 
@@ -350,7 +352,46 @@ function updateBooks(callback) {
         opt.textContent = book.longName;
         bookSelect.appendChild(opt);
     });
+    updateBibleDetails();
     updateChapters(callback);
+}
+function updateBibleDetails(){
+    const bibleIdx = bibleSelect.value;
+    const bible = bibles[bibleIdx];
+    const detailsDiv = document.getElementById('bible-details');
+    if (detailsDiv) {
+        detailsDiv.innerHTML = '';
+        var p = document.createElement('p');
+        p.innerHTML = `<h2>More details about this Bible:</h2>`;
+        detailsDiv.appendChild(p);
+        p = document.createElement('p');
+        p.innerHTML = `<strong>Abbr:</strong>&nbsp; &nbsp; ${bible.info.abbr}`;
+        detailsDiv.appendChild(p);
+        p = document.createElement('p');
+        p.innerHTML = `<strong>Short Name:</strong>&nbsp; &nbsp; ${bible.info.shortName}`;
+        detailsDiv.appendChild(p);
+        p = document.createElement('p');
+        p.innerHTML = `<strong>Common Name:</strong>&nbsp; &nbsp; ${bible.info.commonName}`;
+        detailsDiv.appendChild(p);
+        p = document.createElement('p');
+        p.innerHTML = `<strong>Long Name:</strong>&nbsp; &nbsp; ${bible.info.longName}`;
+        detailsDiv.appendChild(p);
+        p = document.createElement('p');
+        p.innerHTML = `<strong>Long English Name:</strong>&nbsp; &nbsp; ${bible.info.longEnglishName}`;
+        detailsDiv.appendChild(p);
+        p = document.createElement('p');
+        p.innerHTML = `<strong>Published Year:</strong>&nbsp; &nbsp; ${bible.info.publishedYear}`;
+        detailsDiv.appendChild(p);
+        p = document.createElement('p');
+        p.innerHTML = `<strong>Published By:</strong>&nbsp; &nbsp; ${bible.info.publishedBy}`;
+        detailsDiv.appendChild(p);
+        p = document.createElement('p');
+        p.innerHTML = `<strong>Translated By:</strong>&nbsp; &nbsp; ${bible.info.translatedBy}`;
+        detailsDiv.appendChild(p);
+        p = document.createElement('p');
+        p.innerHTML = `<strong>Copy Right:</strong>&nbsp; &nbsp; ${bible.info.copyRight}`;
+        detailsDiv.appendChild(p);
+    }
 }
 function updateChapters(callback) {
     const bibleIdx = bibleSelect.value;
