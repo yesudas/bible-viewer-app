@@ -1,0 +1,50 @@
+{
+  "bibles" : [ {
+    "id" : 1,
+    "isDefault" : false,
+    "info" : {
+      "abbr" : "TZB1714",
+      "commonName" : "சீகன்பால்க் அஞ்சு வேத பொஷ்த்தகம் 1714 - Ziegenbalg Bible 1714",
+      "shortName" : "Tamil சீகன்பால்க் 1714",
+      "longName" : "அஞ்சு வேத பொஷ்த்தகம், சீகன்பால்க் வேதாகமம், சீகன்பால்க் பைபிள், Ziegenbalg Bible, Ziegenbalg Tamil Bible",
+      "longEnglishName" : "Ziegenbalg Tamil Bible 1714, First Tamil Bible",
+      "languageCode" : "ta",
+      "publishedYear" : "1714",
+      "publishedBy" : "பர்தொலொமேயு சீகன்பால்க் - Bartholomäus Ziegenbalg and Heinrich Plütschau from Tranquebar Mission",
+      "translatedBy" : "(Special Note: Original manuscript of this bible was in old tamil letters used in initial printing during 1700s. It did not had space between the words, did not had punctuation marks, etc. Tamil Scholar named Pazhangasu Srinivasan (பழங்காசு சீனிவாசன்) and Yesudas Solomon had taken efforts to bring it in the current tamil letters (தற்கால தமிழ் எழுத்துக்கள்). Pazhangasu Srinivasan did this work and it was reviewed & corrected with the help of Pr. M. Prabu Doss M.A., M.DIV., M.PHIL., PH.D, Pr C. Rajeshkumar, M.Div., MSW, Dr. Benjamin Ravichandran B.TH, BPT, Dr. R Sarath PT, Yesudas Solomon from Tamilnadu, India. It was digitised & made available to public at free of cost by Yesudas Solomon, www.WordOfGod.in). This bible was translated by பர்தொலொமேயு சீகன்பால்க், Bartholomäus Ziegenbalg. The 16th century saw the rise of Protestantism and an explosion of translations of the New (and Old) Testament into the vernacular. After all this time spent in blood-wrenching and sweat-drenching scholarship, Ziegenbalg wrote numerous texts in Tamil, for dissemination among Hindus. He was fully conscious of the importance of print in the history of the Protestant Church. He commenced his undertaking of translating the New Testament in 1708 and completed it in 1711, though printing was delayed till 1714, because of Ziegenbalg's insistent, perfectionist revisions. Stephen Neill comments, \"Only rarely has the first translation of Scripture in a new language been found acceptable. Ziegenbalg’s achievement was considerable; for the first time the entire New Testament had been made available in an Indian language. But from the start, Ziegenbalg’s work was exposed to criticism on a variety of grounds\" and that Johann Fabricius’ update on the pioneering text was so clearly superior, \"before long the older version ceased to be used.\" Yesudas Solomon comments, \"Until 2025 there were many tamil translations published, all of them are using one or the other tamil words found in the Ziegen Balg's translations. The translations from Johann Fabricius till L.P Larsen have used more words from Ziegen Balg's translations. Ziegen Balg introduced many tamil words into Tamil Christian world. Though few earlier scholars have criticised this translation, they did not consider the challenges Ziegen Balg faced in creating/introducing new tamil words for many biblical words in hebrew, greek and latin. His work is commendable to the tamil christians world\". It was obvious to Ziegenbalg that without a printing press all his effort would come to nought. Possibly as early as 1709, he requested a printing press from Denmark. The Danes forwarded the appeal to London to the Society for Promoting Christian Knowledge. The SPCK, not allowed a foothold in India by the East India Company's merchants, was only too eager to help and in 1712 shipped out to the Tranquebar Mission a printing press with type, paper, ink, and a printer. Ziegenbalg was also hindered by delays in the construction of a suitable Tamil typeface for his purposes. In a letter dated 7/4/1713 to George Lewis, the Anglican chaplain at Madras, and first printed in Portuguese, on the press the mission had recently received from the Society, for Promoting Christian Knowledge, Ziegenbalg writes: \"We may remember on this Occasion, how much the Art of Printing contributed to the Manifestation of divine Truths, and the spreading of Books for that End, at the Time of the happy Reformation, which we read of in History, with Thanksgiving to Almighty God.\" Following this, he began translating the Old Testament, building \"himself a little house in a quiet area away from the centre of the town, where he could pursue tranquilly what he regarded as the most important work of all. On 28 September 1714, he reports to Francke that the book Exodus has now been completed. At the time of his death, he had continued the work up to the Book of Ruth.\" Ziegenbalg was troubled by ill health his entire life, a condition aggravated by his work in the mission field. He died on 23 February 1719, at the age of thirty-six, in Tranquebar. His last 13 years were spent laying the foundations for German scholarship in Tamil that continues to this day. Ziegenbalg is buried at the New Jerusalem Church, which he helped establish in 1718 at Tranquebar.",
+      "copyRight" : "Public Domain",
+      "additionalInformation" : null
+    },
+    "books" : [ {
+      "bookNo" : 1,
+      "shortName" : "மத்",
+      "longName" : "மத்தேயுசு",
+      "englishName" : "Matthew",
+      "chapterCount" : 28
+    }, {
+      "bookNo" : 2,
+      "shortName" : "மாற்",
+      "longName" : "மாற்குசு",
+      "englishName" : "Mark",
+      "chapterCount" : 16
+    }, {
+      "bookNo" : 3,
+      "shortName" : "லூக்",
+      "longName" : "லுக்காசு",
+      "englishName" : "Luke",
+      "chapterCount" : 24
+    }, {
+      "bookNo" : 4,
+      "shortName" : "யோய",
+      "longName" : "யோயன்னசு",
+      "englishName" : "John",
+      "chapterCount" : 21
+    }, {
+      "bookNo" : 5,
+      "shortName" : "அப்",
+      "longName" : "அப்போஷ்த்தலர்",
+      "englishName" : "Acts of the Apostles",
+      "chapterCount" : 28
+    } ]
+  } ]
+}

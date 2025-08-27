@@ -1,0 +1,416 @@
+{
+  "bibles" : [ {
+    "id" : 10,
+    "isDefault" : false,
+    "info" : {
+      "abbr" : "TCVIN2022",
+      "commonName" : "தமிழ் இந்திய சமகால மொழிபெயர்ப்பு 2022",
+      "shortName" : "Tamil இந்திய சமகாலம் 2022",
+      "longName" : "இந்திய சமகால தமிழ் மொழிபெயர்ப்பு 2022",
+      "longEnglishName" : "Indian Tamil Contemporary Version 2022",
+      "languageCode" : "ta",
+      "publishedYear" : "2022",
+      "publishedBy" : "Biblica, Inc. (formerly International Bible Society)",
+      "translatedBy" : "A team of scholars formed by Biblica, Inc.",
+      "copyRight" : "© 2005, 2020 Biblica, Inc.,  https://www.biblica.com",
+      "additionalInformation" : null
+    },
+    "books" : [ {
+      "bookNo" : 1,
+      "shortName" : "ஆதி",
+      "longName" : "ஆதியாகமம்",
+      "englishName" : "Genesis",
+      "chapterCount" : 50
+    }, {
+      "bookNo" : 2,
+      "shortName" : "யாத்",
+      "longName" : "யாத்திராகமம்",
+      "englishName" : "Exodus",
+      "chapterCount" : 40
+    }, {
+      "bookNo" : 3,
+      "shortName" : "லேவி",
+      "longName" : "லேவியராகமம்",
+      "englishName" : "Leviticus",
+      "chapterCount" : 27
+    }, {
+      "bookNo" : 4,
+      "shortName" : "எண்",
+      "longName" : "எண்ணாகமம்",
+      "englishName" : "Numbers",
+      "chapterCount" : 36
+    }, {
+      "bookNo" : 5,
+      "shortName" : "உபா",
+      "longName" : "உபாகமம்",
+      "englishName" : "Deuteronomy",
+      "chapterCount" : 34
+    }, {
+      "bookNo" : 6,
+      "shortName" : "யோசு",
+      "longName" : "யோசுவா",
+      "englishName" : "Joshua",
+      "chapterCount" : 24
+    }, {
+      "bookNo" : 7,
+      "shortName" : "நியா",
+      "longName" : "நியாயாதிபதிகள்",
+      "englishName" : "Judges",
+      "chapterCount" : 21
+    }, {
+      "bookNo" : 8,
+      "shortName" : "ரூத்",
+      "longName" : "ரூத்",
+      "englishName" : "Ruth",
+      "chapterCount" : 4
+    }, {
+      "bookNo" : 9,
+      "shortName" : "1 சாமு",
+      "longName" : "1 சாமுவேல்",
+      "englishName" : "1 Samuel",
+      "chapterCount" : 31
+    }, {
+      "bookNo" : 10,
+      "shortName" : "2 சாமு",
+      "longName" : "2 சாமுவேல்",
+      "englishName" : "2 Samuel",
+      "chapterCount" : 24
+    }, {
+      "bookNo" : 11,
+      "shortName" : "1 இரா",
+      "longName" : "1 இராஜாக்கள்",
+      "englishName" : "1 Kings",
+      "chapterCount" : 22
+    }, {
+      "bookNo" : 12,
+      "shortName" : "2 இரா",
+      "longName" : "2 இராஜாக்கள்",
+      "englishName" : "2 Kings",
+      "chapterCount" : 25
+    }, {
+      "bookNo" : 13,
+      "shortName" : "1 நாளா",
+      "longName" : "1 நாளாகமம்",
+      "englishName" : "1 Chronicles",
+      "chapterCount" : 29
+    }, {
+      "bookNo" : 14,
+      "shortName" : "2 நாளா",
+      "longName" : "2 நாளாகமம்",
+      "englishName" : "2 Chronicles",
+      "chapterCount" : 36
+    }, {
+      "bookNo" : 15,
+      "shortName" : "எஸ்றா",
+      "longName" : "எஸ்றா",
+      "englishName" : "Ezra",
+      "chapterCount" : 10
+    }, {
+      "bookNo" : 16,
+      "shortName" : "நெகே",
+      "longName" : "நெகேமியா",
+      "englishName" : "Nehemiah",
+      "chapterCount" : 13
+    }, {
+      "bookNo" : 17,
+      "shortName" : "எஸ்தர்",
+      "longName" : "எஸ்தர்",
+      "englishName" : "Esther",
+      "chapterCount" : 10
+    }, {
+      "bookNo" : 18,
+      "shortName" : "யோபு",
+      "longName" : "யோபு",
+      "englishName" : "Job",
+      "chapterCount" : 42
+    }, {
+      "bookNo" : 19,
+      "shortName" : "சங்",
+      "longName" : "சங்கீதம்",
+      "englishName" : "Psalms",
+      "chapterCount" : 150
+    }, {
+      "bookNo" : 20,
+      "shortName" : "நீதி",
+      "longName" : "நீதிமொழிகள்",
+      "englishName" : "Proverbs",
+      "chapterCount" : 31
+    }, {
+      "bookNo" : 21,
+      "shortName" : "பிர",
+      "longName" : "பிரசங்கி",
+      "englishName" : "Ecclesiastes",
+      "chapterCount" : 12
+    }, {
+      "bookNo" : 22,
+      "shortName" : "உன்",
+      "longName" : "உன்னதப்பாட்டு",
+      "englishName" : "Song of Songs",
+      "chapterCount" : 8
+    }, {
+      "bookNo" : 23,
+      "shortName" : "ஏசா",
+      "longName" : "ஏசாயா",
+      "englishName" : "Isaiah",
+      "chapterCount" : 66
+    }, {
+      "bookNo" : 24,
+      "shortName" : "எரே",
+      "longName" : "எரேமியா",
+      "englishName" : "Jeremiah",
+      "chapterCount" : 52
+    }, {
+      "bookNo" : 25,
+      "shortName" : "புல",
+      "longName" : "புலம்பல்",
+      "englishName" : "Lamentations",
+      "chapterCount" : 5
+    }, {
+      "bookNo" : 26,
+      "shortName" : "எசே",
+      "longName" : "எசேக்கியேல்",
+      "englishName" : "Ezekiel",
+      "chapterCount" : 48
+    }, {
+      "bookNo" : 27,
+      "shortName" : "தானி",
+      "longName" : "தானியேல்",
+      "englishName" : "Daniel",
+      "chapterCount" : 12
+    }, {
+      "bookNo" : 28,
+      "shortName" : "ஓசி",
+      "longName" : "ஓசியா",
+      "englishName" : "Hosea",
+      "chapterCount" : 14
+    }, {
+      "bookNo" : 29,
+      "shortName" : "யோவே",
+      "longName" : "யோவேல்",
+      "englishName" : "Joel",
+      "chapterCount" : 3
+    }, {
+      "bookNo" : 30,
+      "shortName" : "ஆமோ",
+      "longName" : "ஆமோஸ்",
+      "englishName" : "Amos",
+      "chapterCount" : 9
+    }, {
+      "bookNo" : 31,
+      "shortName" : "ஒப",
+      "longName" : "ஒபதியா",
+      "englishName" : "Obadiah",
+      "chapterCount" : 1
+    }, {
+      "bookNo" : 32,
+      "shortName" : "யோனா",
+      "longName" : "யோனா",
+      "englishName" : "Jonah",
+      "chapterCount" : 4
+    }, {
+      "bookNo" : 33,
+      "shortName" : "மீகா",
+      "longName" : "மீகா",
+      "englishName" : "Micah",
+      "chapterCount" : 7
+    }, {
+      "bookNo" : 34,
+      "shortName" : "நாகூ",
+      "longName" : "நாகூம்",
+      "englishName" : "Nahum",
+      "chapterCount" : 3
+    }, {
+      "bookNo" : 35,
+      "shortName" : "ஆப",
+      "longName" : "ஆபகூக்",
+      "englishName" : "Habakkuk",
+      "chapterCount" : 3
+    }, {
+      "bookNo" : 36,
+      "shortName" : "செப்",
+      "longName" : "செப்பனியா",
+      "englishName" : "Zephaniah",
+      "chapterCount" : 3
+    }, {
+      "bookNo" : 37,
+      "shortName" : "ஆகாய்",
+      "longName" : "ஆகாய்",
+      "englishName" : "Haggai",
+      "chapterCount" : 2
+    }, {
+      "bookNo" : 38,
+      "shortName" : "சக",
+      "longName" : "சகரியா",
+      "englishName" : "Zechariah",
+      "chapterCount" : 14
+    }, {
+      "bookNo" : 39,
+      "shortName" : "மல்",
+      "longName" : "மல்கியா",
+      "englishName" : "Malachi",
+      "chapterCount" : 4
+    }, {
+      "bookNo" : 40,
+      "shortName" : "மத்",
+      "longName" : "மத்தேயு",
+      "englishName" : "Matthew",
+      "chapterCount" : 28
+    }, {
+      "bookNo" : 41,
+      "shortName" : "மாற்",
+      "longName" : "மாற்கு",
+      "englishName" : "Mark",
+      "chapterCount" : 16
+    }, {
+      "bookNo" : 42,
+      "shortName" : "லூக்",
+      "longName" : "லூக்கா",
+      "englishName" : "Luke",
+      "chapterCount" : 24
+    }, {
+      "bookNo" : 43,
+      "shortName" : "யோவா",
+      "longName" : "யோவான்",
+      "englishName" : "John",
+      "chapterCount" : 21
+    }, {
+      "bookNo" : 44,
+      "shortName" : "அப்",
+      "longName" : "அப்போஸ்தலர்",
+      "englishName" : "Acts of the Apostles",
+      "chapterCount" : 28
+    }, {
+      "bookNo" : 45,
+      "shortName" : "ரோம",
+      "longName" : "ரோமர்",
+      "englishName" : "Romans",
+      "chapterCount" : 16
+    }, {
+      "bookNo" : 46,
+      "shortName" : "1 கொரி",
+      "longName" : "1 கொரிந்தியர்",
+      "englishName" : "1 Corinthians",
+      "chapterCount" : 16
+    }, {
+      "bookNo" : 47,
+      "shortName" : "2 கொரி",
+      "longName" : "2 கொரிந்தியர்",
+      "englishName" : "2 Corinthians",
+      "chapterCount" : 13
+    }, {
+      "bookNo" : 48,
+      "shortName" : "கலா",
+      "longName" : "கலாத்தியர்",
+      "englishName" : "Galatians",
+      "chapterCount" : 6
+    }, {
+      "bookNo" : 49,
+      "shortName" : "எபே",
+      "longName" : "எபேசியர்",
+      "englishName" : "Ephesians",
+      "chapterCount" : 6
+    }, {
+      "bookNo" : 50,
+      "shortName" : "பிலி",
+      "longName" : "பிலிப்பியர்",
+      "englishName" : "Philippians",
+      "chapterCount" : 4
+    }, {
+      "bookNo" : 51,
+      "shortName" : "கொலோ",
+      "longName" : "கொலோசெயர்",
+      "englishName" : "Colossians",
+      "chapterCount" : 4
+    }, {
+      "bookNo" : 52,
+      "shortName" : "1 தெச",
+      "longName" : "1 தெசலோனிக்கேயர்",
+      "englishName" : "1 Thessalonians",
+      "chapterCount" : 5
+    }, {
+      "bookNo" : 53,
+      "shortName" : "2 தெச",
+      "longName" : "2 தெசலோனிக்கேயர்",
+      "englishName" : "2 Thessalonians",
+      "chapterCount" : 3
+    }, {
+      "bookNo" : 54,
+      "shortName" : "1 தீமோ",
+      "longName" : "1 தீமோத்தேயு",
+      "englishName" : "1 Timothy",
+      "chapterCount" : 6
+    }, {
+      "bookNo" : 55,
+      "shortName" : "2 தீமோ",
+      "longName" : "2 தீமோத்தேயு",
+      "englishName" : "2 Timothy",
+      "chapterCount" : 4
+    }, {
+      "bookNo" : 56,
+      "shortName" : "தீத்",
+      "longName" : "தீத்து",
+      "englishName" : "Titus",
+      "chapterCount" : 3
+    }, {
+      "bookNo" : 57,
+      "shortName" : "பிலே",
+      "longName" : "பிலேமோன்",
+      "englishName" : "Philemon",
+      "chapterCount" : 1
+    }, {
+      "bookNo" : 58,
+      "shortName" : "எபி",
+      "longName" : "எபிரெயர்",
+      "englishName" : "Hebrews",
+      "chapterCount" : 13
+    }, {
+      "bookNo" : 59,
+      "shortName" : "யாக்",
+      "longName" : "யாக்கோபு",
+      "englishName" : "James",
+      "chapterCount" : 5
+    }, {
+      "bookNo" : 60,
+      "shortName" : "1 பேது",
+      "longName" : "1 பேதுரு",
+      "englishName" : "1 Peter",
+      "chapterCount" : 5
+    }, {
+      "bookNo" : 61,
+      "shortName" : "2 பேது",
+      "longName" : "2 பேதுரு",
+      "englishName" : "2 Peter",
+      "chapterCount" : 3
+    }, {
+      "bookNo" : 62,
+      "shortName" : "1 யோவா",
+      "longName" : "1 யோவான்",
+      "englishName" : "1 John",
+      "chapterCount" : 5
+    }, {
+      "bookNo" : 63,
+      "shortName" : "2 யோவா",
+      "longName" : "2 யோவான்",
+      "englishName" : "2 John",
+      "chapterCount" : 1
+    }, {
+      "bookNo" : 64,
+      "shortName" : "3 யோவா",
+      "longName" : "3 யோவான்",
+      "englishName" : "3 John",
+      "chapterCount" : 1
+    }, {
+      "bookNo" : 65,
+      "shortName" : "யூதா",
+      "longName" : "யூதா",
+      "englishName" : "Jude",
+      "chapterCount" : 1
+    }, {
+      "bookNo" : 66,
+      "shortName" : "வெளி",
+      "longName" : "வெளிப்படுத்தின விசேஷம்",
+      "englishName" : "Revelation",
+      "chapterCount" : 22
+    } ]
+  } ]
+}
