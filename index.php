@@ -1,5 +1,5 @@
 <?php
-    include 'counter.php';
+include 'counter.php';
 
 // Load bibles.json
 $biblesJson = file_get_contents('data/bibles.json');
@@ -30,8 +30,10 @@ if (file_exists($chapterPath)) {
 ?>
 <!DOCTYPE html>
 <html lang="ta">
+
 <head>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title id="dynamic-title">Online Bible</title>
     <meta name="description" id="dynamic-desc" content="Online Bible">
     <style>
@@ -45,16 +47,31 @@ if (file_exists($chapterPath)) {
             --border: #cfd8dc;
             --text: #1a237e;
             --text-light: #fff;
-            --shadow: 0 2px 8px rgba(21,101,192,0.07);
+            --shadow: 0 2px 8px rgba(21, 101, 192, 0.07);
         }
+
         body {
             font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
-            margin: 0;
+            /*margin: 0;*/
             padding: 0;
             background: var(--background);
             color: var(--text);
+            margin: 0 auto;
+            width: 100%;
+            max-width: 1200px;
+            box-sizing: border-box;
         }
-        header, footer {
+
+        html,
+        body {
+            margin: 0 auto;
+            padding: 0;
+            overflow-x: hidden;
+            /* prevents sideways scroll */
+        }
+
+        header,
+        footer {
             background: var(--primary-blue);
             color: var(--text-light);
             padding: 0.4em 0;
@@ -64,7 +81,8 @@ if (file_exists($chapterPath)) {
             box-shadow: var(--shadow);
             min-height: 0;
         }
-        .main-menu {
+
+        /*.main-menu {
             display: flex;
             gap: 2em;
             justify-content: center;
@@ -83,24 +101,80 @@ if (file_exists($chapterPath)) {
         .menu-link:hover, .menu-link:focus {
             background: var(--accent);
             color: #fff;
+        }*/
+        /* Hide default checkbox */
+        /* Base */
+        #menu-toggle {
+            display: none;
         }
-        main {
-            padding: 2em 1em 1.5em 1em;
-            margin: auto;
-            width: 100%;
-            max-width: 1200px;
-            box-sizing: border-box;
+
+        .menu-icon {
+            display: none;
+            font-size: 28px;
+            cursor: pointer;
+            padding: 10px;
+            color: white;
         }
+
+        .main-menu {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Mobile */
+        @media (max-width: 768px) {
+            .nav-wrap {
+                position: relative;
+            }
+
+            .menu-icon {
+                display: block;
+            }
+
+            .main-menu {
+                display: none;
+                /* hidden by default on mobile */
+                position: absolute;
+                top: 50px;
+                /* adjust to your header height */
+                left: 0;
+                right: 0;
+                flex-direction: column;
+                background: #f8f8f8;
+                padding: 10px;
+                box-shadow: 0 2px 5px rgba(0, 0, 0, .2);
+                z-index: 1000;
+            }
+
+            /* KEY: more tolerant than '+' — works even if elements are inserted between */
+            #menu-toggle:checked~.main-menu {
+                display: flex;
+            }
+
+            .main-menu li a {
+                display: block;
+                padding: 10px 14px;
+                color: black;
+            }
+        }
+
+
         .dropdown-row {
             display: flex;
             gap: 1em;
             margin-bottom: 1.5em;
             align-items: flex-end;
         }
+
         .dropdown-group {
             flex: 1 1 0;
             min-width: 0;
         }
+
         label {
             font-weight: 600;
             margin-bottom: 0.3em;
@@ -108,6 +182,7 @@ if (file_exists($chapterPath)) {
             color: var(--primary-blue-dark);
             letter-spacing: 0.01em;
         }
+
         select {
             width: 100%;
             padding: 0.7em 2.5em 0.7em 1em;
@@ -121,12 +196,20 @@ if (file_exists($chapterPath)) {
             box-shadow: var(--shadow);
             color: var(--text);
         }
+
+        select,
+        input,
+        button {
+            max-width: 100%;
+        }
+
         select:focus {
             border: 1.5px solid var(--primary-blue);
             outline: none;
             background-color: var(--primary-blue-light);
             box-shadow: 0 0 0 2px #90caf9;
         }
+
         .chapter-nav-btn {
             background: var(--primary-blue);
             color: var(--text-light);
@@ -139,20 +222,24 @@ if (file_exists($chapterPath)) {
             transition: background 0.2s, box-shadow 0.2s;
             box-shadow: var(--shadow);
         }
+
         .chapter-nav-btn:hover:not(:disabled) {
             background: var(--accent);
         }
+
         .chapter-nav-btn:disabled,
         .chapter-nav-btn[disabled] {
             background: var(--border);
             color: #b0bec5;
             cursor: not-allowed;
         }
+
         .chapter-nav-bottom {
             display: flex;
             justify-content: space-between;
             margin-top: 2em;
         }
+
         .verse {
             background: var(--surface);
             margin-bottom: 0.7em;
@@ -164,18 +251,21 @@ if (file_exists($chapterPath)) {
             border-left: 4px solid var(--primary-blue-light);
             transition: border-color 0.2s;
         }
+
         .verse-number {
             font-weight: bold;
             margin-right: 0.7em;
             color: var(--primary-blue-dark);
             font-size: 1.1em;
         }
+
         .verse-text {
             flex: 1;
             font-size: 1.08em;
             color: var(--text);
             line-height: 1.75;
         }
+
         .copy-btn {
             margin-left: 1em;
             background: var(--accent);
@@ -190,392 +280,468 @@ if (file_exists($chapterPath)) {
             align-items: center;
             justify-content: center;
             transition: background 0.2s, color 0.2s;
-            box-shadow: 0 1px 4px rgba(21,101,192,0.08);
+            box-shadow: 0 1px 4px rgba(21, 101, 192, 0.08);
         }
+
         .copy-btn:hover {
             background: var(--primary-blue-dark);
             color: #fff;
         }
+
         .copy-btn:active {
             background: var(--primary-blue);
         }
+
         @media (max-width: 900px) {
-            main { max-width: 98vw; }
+            main {
+                max-width: 98vw;
+            }
         }
+
         @media (max-width: 700px) {
-            .dropdown-row { flex-direction: column; gap: 0; }
-            .chapter-nav-btn { width: 100%; margin: 0.5em 0; }
-            .chapter-nav-bottom { flex-direction: column; gap: 0.5em; }
+            .dropdown-row {
+                flex-direction: column;
+                gap: 0;
+            }
+
+            .chapter-nav-btn {
+                width: 100%;
+                margin: 0.5em 0;
+            }
+
+            .chapter-nav-bottom {
+                flex-direction: column;
+                gap: 0.5em;
+            }
         }
+
         @media (max-width: 600px) {
-            main { padding: 0.5em; max-width: 100vw; }
-            select { font-size: 1em; }
-            .verse { font-size: 1em; }
+            main {
+                padding: 0.5em;
+                max-width: 100vw;
+            }
+
+            select {
+                font-size: 1em;
+            }
+
+            .verse {
+                font-size: 1em;
+            }
         }
+
         a {
             color: var(--text-light);
             text-decoration: underline;
         }
- 
+
+        a:hover,
+        a:focus {
+            background: var(--accent);
+            color: #fff;
+        }
     </style>
 </head>
+
 <body>
-<header>
-    <h1>Online Bible</h1>
-    <nav class="main-menu">
-        <a href="https://wordofgod.in/bibles" class="menu-link">Home</a>
-        <a href="https://wordofgod.in/bible-wallpapers" target="_blank" rel="noopener" class="menu-link">Bible Wallpapers</a>
-        <a href="https://wordofgod.in/bibledictionary/" target="_blank" rel="noopener" class="menu-link">Bible Dictionaries</a>
-        <a href="sitemap.xml" target="_blank" rel="noopener" class="menu-link">Sitemap</a>
-    </nav>
-</header>
-<main>
-    <div class="dropdown-row" style="align-items: flex-end;">
-        <button id="prev-chapter-btn" class="chapter-nav-btn" title="Previous Chapter" disabled>&larr; Previous</button>
-        <div class="dropdown-group">
-            <label for="bible-select">Bible:</label>
-            <select id="bible-select">
-                <?php foreach ($biblesData['bibles'] as $i => $bible): ?>
-                    <option value="<?= $i ?>" <?= $i == $defaultBibleIndex ? 'selected' : '' ?>  title="<?= $bible['info']['shortName'] ?>">
-                        <?= htmlspecialchars($bible['info']['shortName']) ?>
-                    </option>
+    <header>
+        <h1>Online Bible</h1>
+        <nav class="nav-wrap">
+            <!-- Hamburger toggle -->
+            <input type="checkbox" id="menu-toggle" />
+            <label for="menu-toggle" class="menu-icon">&#9776;</label>
+
+            <!-- Your menu -->
+            <ul class="main-menu">
+                <li><a href="https://wordofgod.in/bibles">Home</a></li>
+                <li><a href="https://wordofgod.in/bible-wallpapers" target="_blank">Bible Wallpapers</a></li>
+                <li><a href="https://wordofgod.in/bibledictionary/" target="_blank">Bible Dictionaries</a></li>
+                <li><a href="sitemap.xml" target="_blank">Sitemap</a></li>
+            </ul>
+
+        </nav>
+    </header>
+    <main>
+        <div class="dropdown-row" style="align-items: flex-end;">
+            <button id="prev-chapter-btn" class="chapter-nav-btn" title="Previous Chapter" disabled>&larr; Previous</button>
+            <div class="dropdown-group">
+                <label for="bible-select">Bible:</label>
+                <select id="bible-select">
+                    <?php foreach ($biblesData['bibles'] as $i => $bible): ?>
+                        <option value="<?= $i ?>" <?= $i == $defaultBibleIndex ? 'selected' : '' ?> title="<?= $bible['info']['shortName'] ?>">
+                            <?= htmlspecialchars($bible['info']['shortName']) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <div class="dropdown-group">
+                <label for="book-select">Book:</label>
+                <select id="book-select">
+                    <?php foreach ($defaultBible['books'] as $j => $book): ?>
+                        <option value="<?= $j ?>" <?= $j == 0 ? 'selected' : '' ?>>
+                            <?= htmlspecialchars($book['longName']) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <div class="dropdown-group">
+                <label for="chapter-select">Chapter:</label>
+                <select id="chapter-select">
+                    <?php for ($c = 1; $c <= $firstBook['chapterCount']; $c++): ?>
+                        <option value="<?= $c ?>" <?= $c == 1 ? 'selected' : '' ?>><?= $c ?></option>
+                    <?php endfor; ?>
+                </select>
+            </div>
+            <button id="next-chapter-btn" class="chapter-nav-btn" title="Next Chapter">&rarr; Next</button>
+        </div>
+        <div id="verses-list">
+            <?php if (!empty($chapterData['verses'])): ?>
+                <?php foreach ($chapterData['verses'] as $verse): ?>
+                    <div class="verse" data-verse-number="<?= $verse['number'] ?>">
+                        <span class="verse-number"><?= $verse['number'] ?></span>
+                        <span class="verse-text"><?= $verse['verse'] ?></span>
+                        <button class="copy-btn" title="Copy">&#128203;</button>
+                    </div>
                 <?php endforeach; ?>
-            </select>
+            <?php endif; ?>
         </div>
-        <div class="dropdown-group">
-            <label for="book-select">Book:</label>
-            <select id="book-select">
-                <?php foreach ($defaultBible['books'] as $j => $book): ?>
-                    <option value="<?= $j ?>" <?= $j == 0 ? 'selected' : '' ?>>
-                        <?= htmlspecialchars($book['longName']) ?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
+        <div class="chapter-nav-bottom" style="display: flex; justify-content: space-between; margin-top: 1.5em;">
+            <button id="prev-chapter-btn-bottom" class="chapter-nav-btn" title="Previous Chapter" disabled>&larr; Previous</button>
+            <button id="next-chapter-btn-bottom" class="chapter-nav-btn" title="Next Chapter">&rarr; Next</button>
         </div>
-        <div class="dropdown-group">
-            <label for="chapter-select">Chapter:</label>
-            <select id="chapter-select">
-                <?php for ($c = 1; $c <= $firstBook['chapterCount']; $c++): ?>
-                    <option value="<?= $c ?>" <?= $c == 1 ? 'selected' : '' ?>><?= $c ?></option>
-                <?php endfor; ?>
-            </select>
+        <div id="bible-details">
         </div>
-        <button id="next-chapter-btn" class="chapter-nav-btn" title="Next Chapter">&rarr; Next</button>
-    </div>
-    <div id="verses-list">
-        <?php if (!empty($chapterData['verses'])): ?>
-            <?php foreach ($chapterData['verses'] as $verse): ?>
-                <div class="verse" data-verse-number="<?= $verse['number'] ?>">
-                    <span class="verse-number"><?= $verse['number'] ?></span>
-                    <span class="verse-text"><?= $verse['verse'] ?></span>
-                    <button class="copy-btn" title="Copy">&#128203;</button>
-                </div>
-            <?php endforeach; ?>
-        <?php endif; ?>
-    </div>
-    <div class="chapter-nav-bottom" style="display: flex; justify-content: space-between; margin-top: 1.5em;">
-        <button id="prev-chapter-btn-bottom" class="chapter-nav-btn" title="Previous Chapter" disabled>&larr; Previous</button>
-        <button id="next-chapter-btn-bottom" class="chapter-nav-btn" title="Next Chapter">&rarr; Next</button>
-    </div>
-    <div id="bible-details">
-    </div>
-</main>
-<footer>
-    <p>&nbsp; &nbsp; No Copyright, Freely Copy and Distribute (as per Matthew 10:8), <a target="_blank" href="https://www.wordofgod.in/">www.WordOfGod.in</a> 
-		| <a href="sitemap.php" target="_blank">Sitemap</a> 
-		| Visitors: <?= $visitors2 ?></a>
-</footer>
-<script>
-const bibles = <?php echo json_encode($biblesData['bibles']); ?>;
-const bibleSelect = document.getElementById('bible-select');
-const bookSelect = document.getElementById('book-select');
-const chapterSelect = document.getElementById('chapter-select');
-const versesList = document.getElementById('verses-list');
-const prevBtn = document.getElementById('prev-chapter-btn');
-const nextBtn = document.getElementById('next-chapter-btn');
-const prevBtnBottom = document.getElementById('prev-chapter-btn-bottom');
-const nextBtnBottom = document.getElementById('next-chapter-btn-bottom');
+    </main>
+    <footer>
+        <p>&nbsp; &nbsp; No Copyright, Freely Copy and Distribute (as per Matthew 10:8), <a target="_blank" href="https://www.wordofgod.in/">www.WordOfGod.in</a>
+            | <a href="sitemap.php" target="_blank">Sitemap</a>
+            | Visitors: <?= $visitors2 ?></a>
+    </footer>
+    <script>
+        const bibles = <?php echo json_encode($biblesData['bibles']); ?>;
+        const bibleSelect = document.getElementById('bible-select');
+        const bookSelect = document.getElementById('book-select');
+        const chapterSelect = document.getElementById('chapter-select');
+        const versesList = document.getElementById('verses-list');
+        const prevBtn = document.getElementById('prev-chapter-btn');
+        const nextBtn = document.getElementById('next-chapter-btn');
+        const prevBtnBottom = document.getElementById('prev-chapter-btn-bottom');
+        const nextBtnBottom = document.getElementById('next-chapter-btn-bottom');
 
-// --- URL helpers ---
-function updateUrl() {
-    const bibleIdx = bibleSelect.value;
-    const bookIdx = bookSelect.value;
-    const chapterNum = chapterSelect.value;
-    const bible = bibles[bibleIdx];
-    const book = bible.books[bookIdx];
-    const params = new URLSearchParams({
-        bible: bible.info.shortName,
-        book: book.longName,
-        chapter: chapterNum
-    });
-    history.replaceState(null, '', '?' + params.toString());
-}
-function getInitialSelection() {
-    const params = new URLSearchParams(window.location.search);
-    const bibleShortName = params.get('bible');
-    const bookLongName = params.get('book');
-    const chapterNum = parseInt(params.get('chapter'), 10);
+        // --- URL helpers ---
+        function updateUrl() {
+            const bibleIdx = bibleSelect.value;
+            const bookIdx = bookSelect.value;
+            const chapterNum = chapterSelect.value;
+            const bible = bibles[bibleIdx];
+            const book = bible.books[bookIdx];
+            const params = new URLSearchParams({
+                bible: bible.info.shortName,
+                book: book.longName,
+                chapter: chapterNum
+            });
+            history.replaceState(null, '', '?' + params.toString());
+        }
 
-    let bibleIdx = 0, bookIdx = 0, chapter = 1;
+        function getInitialSelection() {
+            const params = new URLSearchParams(window.location.search);
+            const bibleShortName = params.get('bible');
+            const bookLongName = params.get('book');
+            const chapterNum = parseInt(params.get('chapter'), 10);
 
-    // Bible
-    if (bibleShortName) {
-        const idx = bibles.findIndex(b => b.info.shortName === bibleShortName);
-        if (idx !== -1) bibleIdx = idx;
-    } else {
-        // No URL param → look for default
-        const idx = bibles.findIndex(b => b.isDefault === true);
-        if (idx !== -1) bibleIdx = idx;
-    }
+            let bibleIdx = 0,
+                bookIdx = 0,
+                chapter = 1;
 
-    // Book
-    const books = bibles[bibleIdx].books;
-    if (bookLongName) {
-        const idx = books.findIndex(bk => bk.longName === bookLongName);
-        if (idx !== -1) bookIdx = idx;
-    }
-    // Chapter
-    if (chapterNum && books[bookIdx] && chapterNum >= 1 && chapterNum <= books[bookIdx].chapterCount) {
-        chapter = chapterNum;
-    }
-    return { bibleIdx, bookIdx, chapter };
-}
+            // Bible
+            if (bibleShortName) {
+                const idx = bibles.findIndex(b => b.info.shortName === bibleShortName);
+                if (idx !== -1) bibleIdx = idx;
+            } else {
+                // No URL param → look for default
+                const idx = bibles.findIndex(b => b.isDefault === true);
+                if (idx !== -1) bibleIdx = idx;
+            }
 
-// --- Dropdown population ---
-function updateBooks(callback) {
-    const bibleIdx = bibleSelect.value;
-    const books = bibles[bibleIdx].books;
-    bookSelect.innerHTML = '';
-    books.forEach((book, i) => {
-        const opt = document.createElement('option');
-        opt.value = i;
-        opt.textContent = book.longName;
-        bookSelect.appendChild(opt);
-    });
-    updateBibleDetails();
-    updateChapters(callback);
-}
-function updateBibleDetails(){
-    const bibleIdx = bibleSelect.value;
-    const bible = bibles[bibleIdx];
-    const detailsDiv = document.getElementById('bible-details');
-    if (detailsDiv) {
-        detailsDiv.innerHTML = '';
-        var p = document.createElement('p');
-        p.innerHTML = `<h2>More details about this Bible:</h2>`;
-        detailsDiv.appendChild(p);
-        p = document.createElement('p');
-        p.innerHTML = `<strong>Abbr:</strong>&nbsp; &nbsp; ${bible.info.abbr}`;
-        detailsDiv.appendChild(p);
-        p = document.createElement('p');
-        p.innerHTML = `<strong>Short Name:</strong>&nbsp; &nbsp; ${bible.info.shortName}`;
-        detailsDiv.appendChild(p);
-        p = document.createElement('p');
-        p.innerHTML = `<strong>Common Name:</strong>&nbsp; &nbsp; ${bible.info.commonName}`;
-        detailsDiv.appendChild(p);
-        p = document.createElement('p');
-        p.innerHTML = `<strong>Long Name:</strong>&nbsp; &nbsp; ${bible.info.longName}`;
-        detailsDiv.appendChild(p);
-        p = document.createElement('p');
-        p.innerHTML = `<strong>Long English Name:</strong>&nbsp; &nbsp; ${bible.info.longEnglishName}`;
-        detailsDiv.appendChild(p);
-        p = document.createElement('p');
-        p.innerHTML = `<strong>Published Year:</strong>&nbsp; &nbsp; ${bible.info.publishedYear}`;
-        detailsDiv.appendChild(p);
-        p = document.createElement('p');
-        p.innerHTML = `<strong>Published By:</strong>&nbsp; &nbsp; ${bible.info.publishedBy}`;
-        detailsDiv.appendChild(p);
-        p = document.createElement('p');
-        p.innerHTML = `<strong>Translated By:</strong>&nbsp; &nbsp; ${bible.info.translatedBy}`;
-        detailsDiv.appendChild(p);
-        p = document.createElement('p');
-        p.innerHTML = `<strong>Copy Right:</strong>&nbsp; &nbsp; ${bible.info.copyRight}`;
-        detailsDiv.appendChild(p);
-    }
-}
-function updateChapters(callback) {
-    const bibleIdx = bibleSelect.value;
-    const bookIdx = bookSelect.value;
-    const book = bibles[bibleIdx].books[bookIdx];
-    chapterSelect.innerHTML = '';
-    for (let i = 1; i <= book.chapterCount; i++) {
-        const opt = document.createElement('option');
-        opt.value = i;
-        opt.textContent = i;
-        chapterSelect.appendChild(opt);
-    }
-    if (callback) callback();
-    else {
-        loadChapter();
-        updateChapterNavButtons();
-    }
-}
+            // Book
+            const books = bibles[bibleIdx].books;
+            if (bookLongName) {
+                const idx = books.findIndex(bk => bk.longName === bookLongName);
+                if (idx !== -1) bookIdx = idx;
+            }
+            // Chapter
+            if (chapterNum && books[bookIdx] && chapterNum >= 1 && chapterNum <= books[bookIdx].chapterCount) {
+                chapter = chapterNum;
+            }
+            return {
+                bibleIdx,
+                bookIdx,
+                chapter
+            };
+        }
 
-// --- Load verses ---
-function loadChapter() {
-    const bibleIdx = bibleSelect.value;
-    const bookIdx = bookSelect.value;
-    const chapterNum = chapterSelect.value;
-    const bible = bibles[bibleIdx];
-    const book = bible.books[bookIdx];
-    const abbr = bible.info.abbr;
-    const bookDir = `${book.bookNo}-${book.longName}`;
-    const path = `data/${abbr}/${bookDir}/${chapterNum}.json`;
+        // --- Dropdown population ---
+        function updateBooks(callback) {
+            const bibleIdx = bibleSelect.value;
+            const books = bibles[bibleIdx].books;
+            bookSelect.innerHTML = '';
+            books.forEach((book, i) => {
+                const opt = document.createElement('option');
+                opt.value = i;
+                opt.textContent = book.longName;
+                bookSelect.appendChild(opt);
+            });
+            updateBibleDetails();
+            updateChapters(callback);
+        }
 
-    fetch(path)
-        .then(res => res.ok ? res.json() : Promise.reject())
-        .then(data => {
-            versesList.innerHTML = '';
-            (data.verses || []).forEach(verse => {
-                const div = document.createElement('div');
-                div.className = 'verse';
-                div.setAttribute('data-verse-number', verse.number);
-                div.innerHTML = `
+        function updateBibleDetails() {
+            const bibleIdx = bibleSelect.value;
+            const bible = bibles[bibleIdx];
+            const detailsDiv = document.getElementById('bible-details');
+            if (detailsDiv) {
+                detailsDiv.innerHTML = '';
+                var p = document.createElement('p');
+                p.innerHTML = `<h2>More details about this Bible:</h2>`;
+                detailsDiv.appendChild(p);
+                p = document.createElement('p');
+                p.innerHTML = `<strong>Abbr:</strong>&nbsp; &nbsp; ${bible.info.abbr}`;
+                detailsDiv.appendChild(p);
+                p = document.createElement('p');
+                p.innerHTML = `<strong>Short Name:</strong>&nbsp; &nbsp; ${bible.info.shortName}`;
+                detailsDiv.appendChild(p);
+                p = document.createElement('p');
+                p.innerHTML = `<strong>Common Name:</strong>&nbsp; &nbsp; ${bible.info.commonName}`;
+                detailsDiv.appendChild(p);
+                p = document.createElement('p');
+                p.innerHTML = `<strong>Long Name:</strong>&nbsp; &nbsp; ${bible.info.longName}`;
+                detailsDiv.appendChild(p);
+                p = document.createElement('p');
+                p.innerHTML = `<strong>Long English Name:</strong>&nbsp; &nbsp; ${bible.info.longEnglishName}`;
+                detailsDiv.appendChild(p);
+                p = document.createElement('p');
+                p.innerHTML = `<strong>Published Year:</strong>&nbsp; &nbsp; ${bible.info.publishedYear}`;
+                detailsDiv.appendChild(p);
+                p = document.createElement('p');
+                p.innerHTML = `<strong>Published By:</strong>&nbsp; &nbsp; ${bible.info.publishedBy}`;
+                detailsDiv.appendChild(p);
+                p = document.createElement('p');
+                p.innerHTML = `<strong>Translated By:</strong>&nbsp; &nbsp; ${bible.info.translatedBy}`;
+                detailsDiv.appendChild(p);
+                p = document.createElement('p');
+                p.innerHTML = `<strong>Copy Right:</strong>&nbsp; &nbsp; ${bible.info.copyRight}`;
+                detailsDiv.appendChild(p);
+            }
+        }
+
+        function updateChapters(callback) {
+            const bibleIdx = bibleSelect.value;
+            const bookIdx = bookSelect.value;
+            const book = bibles[bibleIdx].books[bookIdx];
+            chapterSelect.innerHTML = '';
+            for (let i = 1; i <= book.chapterCount; i++) {
+                const opt = document.createElement('option');
+                opt.value = i;
+                opt.textContent = i;
+                chapterSelect.appendChild(opt);
+            }
+            if (callback) callback();
+            else {
+                loadChapter();
+                updateChapterNavButtons();
+            }
+        }
+
+        // --- Load verses ---
+        function loadChapter() {
+            const bibleIdx = bibleSelect.value;
+            const bookIdx = bookSelect.value;
+            const chapterNum = chapterSelect.value;
+            const bible = bibles[bibleIdx];
+            const book = bible.books[bookIdx];
+            const abbr = bible.info.abbr;
+            const bookDir = `${book.bookNo}-${book.longName}`;
+            const path = `data/${abbr}/${bookDir}/${chapterNum}.json`;
+
+            fetch(path)
+                .then(res => res.ok ? res.json() : Promise.reject())
+                .then(data => {
+                    versesList.innerHTML = '';
+                    (data.verses || []).forEach(verse => {
+                        const div = document.createElement('div');
+                        div.className = 'verse';
+                        div.setAttribute('data-verse-number', verse.number);
+                        div.innerHTML = `
                     <span class="verse-number">${verse.number}</span>
                     <span class="verse-text">${verse.verse}</span>
                     <button class="copy-btn" title="Copy">&#128203;</button>
                 `;
-                versesList.appendChild(div);
+                        versesList.appendChild(div);
+                    });
+                    updateUrl();
+                    updatePageTitleAndDescription();
+                })
+                .catch(() => {
+                    versesList.innerHTML = '<div style="color:red;">Chapter not found.</div>';
+                    updateUrl();
+                    updatePageTitleAndDescription();
+                });
+        }
+
+        // --- Navigation buttons ---
+        function updateChapterNavButtons() {
+            const bibleIdx = parseInt(bibleSelect.value);
+            const bookIdx = parseInt(bookSelect.value);
+            const chapterNum = parseInt(chapterSelect.value);
+            const books = bibles[bibleIdx].books;
+            const chapterCount = books[bookIdx].chapterCount;
+            // Previous: disable if first chapter of first book
+            const prevDisabled = (bookIdx === 0 && chapterNum === 1);
+            prevBtn.disabled = prevDisabled;
+            prevBtnBottom.disabled = prevDisabled;
+            // Next: disable if last chapter of last book
+            const nextDisabled = (bookIdx === books.length - 1 && chapterNum === chapterCount);
+            nextBtn.disabled = nextDisabled;
+            nextBtnBottom.disabled = nextDisabled;
+        }
+
+        function gotoPrevChapter() {
+            let bibleIdx = parseInt(bibleSelect.value);
+            let bookIdx = parseInt(bookSelect.value);
+            let chapterNum = parseInt(chapterSelect.value);
+
+            if (chapterNum > 1) {
+                chapterNum--;
+                chapterSelect.value = chapterNum;
+                loadChapter();
+                updateChapterNavButtons();
+            } else if (bookIdx > 0) {
+                bookIdx--;
+                bookSelect.value = bookIdx;
+                updateChapters(() => {
+                    const lastChapter = bibles[bibleIdx].books[bookIdx].chapterCount;
+                    chapterSelect.value = lastChapter;
+                    loadChapter();
+                    updateChapterNavButtons();
+                });
+            }
+        }
+
+        function gotoNextChapter() {
+            let bibleIdx = parseInt(bibleSelect.value);
+            let bookIdx = parseInt(bookSelect.value);
+            let chapterNum = parseInt(chapterSelect.value);
+            const books = bibles[bibleIdx].books;
+            const chapterCount = books[bookIdx].chapterCount;
+
+            if (chapterNum < chapterCount) {
+                chapterNum++;
+                chapterSelect.value = chapterNum;
+                loadChapter();
+                updateChapterNavButtons();
+            } else if (bookIdx < books.length - 1) {
+                bookIdx++;
+                bookSelect.value = bookIdx;
+                updateChapters(() => {
+                    chapterSelect.value = 1;
+                    loadChapter();
+                    updateChapterNavButtons();
+                });
+            }
+        }
+
+        // --- Page title and description ---
+        function updatePageTitleAndDescription() {
+            const bibleIdx = bibleSelect.value;
+            const bookIdx = bookSelect.value;
+            const chapterNum = chapterSelect.value;
+            const bible = bibles[bibleIdx];
+            const book = bible.books[bookIdx];
+            const titleStr = `${book.longName} - ${chapterNum} - ${bible.info.abbr} - ${bible.info.shortName} - ${bible.info.commonName} - ${bible.info.longName}`;
+            document.title = titleStr;
+            const desc = document.getElementById('dynamic-desc');
+            if (desc) desc.setAttribute('content', titleStr);
+        }
+
+        // --- Event listeners ---
+        bibleSelect.addEventListener('change', () => {
+            updateBooks(() => {
+                bookSelect.value = 0;
+                chapterSelect.value = 1;
+                loadChapter();
+                updateChapterNavButtons();
             });
-            updateUrl();
-            updatePageTitleAndDescription();
-        })
-        .catch(() => {
-            versesList.innerHTML = '<div style="color:red;">Chapter not found.</div>';
-            updateUrl();
-            updatePageTitleAndDescription();
         });
-}
-
-// --- Navigation buttons ---
-function updateChapterNavButtons() {
-    const bibleIdx = parseInt(bibleSelect.value);
-    const bookIdx = parseInt(bookSelect.value);
-    const chapterNum = parseInt(chapterSelect.value);
-    const books = bibles[bibleIdx].books;
-    const chapterCount = books[bookIdx].chapterCount;
-    // Previous: disable if first chapter of first book
-    const prevDisabled = (bookIdx === 0 && chapterNum === 1);
-    prevBtn.disabled = prevDisabled;
-    prevBtnBottom.disabled = prevDisabled;
-    // Next: disable if last chapter of last book
-    const nextDisabled = (bookIdx === books.length - 1 && chapterNum === chapterCount);
-    nextBtn.disabled = nextDisabled;
-    nextBtnBottom.disabled = nextDisabled;
-}
-function gotoPrevChapter() {
-    let bibleIdx = parseInt(bibleSelect.value);
-    let bookIdx = parseInt(bookSelect.value);
-    let chapterNum = parseInt(chapterSelect.value);
-
-    if (chapterNum > 1) {
-        chapterNum--;
-        chapterSelect.value = chapterNum;
-        loadChapter();
-        updateChapterNavButtons();
-    } else if (bookIdx > 0) {
-        bookIdx--;
-        bookSelect.value = bookIdx;
-        updateChapters(() => {
-            const lastChapter = bibles[bibleIdx].books[bookIdx].chapterCount;
-            chapterSelect.value = lastChapter;
+        bookSelect.addEventListener('change', () => {
+            updateChapters(() => {
+                chapterSelect.value = 1;
+                loadChapter();
+                updateChapterNavButtons();
+            });
+        });
+        chapterSelect.addEventListener('change', () => {
             loadChapter();
             updateChapterNavButtons();
         });
-    }
-}
-function gotoNextChapter() {
-    let bibleIdx = parseInt(bibleSelect.value);
-    let bookIdx = parseInt(bookSelect.value);
-    let chapterNum = parseInt(chapterSelect.value);
-    const books = bibles[bibleIdx].books;
-    const chapterCount = books[bookIdx].chapterCount;
+        prevBtn.addEventListener('click', gotoPrevChapter);
+        nextBtn.addEventListener('click', gotoNextChapter);
+        prevBtnBottom.addEventListener('click', gotoPrevChapter);
+        nextBtnBottom.addEventListener('click', gotoNextChapter);
 
-    if (chapterNum < chapterCount) {
-        chapterNum++;
-        chapterSelect.value = chapterNum;
-        loadChapter();
-        updateChapterNavButtons();
-    } else if (bookIdx < books.length - 1) {
-        bookIdx++;
-        bookSelect.value = bookIdx;
-        updateChapters(() => {
-            chapterSelect.value = 1;
-            loadChapter();
-            updateChapterNavButtons();
+        // --- Copy verse ---
+        versesList.addEventListener('click', function(e) {
+            if (e.target.classList.contains('copy-btn')) {
+                const verseDiv = e.target.closest('.verse');
+                const bibleIdx = bibleSelect.value;
+                const bookIdx = bookSelect.value;
+                const chapterNum = chapterSelect.value;
+                const bible = bibles[bibleIdx];
+                const book = bible.books[bookIdx];
+                const verseNum = verseDiv.getAttribute('data-verse-number');
+                const verseText = verseDiv.querySelector('.verse-text').textContent;
+                const copyText = `${book.longName} ${chapterNum}:${verseNum}\n${verseText}\n\nhttps://wordofgod.in/bibles`;
+                navigator.clipboard.writeText(copyText);
+                e.target.textContent = '✓';
+                setTimeout(() => e.target.innerHTML = '&#128203;', 1000);
+            }
         });
-    }
-}
 
-// --- Page title and description ---
-function updatePageTitleAndDescription() {
-    const bibleIdx = bibleSelect.value;
-    const bookIdx = bookSelect.value;
-    const chapterNum = chapterSelect.value;
-    const bible = bibles[bibleIdx];
-    const book = bible.books[bookIdx];
-    const titleStr = `${book.longName} - ${chapterNum} - ${bible.info.abbr} - ${bible.info.shortName} - ${bible.info.commonName} - ${bible.info.longName}`;
-    document.title = titleStr;
-    const desc = document.getElementById('dynamic-desc');
-    if (desc) desc.setAttribute('content', titleStr);
-}
-
-// --- Event listeners ---
-bibleSelect.addEventListener('change', () => {
-    updateBooks(() => {
-        bookSelect.value = 0;
-        chapterSelect.value = 1;
-        loadChapter();
-        updateChapterNavButtons();
-    });
-});
-bookSelect.addEventListener('change', () => {
-    updateChapters(() => {
-        chapterSelect.value = 1;
-        loadChapter();
-        updateChapterNavButtons();
-    });
-});
-chapterSelect.addEventListener('change', () => {
-    loadChapter();
-    updateChapterNavButtons();
-});
-prevBtn.addEventListener('click', gotoPrevChapter);
-nextBtn.addEventListener('click', gotoNextChapter);
-prevBtnBottom.addEventListener('click', gotoPrevChapter);
-nextBtnBottom.addEventListener('click', gotoNextChapter);
-
-// --- Copy verse ---
-versesList.addEventListener('click', function(e) {
-    if (e.target.classList.contains('copy-btn')) {
-        const verseDiv = e.target.closest('.verse');
-        const bibleIdx = bibleSelect.value;
-        const bookIdx = bookSelect.value;
-        const chapterNum = chapterSelect.value;
-        const bible = bibles[bibleIdx];
-        const book = bible.books[bookIdx];
-        const verseNum = verseDiv.getAttribute('data-verse-number');
-        const verseText = verseDiv.querySelector('.verse-text').textContent;
-        const copyText = `${book.longName} ${chapterNum}:${verseNum} ${verseText}`;
-        navigator.clipboard.writeText(copyText);
-        e.target.textContent = '✓';
-        setTimeout(() => e.target.innerHTML = '&#128203;', 1000);
-    }
-});
-
-// --- Initial load: only ONE DOMContentLoaded! ---
-document.addEventListener('DOMContentLoaded', () => {
-    const { bibleIdx, bookIdx, chapter } = getInitialSelection();
-    bibleSelect.value = bibleIdx;
-    updateBooks(() => {
-        bookSelect.value = bookIdx;
-        updateChapters(() => {
-            chapterSelect.value = chapter;
-            loadChapter();
-            updateChapterNavButtons();
+        // --- Initial load: only ONE DOMContentLoaded! ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const {
+                bibleIdx,
+                bookIdx,
+                chapter
+            } = getInitialSelection();
+            bibleSelect.value = bibleIdx;
+            updateBooks(() => {
+                bookSelect.value = bookIdx;
+                updateChapters(() => {
+                    chapterSelect.value = chapter;
+                    loadChapter();
+                    updateChapterNavButtons();
+                });
+            });
         });
-    });
-});
-</script>
+        document.addEventListener("click", function(e) {
+            const container = document.querySelector(".nav-wrap");
+            const toggle = document.getElementById("menu-toggle");
+            if (!container || !toggle) return;
+
+            // Close only if open and click is truly outside the whole nav
+            if (toggle.checked && !container.contains(e.target)) {
+                toggle.checked = false;
+            }
+        });
+
+        // Optional: auto-close when a menu link is clicked
+        document.querySelectorAll(".main-menu a").forEach(a => {
+            a.addEventListener("click", () => {
+                const toggle = document.getElementById("menu-toggle");
+                if (toggle) toggle.checked = false;
+            });
+        });
+    </script>
 </body>
+
 </html>
