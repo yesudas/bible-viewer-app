@@ -1,5 +1,5 @@
 <?php
-$baseUrl = "http://wordofgod.in/bibles/";
+$baseUrl = "https://wordofgod.in/bibles/";
 $biblesFile = __DIR__ . "/data/bibles.json";
 
 // Load JSON
