@@ -1,0 +1,52 @@
+[06-Sep-2025 02:52:44 America/Chicago] PHP Warning:  SQLite3::exec(): database is locked in /home2/wordosn0/public_html/www.wordofgod.in/bibles/counter.php on line 29
+[06-Sep-2025 02:52:44 America/Chicago] PHP Warning:  SQLite3::querySingle(): Unable to execute statement: database is locked in /home2/wordosn0/public_html/www.wordofgod.in/bibles/counter.php on line 34
+[06-Sep-2025 02:52:44 America/Chicago] PHP Warning:  SQLite3::prepare(): Unable to prepare statement: 5, database is locked in /home2/wordosn0/public_html/www.wordofgod.in/bibles/counter.php on line 43
+[06-Sep-2025 02:52:44 America/Chicago] PHP Fatal error:  Uncaught Error: Call to a member function bindValue() on bool in /home2/wordosn0/public_html/www.wordofgod.in/bibles/counter.php:44
+Stack trace:
+#0 /home2/wordosn0/public_html/www.wordofgod.in/bibles/index.php(2): include()
+#1 {main}
+  thrown in /home2/wordosn0/public_html/www.wordofgod.in/bibles/counter.php on line 44
+[08-Sep-2025 01:36:22 America/Chicago] PHP Warning:  SQLite3::exec(): database is locked in /home2/wordosn0/public_html/www.wordofgod.in/bibles/counter.php on line 29
+[08-Sep-2025 01:36:22 America/Chicago] PHP Warning:  SQLite3::querySingle(): Unable to prepare statement: 5, database is locked in /home2/wordosn0/public_html/www.wordofgod.in/bibles/counter.php on line 34
+[08-Sep-2025 01:36:22 America/Chicago] PHP Warning:  SQLite3::prepare(): Unable to prepare statement: 5, database is locked in /home2/wordosn0/public_html/www.wordofgod.in/bibles/counter.php on line 43
+[08-Sep-2025 01:36:22 America/Chicago] PHP Fatal error:  Uncaught Error: Call to a member function bindValue() on bool in /home2/wordosn0/public_html/www.wordofgod.in/bibles/counter.php:44
+Stack trace:
+#0 /home2/wordosn0/public_html/www.wordofgod.in/bibles/index.php(2): include()
+#1 {main}
+  thrown in /home2/wordosn0/public_html/www.wordofgod.in/bibles/counter.php on line 44
+[12-Oct-2025 10:37:02 America/Chicago] PHP Warning:  file_get_contents(data/languages.json): Failed to open stream: No such file or directory in /home2/wordosn0/public_html/www.wordofgod.in/bibles/index.php on line 9
+[12-Oct-2025 10:37:02 America/Chicago] PHP Warning:  Trying to access array offset on value of type null in /home2/wordosn0/public_html/www.wordofgod.in/bibles/index.php on line 10
+[12-Oct-2025 10:37:02 America/Chicago] PHP Warning:  Trying to access array offset on value of type null in /home2/wordosn0/public_html/www.wordofgod.in/bibles/index.php on line 10
+[12-Oct-2025 10:37:02 America/Chicago] PHP Warning:  Trying to access array offset on value of type null in /home2/wordosn0/public_html/www.wordofgod.in/bibles/index.php on line 11
+[12-Oct-2025 10:37:02 America/Chicago] PHP Warning:  foreach() argument must be of type array|object, null given in /home2/wordosn0/public_html/www.wordofgod.in/bibles/index.php on line 15
+[12-Oct-2025 10:37:02 America/Chicago] PHP Warning:  foreach() argument must be of type array|object, null given in /home2/wordosn0/public_html/www.wordofgod.in/bibles/index.php on line 101
+[12-Oct-2025 10:37:04 America/Chicago] PHP Warning:  file_get_contents(data/languages.json): Failed to open stream: No such file or directory in /home2/wordosn0/public_html/www.wordofgod.in/bibles/index.php on line 9
+[12-Oct-2025 10:37:04 America/Chicago] PHP Warning:  Trying to access array offset on value of type null in /home2/wordosn0/public_html/www.wordofgod.in/bibles/index.php on line 10
+[12-Oct-2025 10:37:04 America/Chicago] PHP Warning:  Trying to access array offset on value of type null in /home2/wordosn0/public_html/www.wordofgod.in/bibles/index.php on line 10
+[12-Oct-2025 10:37:04 America/Chicago] PHP Warning:  Trying to access array offset on value of type null in /home2/wordosn0/public_html/www.wordofgod.in/bibles/index.php on line 11
+[12-Oct-2025 10:37:04 America/Chicago] PHP Warning:  foreach() argument must be of type array|object, null given in /home2/wordosn0/public_html/www.wordofgod.in/bibles/index.php on line 15
+[12-Oct-2025 10:37:04 America/Chicago] PHP Warning:  foreach() argument must be of type array|object, null given in /home2/wordosn0/public_html/www.wordofgod.in/bibles/index.php on line 101
+[12-Oct-2025 10:37:04 America/Chicago] PHP Warning:  file_get_contents(data/languages.json): Failed to open stream: No such file or directory in /home2/wordosn0/public_html/www.wordofgod.in/bibles/index.php on line 9
+[12-Oct-2025 10:37:04 America/Chicago] PHP Warning:  Trying to access array offset on value of type null in /home2/wordosn0/public_html/www.wordofgod.in/bibles/index.php on line 10
+[12-Oct-2025 10:37:04 America/Chicago] PHP Warning:  Trying to access array offset on value of type null in /home2/wordosn0/public_html/www.wordofgod.in/bibles/index.php on line 10
+[12-Oct-2025 10:37:04 America/Chicago] PHP Warning:  Trying to access array offset on value of type null in /home2/wordosn0/public_html/www.wordofgod.in/bibles/index.php on line 11
+[12-Oct-2025 10:37:04 America/Chicago] PHP Warning:  foreach() argument must be of type array|object, null given in /home2/wordosn0/public_html/www.wordofgod.in/bibles/index.php on line 15
+[12-Oct-2025 10:37:04 America/Chicago] PHP Warning:  foreach() argument must be of type array|object, null given in /home2/wordosn0/public_html/www.wordofgod.in/bibles/index.php on line 101
+[12-Oct-2025 10:37:50 America/Chicago] PHP Warning:  file_get_contents(data/languages.json): Failed to open stream: No such file or directory in /home2/wordosn0/public_html/www.wordofgod.in/bibles/index.php on line 9
+[12-Oct-2025 10:37:50 America/Chicago] PHP Warning:  Trying to access array offset on value of type null in /home2/wordosn0/public_html/www.wordofgod.in/bibles/index.php on line 10
+[12-Oct-2025 10:37:50 America/Chicago] PHP Warning:  Trying to access array offset on value of type null in /home2/wordosn0/public_html/www.wordofgod.in/bibles/index.php on line 10
+[12-Oct-2025 10:37:50 America/Chicago] PHP Warning:  Trying to access array offset on value of type null in /home2/wordosn0/public_html/www.wordofgod.in/bibles/index.php on line 11
+[12-Oct-2025 10:37:50 America/Chicago] PHP Warning:  foreach() argument must be of type array|object, null given in /home2/wordosn0/public_html/www.wordofgod.in/bibles/index.php on line 15
+[12-Oct-2025 10:37:50 America/Chicago] PHP Warning:  foreach() argument must be of type array|object, null given in /home2/wordosn0/public_html/www.wordofgod.in/bibles/index.php on line 101
+[12-Oct-2025 10:37:52 America/Chicago] PHP Warning:  file_get_contents(data/languages.json): Failed to open stream: No such file or directory in /home2/wordosn0/public_html/www.wordofgod.in/bibles/index.php on line 9
+[12-Oct-2025 10:37:52 America/Chicago] PHP Warning:  Trying to access array offset on value of type null in /home2/wordosn0/public_html/www.wordofgod.in/bibles/index.php on line 10
+[12-Oct-2025 10:37:52 America/Chicago] PHP Warning:  Trying to access array offset on value of type null in /home2/wordosn0/public_html/www.wordofgod.in/bibles/index.php on line 10
+[12-Oct-2025 10:37:52 America/Chicago] PHP Warning:  Trying to access array offset on value of type null in /home2/wordosn0/public_html/www.wordofgod.in/bibles/index.php on line 11
+[12-Oct-2025 10:37:52 America/Chicago] PHP Warning:  foreach() argument must be of type array|object, null given in /home2/wordosn0/public_html/www.wordofgod.in/bibles/index.php on line 15
+[12-Oct-2025 10:37:52 America/Chicago] PHP Warning:  foreach() argument must be of type array|object, null given in /home2/wordosn0/public_html/www.wordofgod.in/bibles/index.php on line 101
+[12-Oct-2025 10:37:52 America/Chicago] PHP Warning:  file_get_contents(data/languages.json): Failed to open stream: No such file or directory in /home2/wordosn0/public_html/www.wordofgod.in/bibles/index.php on line 9
+[12-Oct-2025 10:37:52 America/Chicago] PHP Warning:  Trying to access array offset on value of type null in /home2/wordosn0/public_html/www.wordofgod.in/bibles/index.php on line 10
+[12-Oct-2025 10:37:52 America/Chicago] PHP Warning:  Trying to access array offset on value of type null in /home2/wordosn0/public_html/www.wordofgod.in/bibles/index.php on line 10
+[12-Oct-2025 10:37:52 America/Chicago] PHP Warning:  Trying to access array offset on value of type null in /home2/wordosn0/public_html/www.wordofgod.in/bibles/index.php on line 11
+[12-Oct-2025 10:37:52 America/Chicago] PHP Warning:  foreach() argument must be of type array|object, null given in /home2/wordosn0/public_html/www.wordofgod.in/bibles/index.php on line 15
+[12-Oct-2025 10:37:52 America/Chicago] PHP Warning:  foreach() argument must be of type array|object, null given in /home2/wordosn0/public_html/www.wordofgod.in/bibles/index.php on line 101

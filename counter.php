@@ -22,39 +22,39 @@ $visitors2 = '1';
 
 // If not a bot, increment the counter
 if (!$isBot) {
-    $dbFile = __DIR__ . '/data/counter.db';
+    $counterFile = __DIR__ . '/counter.txt';
     
-    $db = new SQLite3($dbFile);
+    // If file doesn’t exist, create it with 0
+    if (!file_exists($counterFile)) {
+        file_put_contents($counterFile, "0");
+    }
 
-    $db->exec('CREATE TABLE IF NOT EXISTS visits (
-        id INTEGER PRIMARY KEY CHECK (id = 1),
-        count TEXT
-    )');
+    // Open file for reading and writing
+    $fp = fopen($counterFile, "c+"); // c+ = read/write, create if not exists
 
-    $result = $db->querySingle('SELECT count FROM visits WHERE id=1');
-
-    if ($result === null) {
-        $visitors2 = '1';
-        $stmt = $db->prepare('INSERT INTO visits (id, count) VALUES (1, :count)');
-        $stmt->bindValue(':count', $visitors2, SQLITE3_TEXT);
-        $stmt->execute();
+    if (flock($fp, LOCK_EX)) { // lock file exclusively
+        // Read current count
+        $count = (int)fread($fp, filesize($counterFile));
+    
+        // Increment
+        $count++;
+    
+        $visitors2 = $count;
+    
+        // Rewind and write new value
+        ftruncate($fp, 0);  // clear file
+        rewind($fp);
+        fwrite($fp, (string)$count);
+    
+        fflush($fp);        // flush output
+        flock($fp, LOCK_UN); // unlock
     } else {
-        $visitors2 = bcadd($result, '1');
-        $stmt = $db->prepare('UPDATE visits SET count = :count WHERE id=1');
-        $stmt->bindValue(':count', $visitors2, SQLITE3_TEXT);
-        $stmt->execute();
+        // Could not lock file (very rare)
+        $count = -1;
     }
 
-    $db->close();
-} else {
-    // For bots, show the last count without incrementing
-    $dbFile = __DIR__ . '/data/counter.db';
-    $visitors2 = '0';
-    if (file_exists($dbFile)) {
-        $db = new SQLite3($dbFile);
-        $visitors2 = $db->querySingle('SELECT count FROM visits WHERE id=1');
-        $db->close();
-    }
+    fclose($fp);
+
 }
 
 ?>
