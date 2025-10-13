@@ -122,31 +122,46 @@ $pageDescription = "Read {$currentBookName} Chapter {$selectedChapter} in multip
         <div class="row mb-4">
             <div class="col-12">
                 <div class="card">
-                    <div class="card-body">
-                        <!-- Languages Section -->
-                        <div class="scroll-container mb-3" id="languagesContainer">
-                            <?php foreach ($supportedLanguages as $langKey): ?>
-                                <?php if (isset($biblesByLanguage[$langKey])): ?>
-                                    <button type="button" 
-                                            class="btn language-btn" 
-                                            data-language="<?php echo htmlspecialchars($langKey); ?>"
-                                            onclick="selectLanguage('<?php echo htmlspecialchars($langKey); ?>')">
-                                        <?php echo htmlspecialchars($langKey); ?>
-                                    </button>
-                                <?php endif; ?>
-                            <?php endforeach; ?>
+                    <div class="card-body p-0">
+                        <!-- Languages Tabs (First Row) -->
+                        <div class="border-bottom">
+                            <ul class="nav nav-tabs" id="languagesTabs" role="tablist">
+                                <?php $firstLanguage = true; ?>
+                                <?php foreach ($supportedLanguages as $langKey): ?>
+                                    <?php if (isset($biblesByLanguage[$langKey])): ?>
+                                        <li class="nav-item" role="presentation">
+                                            <button class="nav-link language-tab" 
+                                                    id="lang-<?php echo htmlspecialchars($langKey); ?>-tab"
+                                                    data-language="<?php echo htmlspecialchars($langKey); ?>"
+                                                    type="button" 
+                                                    role="tab"
+                                                    onclick="selectLanguage('<?php echo htmlspecialchars($langKey); ?>')">
+                                                <?php echo htmlspecialchars($langKey); ?>
+                                            </button>
+                                        </li>
+                                        <?php $firstLanguage = false; ?>
+                                    <?php endif; ?>
+                                <?php endforeach; ?>
+                            </ul>
                         </div>
                         
-                        <!-- Bibles Section -->
-                        <h6 class="text-muted mb-2">Bibles:</h6>
-                        <div class="scroll-container" id="biblesContainer">
-                            <!-- Dynamically populated based on selected language -->
+                        <!-- Bibles Tabs (Second Row) -->
+                        <div class="p-3">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <h6 class="text-muted mb-0">Available Bibles:</h6>
+                                <small class="text-muted">Click to select/deselect</small>
+                            </div>
+                            <div id="biblesTabsContainer" class="d-flex flex-wrap gap-2">
+                                <!-- Dynamically populated based on selected language -->
+                            </div>
                         </div>
                         
-                        <!-- Selected Bibles Display -->
-                        <div class="mt-3" id="selectedBiblesContainer" style="display: none;">
-                            <h6 class="text-muted mb-2">Selected Bibles:</h6>
-                            <div id="selectedBiblesList" class="d-flex flex-wrap gap-2"></div>
+                        <!-- Selected Bibles Display (Compact) -->
+                        <div class="border-top p-3" id="selectedBiblesContainer" style="display: none;">
+                            <div class="d-flex flex-column">
+                                <h6 class="text-muted mb-2">Selected:</h6>
+                                <div id="selectedBiblesList" class="d-flex flex-wrap gap-1"></div>
+                            </div>
                         </div>
                     </div>
                 </div>

@@ -54,6 +54,15 @@ function selectLanguage(language) {
 }
 
 function updateLanguageButtons() {
+    // Update tab-style language buttons
+    document.querySelectorAll('.language-tab').forEach(btn => {
+        btn.classList.remove('active');
+        if (selectedLanguages.includes(btn.dataset.language)) {
+            btn.classList.add('active');
+        }
+    });
+    
+    // Also update old-style buttons if they exist
     document.querySelectorAll('.language-btn').forEach(btn => {
         btn.classList.remove('active');
         if (selectedLanguages.includes(btn.dataset.language)) {
@@ -63,15 +72,18 @@ function updateLanguageButtons() {
 }
 
 function loadBiblesForLanguage(language) {
-    const biblesContainer = document.getElementById('biblesContainer');
+    const biblesContainer = document.getElementById('biblesTabsContainer');
+    if (!biblesContainer) return;
+    
     biblesContainer.innerHTML = '';
     
     if (biblesByLanguage[language] && biblesByLanguage[language].bibles) {
         biblesByLanguage[language].bibles.forEach(bible => {
             const button = document.createElement('button');
             button.type = 'button';
-            button.className = 'btn bible-btn';
+            button.className = 'bible-tab-btn';
             button.textContent = bible.abbr;
+            button.title = bible.longName || bible.abbr;
             button.onclick = () => toggleBible(bible.abbr);
             
             if (selectedBibles.includes(bible.abbr)) {
@@ -137,6 +149,15 @@ function updateSelectedLanguages() {
 }
 
 function updateBibleButtons() {
+    // Update tab-style bible buttons
+    document.querySelectorAll('.bible-tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+        if (selectedBibles.includes(btn.textContent)) {
+            btn.classList.add('active');
+        }
+    });
+    
+    // Also update old-style buttons if they exist
     document.querySelectorAll('.bible-btn').forEach(btn => {
         btn.classList.remove('active');
         if (selectedBibles.includes(btn.textContent)) {
@@ -154,10 +175,10 @@ function updateSelectedBiblesDisplay() {
         list.innerHTML = '';
         
         selectedBibles.forEach((bibleAbbr, index) => {
-            const badge = document.createElement('span');
-            badge.className = 'badge bg-primary me-1 mb-1';
-            badge.innerHTML = `${bibleAbbr} <i class="bi bi-x-circle ms-1" style="cursor: pointer;" onclick="removeBible('${bibleAbbr}')"></i>`;
-            list.appendChild(badge);
+            const tag = document.createElement('span');
+            tag.className = 'selected-bible-tag';
+            tag.innerHTML = `${bibleAbbr} <i class="bi bi-x" style="cursor: pointer; margin-left: 4px;" onclick="removeBible('${bibleAbbr}')"></i>`;
+            list.appendChild(tag);
         });
     } else {
         container.style.display = 'none';
