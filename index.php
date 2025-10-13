@@ -67,7 +67,7 @@ $pageDescription = "Read {$currentBookName} Chapter {$selectedChapter} in multip
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
     <title><?php echo htmlspecialchars($pageTitle); ?></title>
     <meta name="description" content="<?php echo htmlspecialchars($pageDescription); ?>">
     <meta name="keywords" content="bible, online bible, <?php echo htmlspecialchars($currentBookName); ?>, scripture, biblical text">
@@ -295,6 +295,11 @@ $pageDescription = "Read {$currentBookName} Chapter {$selectedChapter} in multip
                 // Load verses after all UI is updated
                 if (typeof loadVerses === 'function') {
                     loadVerses();
+                }
+                
+                // Initialize mobile controls stabilization
+                if (typeof initializeMobileControls === 'function') {
+                    initializeMobileControls();
                 }
             } else {
                 console.error('initializeGlobalVariables function not found. JavaScript may not have loaded properly.');

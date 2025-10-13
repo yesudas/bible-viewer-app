@@ -429,6 +429,9 @@ function zoomIn() {
     if (currentFontSize < 24) {
         currentFontSize += 2;
         updateFontSize();
+        
+        // Aggressive mobile viewport stabilization
+        stabilizeMobileControls();
     }
 }
 
@@ -436,16 +439,93 @@ function zoomOut() {
     if (currentFontSize > 12) {
         currentFontSize -= 2;
         updateFontSize();
+        
+        // Aggressive mobile viewport stabilization
+        stabilizeMobileControls();
     }
 }
 
 function resetZoom() {
     currentFontSize = 16;
     updateFontSize();
+    
+    // Aggressive mobile viewport stabilization
+    stabilizeMobileControls();
 }
 
 function updateFontSize() {
     document.documentElement.style.setProperty('--font-size-base', currentFontSize + 'px');
+}
+
+// Enhanced mobile device detection
+function isMobileDevice() {
+    const userAgent = navigator.userAgent.toLowerCase();
+    const isMobileUA = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent);
+    const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    const isSmallScreen = window.innerWidth <= 768;
+    
+    return isMobileUA || (isTouchDevice && isSmallScreen);
+}
+
+// Aggressive mobile controls stabilization
+function stabilizeMobileControls() {
+    if (!isMobileDevice()) return;
+    
+    const floatingControls = document.querySelector('.floating-controls');
+    if (!floatingControls) return;
+    
+    // Method 1: Force hardware acceleration
+    floatingControls.style.transform = 'translate3d(0, 0, 0)';
+    floatingControls.style.webkitTransform = 'translate3d(0, 0, 0)';
+    
+    // Method 2: Force position recalculation
+    floatingControls.style.position = 'absolute';
+    floatingControls.style.bottom = '0px';
+    
+    // Method 3: Use requestAnimationFrame for smooth repositioning
+    requestAnimationFrame(() => {
+        floatingControls.style.position = 'fixed';
+        floatingControls.style.bottom = '0px';
+        floatingControls.style.left = '0px';
+        floatingControls.style.right = '0px';
+        
+        // Method 4: Force a layout recalculation
+        floatingControls.offsetHeight;
+        
+        // Method 5: Reset transforms after repositioning
+        setTimeout(() => {
+            floatingControls.style.transform = 'translateZ(0)';
+            floatingControls.style.webkitTransform = 'translateZ(0)';
+        }, 10);
+    });
+    
+    // Method 6: Prevent scroll-related shifts
+    setTimeout(() => {
+        window.scrollTo(window.scrollX, window.scrollY);
+    }, 50);
+}
+
+// Initialize mobile controls stabilization on load
+function initializeMobileControls() {
+    if (isMobileDevice()) {
+        // Add event listeners for orientation changes
+        window.addEventListener('orientationchange', () => {
+            setTimeout(stabilizeMobileControls, 100);
+        });
+        
+        // Add event listeners for resize
+        window.addEventListener('resize', () => {
+            setTimeout(stabilizeMobileControls, 50);
+        });
+        
+        // Initial stabilization
+        setTimeout(stabilizeMobileControls, 100);
+    }
+}
+
+// Prevent mobile floating controls from shifting (legacy function for compatibility)
+function preventMobileShift() {
+    stabilizeMobileControls();
 }
 
 function scrollToTop() {
