@@ -382,5 +382,47 @@ if (!empty($languagesStr)) {
             }
         });
     </script>
+
+    <!-- Concordance Modal -->
+    <div class="modal fade" id="concordanceModal" tabindex="-1" aria-labelledby="concordanceModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="concordanceModalLabel">Word Concordance</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Tabs -->
+                    <ul class="nav nav-tabs" id="concordanceTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="concordance-tab" data-bs-toggle="tab" data-bs-target="#concordance" type="button" role="tab" aria-controls="concordance" aria-selected="true">
+                                Concordance
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="dictionary-tab" data-bs-toggle="tab" data-bs-target="#dictionary" type="button" role="tab" aria-controls="dictionary" aria-selected="false">
+                                Dictionary
+                            </button>
+                        </li>
+                    </ul>
+                    
+                    <!-- Tab Content -->
+                    <div class="tab-content mt-3" id="concordanceTabContent">
+                        <div class="tab-pane fade show active" id="concordance" role="tabpanel" aria-labelledby="concordance-tab">
+                            <div id="concordanceContent">
+                                <!-- Concordance content will be loaded here -->
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="dictionary" role="tabpanel" aria-labelledby="dictionary-tab">
+                            <div id="dictionaryContent">
+                                <!-- Dictionary content will be loaded here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </body>
 </html>

@@ -13,6 +13,16 @@ document.addEventListener('DOMContentLoaded', function() {
     // initializeSelections();
     // updateChapters();
     // loadVerses();
+    
+    // Add event delegation for clickable words
+    document.addEventListener('click', function(event) {
+        if (event.target.classList.contains('clickable-word')) {
+            const word = event.target.getAttribute('data-word');
+            const bible = event.target.getAttribute('data-bible');
+            console.log('📝 Word clicked via event delegation:', word, 'Bible:', bible);
+            openConcordance(word, bible);
+        }
+    });
 });
 
 function initializeSelections() {
@@ -463,10 +473,13 @@ function displayVerses(results) {
                 const verse = result.verses[i];
                 if (!verseNumber) verseNumber = verse.number;
                 
+                // Make words clickable by wrapping each word in a span
+                const clickableText = makeWordsClickable(verse.verse, selectedBibles[index]);
+                
                 versesContent += `
                     <div class="mb-2">
                         <div class="bible-version">${selectedBibles[index]}</div>
-                        <div class="verse-text">${verse.verse}</div>
+                        <div class="verse-text">${clickableText}</div>
                     </div>
                 `;
             }
@@ -637,6 +650,316 @@ function updateFontSize() {
 
 function scrollToTop() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Word Concordance Functions
+function makeWordsClickable(text, bibleAbbr) {
+    console.log('makeWordsClickable called with text:', text.substring(0, 100) + '...', 'Bible:', bibleAbbr);
+    
+    // Use event delegation approach instead of onclick attributes
+    // Split by spaces and punctuation, then make each meaningful word clickable
+    const words = text.split(/(\s+|[.,;:!?'"()[\]{}\-–—])/);
+    
+    return words.map(word => {
+        // Skip whitespace and punctuation
+        if (!word || /^\s*$/.test(word) || /^[.,;:!?'"()[\]{}\-–—]+$/.test(word)) {
+            return word;
+        }
+        
+        // Clean up the word
+        const cleanWord = word.trim().replace(/^[.,;:!?'"()[\]{}]+|[.,;:!?'"()[\]{}]+$/g, '');
+        
+        // Make words with letters clickable (minimum 2 characters)
+        if (cleanWord && cleanWord.length >= 2) {
+            console.log('Making word clickable:', cleanWord);
+            // Use data attributes instead of onclick for better reliability
+            return `<span class="clickable-word" data-word="${cleanWord}" data-bible="${bibleAbbr}" style="cursor: pointer;" title="Click for concordance">${cleanWord}</span>`;
+        }
+        
+        return word;
+    }).join('');
+}
+
+function getFirstLetter(word) {
+    if (!word || word.length === 0) return '';
+    
+    console.log('🔤 getFirstLetter called with:', word);
+    
+    // Clean the word - remove punctuation and numbers
+    const cleanWord = word.replace(/[^\w\u0080-\u0fff\u1000-\u1fff\u2000-\u2fff\u3000-\u3fff\u4000-\u4fff\u5000-\u5fff\u6000-\u6fff\u7000-\u7fff\u8000-\u8fff\u9000-\u9fff\ua000-\uafff\ub000-\ubfff\uc000-\ucfff\ud000-\udfff\ue000-\uefff\uf000-\uffff]/g, '');
+    console.log('🔤 Cleaned word:', cleanWord);
+    
+    if (!cleanWord) return word.charAt(0).toLowerCase();
+    
+    // Use modern Intl.Segmenter for proper grapheme cluster detection
+    // This handles Tamil syllables, emojis, and complex scripts correctly
+    if ('Intl' in window && 'Segmenter' in Intl) {
+        try {
+            const segmenter = new Intl.Segmenter(undefined, { granularity: "grapheme" });
+            const segments = Array.from(segmenter.segment(cleanWord));
+            
+            console.log('🔤 Segments detected:', segments.map(s => s.segment));
+            
+            if (segments.length > 0) {
+                const firstSegment = segments[0].segment;
+                console.log('🔤 First segment:', firstSegment);
+                
+                // For Tamil words, return just the first grapheme cluster
+                // Don't try to combine segments as Intl.Segmenter already handles complete syllables
+                if (/[\u0b80-\u0bff]/.test(firstSegment)) {
+                    console.log('🔤 Returning Tamil first segment:', firstSegment);
+                    return firstSegment;
+                }
+                
+                console.log('🔤 Returning non-Tamil first segment:', firstSegment);
+                return firstSegment;
+            }
+        } catch (error) {
+            console.warn('Intl.Segmenter not supported, falling back to simple approach');
+        }
+    }
+    
+    // Fallback for older browsers - use simple character detection
+    // For Tamil words - try to detect syllables manually
+    if (/[\u0b80-\u0bff]/.test(cleanWord)) {
+        // Check for consonant + vowel combinations (Tamil syllables)
+        const tamilSyllablePattern = /^([\u0b95-\u0bb9][\u0bbe-\u0bcc]?)/;
+        const syllableMatch = cleanWord.match(tamilSyllablePattern);
+        if (syllableMatch) {
+            return syllableMatch[1];
+        }
+        
+        return cleanWord.charAt(0);
+    }
+    
+    // For English and other languages, return lowercase first letter
+    return cleanWord.charAt(0).toLowerCase();
+}
+
+function getBibleLanguage(bibleAbbr) {
+    // Find the language for this bible
+    for (let langKey in biblesByLanguage) {
+        for (let bible of biblesByLanguage[langKey].bibles) {
+            if (bible.abbr === bibleAbbr) {
+                return langKey;
+            }
+        }
+    }
+    return 'தமிழ்'; // Default to Tamil
+}
+
+function openConcordance(word, bibleAbbr) {
+    console.log('🔍 openConcordance CALLED! Word:', word, 'Bible:', bibleAbbr);
+    
+    const firstLetter = getFirstLetter(word);
+    const language = getBibleLanguage(bibleAbbr);
+    
+    // Detect language type for better logging
+    let languageType = 'Unknown';
+    if (/[\u0b80-\u0bff]/.test(word)) languageType = 'Tamil';
+    else if (/^[a-zA-Z]+$/.test(word)) languageType = 'English/Latin';
+    else if (/[\u0900-\u097f]/.test(word)) languageType = 'Hindi/Devanagari';
+    else if (/[\u0600-\u06ff]/.test(word)) languageType = 'Arabic';
+    else if (/[\u4e00-\u9fff]/.test(word)) languageType = 'Chinese';
+    else if (/[\u3040-\u309f\u30a0-\u30ff]/.test(word)) languageType = 'Japanese';
+    else if (/[\uac00-\ud7af]/.test(word)) languageType = 'Korean';
+    
+    console.log('✅ First letter/syllable detected:', firstLetter, 'for word:', word);
+    console.log('🌍 Language detected:', languageType, '| Bible language:', language);
+    
+    // Construct the concordance URL
+    const concordanceUrl = `../bible-concordance/data/${language}/${bibleAbbr}/words/${firstLetter}/${firstLetter}-${word}.json`;
+    
+    console.log('🌐 Concordance URL:', concordanceUrl);
+    
+    // Show the modal and load data
+    showConcordanceModal(word, concordanceUrl);
+}
+
+function showConcordanceModal(word, url) {
+    // Set the modal title
+    document.getElementById('concordanceModalLabel').textContent = `Concordance: ${word}`;
+    
+    // Show the modal
+    const modal = new bootstrap.Modal(document.getElementById('concordanceModal'));
+    modal.show();
+    
+    // Load concordance data
+    loadConcordanceData(url, word);
+}
+
+function loadConcordanceData(url, word) {
+    const concordanceContent = document.getElementById('concordanceContent');
+    const dictionaryContent = document.getElementById('dictionaryContent');
+    
+    // Show loading in concordance tab
+    concordanceContent.innerHTML = '<div class="text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>';
+    dictionaryContent.innerHTML = '<div class="alert alert-info">Dictionary content will be available soon.</div>';
+    
+    // Fetch concordance data
+    fetch(url)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            displayConcordanceResults(data, word);
+        })
+        .catch(error => {
+            console.error('Error loading concordance data from external URL:', error);
+            
+            // Try local test files for demonstration
+            let testFile = null;
+            if (word === 'அகங்கரித்துப்' || word.includes('அகங்கரித்து')) {
+                testFile = 'concordance-test/test-word.json';
+            } else if (word === 'தேवन்' || word === 'தேவன்') {
+                testFile = 'concordance-test/test-thevan.json';
+            } else if (word.toLowerCase() === 'god' || word.toLowerCase() === 'lord') {
+                testFile = 'concordance-test/test-english-word.json';
+            }
+            
+            if (testFile) {
+                fetch(testFile)
+                    .then(response => response.json())
+                    .then(data => {
+                        displayConcordanceResults(data, word);
+                        // Show info that this is test data
+                        const infoAlert = document.createElement('div');
+                        infoAlert.className = 'alert alert-info mt-2';
+                        infoAlert.innerHTML = '<small><i class="bi bi-info-circle"></i> This is demo data. Full concordance data will be available from the external API.</small>';
+                        document.getElementById('concordanceContent').insertBefore(infoAlert, document.getElementById('concordanceContent').firstChild);
+                    })
+                    .catch(testError => {
+                        concordanceContent.innerHTML = `<div class="alert alert-warning">No concordance data found for "${word}". <br><small>Attempted URL: ${url}</small></div>`;
+                    });
+            } else {
+                concordanceContent.innerHTML = `<div class="alert alert-warning">No concordance data found for "${word}". <br><small>Attempted URL: ${url}</small></div>`;
+            }
+        });
+}
+
+function displayConcordanceResults(data, word) {
+    const concordanceContent = document.getElementById('concordanceContent');
+    
+    if (!data || !data.verses || data.verses.length === 0) {
+        concordanceContent.innerHTML = `<div class="alert alert-info">No verses found for "${word}".</div>`;
+        return;
+    }
+    
+    console.log('📖 Displaying concordance for word:', word, 'with', data.verses.length, 'verses');
+    
+    // Single card containing all verses
+    let html = '<div class="concordance-results"><div class="concordance-item p-3 border rounded"><div class="verse-list">';
+    
+    data.verses.forEach((verseData, index) => {
+        console.log(`Verse ${index + 1}:`, verseData.verse);
+        
+        // Highlight the word in the verse text
+        const highlightedVerse = highlightWordInText(verseData.verse, word);
+        
+        console.log(`Highlighted verse ${index + 1}:`, highlightedVerse);
+        
+        // Format: number. verse - reference (all in one line)
+        html += `
+            <div class="verse-item mb-2">
+                <span class="text-primary fw-bold">${index + 1}.</span>
+                <span class="verse-text">${highlightedVerse}</span>
+                <span class="verse-separator"> - </span>
+                <span class="text-primary fw-semibold">${verseData.reference}</span>
+            </div>
+        `;
+    });
+    
+    html += '</div></div></div>';
+    concordanceContent.innerHTML = html;
+}
+
+function highlightWordInText(text, searchWord) {
+    // Don't highlight the exact search word, instead find and highlight the actual word occurrences in the text
+    // This is crucial because different verses may have different forms of the same word
+    
+    // For universal language support, we need to find words that are similar/related to the search word
+    // This is more complex for different languages, so let's use a flexible approach
+    
+    // Clean the search word for comparison
+    const cleanSearchWord = searchWord.replace(/[^\w\u0080-\u0fff\u1000-\u1fff\u2000-\u2fff\u3000-\u3fff\u4000-\u4fff\u5000-\u5fff\u6000-\u6fff\u7000-\u7fff\u8000-\u8fff\u9000-\u9fff\ua000-\uafff\ub000-\ubfff\uc000-\ucfff\ud000-\udfff\ue000-\uefff\uf000-\uffff]/g, '');
+    
+    // Split text into words and check each one
+    const words = text.split(/(\s+|[.,;:!?'"()[\]{}\-–—])/);
+    
+    return words.map(word => {
+        if (!word || /^\s*$/.test(word) || /^[.,;:!?'"()[\]{}\-–—]+$/.test(word)) {
+            return word;
+        }
+        
+        const cleanWord = word.trim().replace(/^[.,;:!?'"()[\]{}]+|[.,;:!?'"()[\]{}]+$/g, '');
+        
+        // Check if this word matches our search term
+        if (cleanWord && shouldHighlightWord(cleanWord, cleanSearchWord)) {
+            return word.replace(cleanWord, `<span style="color: deeppink; font-weight: 600;">${cleanWord}</span>`);
+        }
+        
+        return word;
+    }).join('');
+}
+
+function shouldHighlightWord(wordInText, searchWord) {
+    // Exact match (case insensitive)
+    if (wordInText.toLowerCase() === searchWord.toLowerCase()) {
+        return true;
+    }
+    
+    // For Tamil and other complex scripts, check if they're substantially similar
+    // This handles different forms of the same word
+    if (/[\u0b80-\u0bff]/.test(wordInText) && /[\u0b80-\u0bff]/.test(searchWord)) {
+        // Tamil word matching - check if they share the same root/base
+        const wordRoot = getTamilWordRoot(wordInText);
+        const searchRoot = getTamilWordRoot(searchWord);
+        if (wordRoot === searchRoot && wordRoot.length >= 2) {
+            return true;
+        }
+        
+        // Also check if one word contains the other (for partial matches)
+        if (wordInText.includes(searchWord) || searchWord.includes(wordInText)) {
+            return true;
+        }
+    }
+    
+    // For English and other languages with simpler morphology
+    else {
+        // Check for exact match or if one contains the other (for different word forms)
+        const lowerWord = wordInText.toLowerCase();
+        const lowerSearch = searchWord.toLowerCase();
+        
+        if (lowerWord.includes(lowerSearch) || lowerSearch.includes(lowerWord)) {
+            return true;
+        }
+    }
+    
+    return false;
+}
+
+function getTamilWordRoot(word) {
+    // Simple Tamil root extraction - remove common suffixes
+    const cleanWord = word.replace(/[^\u0b80-\u0bff]/g, '');
+    
+    // Remove common Tamil suffixes to get the root
+    const commonSuffixes = ['ன்', 'ம்', 'து', 'கள்', 'கல்', 'ல்', 'ர்', 'ய்'];
+    
+    for (const suffix of commonSuffixes) {
+        if (cleanWord.endsWith(suffix) && cleanWord.length > suffix.length + 1) {
+            return cleanWord.slice(0, -suffix.length);
+        }
+    }
+    
+    // If no suffix found, return the clean word
+    return cleanWord;
+}
+
+function escapeRegex(string) {
+    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
 // Initialize global variables from PHP
