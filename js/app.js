@@ -261,8 +261,101 @@ function updateChapters() {
     
     updateURL();
     
+    // Update chapter navigation buttons
+    updateChapterNavigationButtons();
+    
     // Load verses after updating chapters
     loadVerses();
+}
+
+// Chapter Navigation Functions
+function previousChapter() {
+    const chapterSelect = document.getElementById('chapterSelect');
+    const currentChapter = parseInt(chapterSelect.value);
+    
+    if (currentChapter > 1) {
+        chapterSelect.value = currentChapter - 1;
+        loadVerses();
+        updateChapterNavigationButtons();
+    } else {
+        // Go to previous book, last chapter
+        const bookSelect = document.getElementById('bookSelect');
+        const currentBookNo = parseInt(bookSelect.value);
+        const currentBookIndex = booksData.findIndex(b => b.bookNo === currentBookNo);
+        
+        if (currentBookIndex > 0) {
+            const previousBook = booksData[currentBookIndex - 1];
+            bookSelect.value = previousBook.bookNo;
+            updateChapters(); // This will load the last chapter of the previous book
+            
+            // Set to last chapter of previous book
+            setTimeout(() => {
+                const chapterSelect = document.getElementById('chapterSelect');
+                const lastChapterOption = chapterSelect.options[chapterSelect.options.length - 1];
+                if (lastChapterOption) {
+                    chapterSelect.value = lastChapterOption.value;
+                    loadVerses();
+                    updateChapterNavigationButtons();
+                }
+            }, 100);
+        }
+    }
+}
+
+function nextChapter() {
+    const chapterSelect = document.getElementById('chapterSelect');
+    const bookSelect = document.getElementById('bookSelect');
+    const currentChapter = parseInt(chapterSelect.value);
+    const currentBookNo = parseInt(bookSelect.value);
+    
+    // Find current book
+    const currentBook = booksData.find(b => b.bookNo === currentBookNo);
+    
+    if (currentBook && currentChapter < currentBook.chapterCount) {
+        chapterSelect.value = currentChapter + 1;
+        loadVerses();
+        updateChapterNavigationButtons();
+    } else {
+        // Go to next book, first chapter
+        const currentBookIndex = booksData.findIndex(b => b.bookNo === currentBookNo);
+        
+        if (currentBookIndex < booksData.length - 1) {
+            const nextBook = booksData[currentBookIndex + 1];
+            bookSelect.value = nextBook.bookNo;
+            updateChapters(); // This will load chapter 1 of the next book
+            
+            // Set to first chapter of next book
+            setTimeout(() => {
+                const chapterSelect = document.getElementById('chapterSelect');
+                chapterSelect.value = 1;
+                loadVerses();
+                updateChapterNavigationButtons();
+            }, 100);
+        }
+    }
+}
+
+function updateChapterNavigationButtons() {
+    const chapterSelect = document.getElementById('chapterSelect');
+    const bookSelect = document.getElementById('bookSelect');
+    const prevBtn = document.getElementById('prevChapterBtn');
+    const nextBtn = document.getElementById('nextChapterBtn');
+    
+    if (!chapterSelect || !bookSelect || !prevBtn || !nextBtn) return;
+    
+    const currentChapter = parseInt(chapterSelect.value);
+    const currentBookNo = parseInt(bookSelect.value);
+    const currentBook = booksData.find(b => b.bookNo === currentBookNo);
+    const currentBookIndex = booksData.findIndex(b => b.bookNo === currentBookNo);
+    
+    // Enable/disable previous button
+    const isFirstChapterOfFirstBook = currentBookIndex === 0 && currentChapter === 1;
+    prevBtn.disabled = isFirstChapterOfFirstBook;
+    
+    // Enable/disable next button
+    const isLastChapterOfLastBook = currentBookIndex === (booksData.length - 1) && 
+                                   currentBook && currentChapter === currentBook.chapterCount;
+    nextBtn.disabled = isLastChapterOfLastBook;
 }
 
 function loadVerses() {
@@ -292,6 +385,7 @@ function loadVerses() {
             displayVerses(results);
             updateURL();
             updateMetaTags();
+            updateChapterNavigationButtons(); // Update navigation buttons after loading verses
         })
         .catch(error => {
             console.error('Error loading verses:', error);
@@ -539,4 +633,37 @@ function initializeGlobalVariables(phpData) {
     biblesByLanguage = phpData.biblesByLanguage || {};
     booksData = phpData.booksData || [];
     chapterCounts = phpData.chapterCounts || {};
+    
+    // Initialize keyboard shortcuts
+    initializeKeyboardShortcuts();
+}
+
+// Keyboard shortcuts for chapter navigation
+function initializeKeyboardShortcuts() {
+    document.addEventListener('keydown', function(event) {
+        // Only trigger if not typing in an input field
+        if (event.target.tagName.toLowerCase() === 'input' || 
+            event.target.tagName.toLowerCase() === 'textarea' ||
+            event.target.tagName.toLowerCase() === 'select') {
+            return;
+        }
+        
+        // Left arrow or comma for previous chapter
+        if (event.key === 'ArrowLeft' || event.key === ',') {
+            event.preventDefault();
+            const prevBtn = document.getElementById('prevChapterBtn');
+            if (prevBtn && !prevBtn.disabled) {
+                previousChapter();
+            }
+        }
+        
+        // Right arrow or period for next chapter
+        if (event.key === 'ArrowRight' || event.key === '.') {
+            event.preventDefault();
+            const nextBtn = document.getElementById('nextChapterBtn');
+            if (nextBtn && !nextBtn.disabled) {
+                nextChapter();
+            }
+        }
+    });
 }

@@ -186,9 +186,19 @@ $pageDescription = "Read {$currentBookName} Chapter {$selectedChapter} in multip
                 <label for="chapterSelect" class="form-label">
                     <i class="bi bi-list-ol me-1"></i>Select Chapter:
                 </label>
-                <select class="form-select" id="chapterSelect" onchange="loadVerses()">
-                    <!-- Dynamically populated based on selected book -->
-                </select>
+                <div class="chapter-navigation-container">
+                    <button class="chapter-nav-btn" id="prevChapterBtn" onclick="previousChapter()" title="Previous Chapter">
+                        <span class="d-none d-md-inline">< Prev</span>
+                        <span class="d-md-none"><</span>
+                    </button>
+                    <select class="form-select chapter-select-with-nav" id="chapterSelect" onchange="loadVerses()">
+                        <!-- Dynamically populated based on selected book -->
+                    </select>
+                    <button class="chapter-nav-btn" id="nextChapterBtn" onclick="nextChapter()" title="Next Chapter">
+                        <span class="d-none d-md-inline">Next ></span>
+                        <span class="d-md-none">></span>
+                    </button>
+                </div>
             </div>
         </div>
 
