@@ -107,13 +107,13 @@ body {
 }
 
 /* Chapter Navigation Styles */
-.chapter-navigation-container {
+.chapter-navigation-container, .book-navigation-container {
     display: flex;
     gap: 8px;
     align-items: center;
 }
 
-.chapter-nav-btn {
+.chapter-nav-btn, .book-nav-btn {
     flex-shrink: 0;
     min-width: 50px;
     font-weight: 500;
@@ -127,23 +127,23 @@ body {
     transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
 }
 
-.chapter-nav-btn:hover:not(:disabled) {
+.chapter-nav-btn:hover:not(:disabled), .book-nav-btn:hover:not(:disabled) {
     border-color: #86b7fe;
     box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
 }
 
-.chapter-nav-btn:focus:not(:disabled) {
+.chapter-nav-btn:focus:not(:disabled), .book-nav-btn:focus:not(:disabled) {
     border-color: #86b7fe;
     outline: 0;
     box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
 }
 
-.chapter-nav-btn:active:not(:disabled) {
+.chapter-nav-btn:active:not(:disabled), .book-nav-btn:active:not(:disabled) {
     background-color: #e9ecef;
     border-color: #86b7fe;
 }
 
-.chapter-nav-btn:disabled {
+.chapter-nav-btn:disabled, .book-nav-btn:disabled {
     opacity: 0.65;
     cursor: not-allowed;
     background-color: #e9ecef;
@@ -151,19 +151,19 @@ body {
     color: #6c757d;
 }
 
-.chapter-select-with-nav {
+.chapter-select-with-nav, .book-select-with-nav {
     flex: 1;
 }
 
 /* Mobile responsive chapter navigation */
 @media (max-width: 768px) {
-    .chapter-nav-btn {
+    .chapter-nav-btn, .book-nav-btn {
         min-width: 40px;
         padding: 0.375rem 0.5rem; /* Slightly reduced horizontal padding for mobile */
         font-size: 0.875rem; /* Slightly smaller font for mobile */
     }
     
-    .chapter-navigation-container {
+    .chapter-navigation-container, .book-navigation-container {
         gap: 6px;
     }
 }
@@ -263,7 +263,7 @@ body {
 
 @media (max-width: 768px) {
     body {
-        padding-bottom: 60px; /* Reduced space for smaller controls */
+        padding-bottom: 80px; /* Space for floating controls */
     }
     
     .container-fluid {
@@ -272,50 +272,34 @@ body {
     }
     
     .floating-controls {
-        position: fixed !important;
-        bottom: 0 !important;
-        left: 0 !important;
-        right: 0 !important;
-        background: rgba(248, 249, 250, 0.98) !important;
-        backdrop-filter: blur(10px);
-        border-top: 1px solid #dee2e6;
-        padding: 8px !important;
-        justify-content: center;
+        /* Keep same floating position as desktop */
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 1000;
+        display: flex;
+        flex-direction: row;
         gap: 8px;
-        z-index: 1050 !important;
-        box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
-        transform: translateZ(0) !important;
-        -webkit-transform: translateZ(0) !important;
-        will-change: auto !important;
-        /* Prevent any viewport-related shifts */
-        -webkit-backface-visibility: hidden;
-        backface-visibility: hidden;
-        -webkit-perspective: 1000;
-        perspective: 1000;
+        align-items: center;
+        /* Remove mobile-specific overrides */
+        background: none;
+        backdrop-filter: none;
+        border-top: none;
+        padding: 0;
+        justify-content: flex-end;
+        box-shadow: none;
     }
     
     .floating-controls .btn {
-        width: 30px !important;
-        height: 30px !important;
-        border-radius: 10px !important;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.15) !important;
-        transform: translateZ(0) !important;
-        -webkit-transform: translateZ(0) !important;
-        font-size: 14px !important;
-        padding: 0 !important;
-    }
-    
-    /* Prevent zoom-related shifting on mobile - aggressive approach */
-    .floating-controls {
-        position: -webkit-sticky !important;
-        position: sticky !important;
-        bottom: 0 !important;
-    }
-    
-    /* Force GPU acceleration */
-    .floating-controls * {
-        transform: translateZ(0);
-        -webkit-transform: translateZ(0);
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        font-size: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
     }
 }
 

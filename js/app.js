@@ -264,6 +264,9 @@ function updateChapters() {
     // Update chapter navigation buttons
     updateChapterNavigationButtons();
     
+    // Update book navigation buttons
+    updateBookNavigationButtons();
+    
     // Load verses after updating chapters
     loadVerses();
 }
@@ -358,6 +361,48 @@ function updateChapterNavigationButtons() {
     nextBtn.disabled = isLastChapterOfLastBook;
 }
 
+// Book Navigation Functions
+function previousBook() {
+    const bookSelect = document.getElementById('bookSelect');
+    const currentBookNo = parseInt(bookSelect.value);
+    const currentBookIndex = booksData.findIndex(b => b.bookNo === currentBookNo);
+    
+    if (currentBookIndex > 0) {
+        const previousBook = booksData[currentBookIndex - 1];
+        bookSelect.value = previousBook.bookNo;
+        updateChapters(); // This will automatically load chapter 1 and update navigation buttons
+    }
+}
+
+function nextBook() {
+    const bookSelect = document.getElementById('bookSelect');
+    const currentBookNo = parseInt(bookSelect.value);
+    const currentBookIndex = booksData.findIndex(b => b.bookNo === currentBookNo);
+    
+    if (currentBookIndex < booksData.length - 1) {
+        const nextBook = booksData[currentBookIndex + 1];
+        bookSelect.value = nextBook.bookNo;
+        updateChapters(); // This will automatically load chapter 1 and update navigation buttons
+    }
+}
+
+function updateBookNavigationButtons() {
+    const bookSelect = document.getElementById('bookSelect');
+    const prevBtn = document.getElementById('prevBookBtn');
+    const nextBtn = document.getElementById('nextBookBtn');
+    
+    if (!bookSelect || !prevBtn || !nextBtn) return;
+    
+    const currentBookNo = parseInt(bookSelect.value);
+    const currentBookIndex = booksData.findIndex(b => b.bookNo === currentBookNo);
+    
+    // Enable/disable previous button
+    prevBtn.disabled = currentBookIndex === 0;
+    
+    // Enable/disable next button
+    nextBtn.disabled = currentBookIndex === (booksData.length - 1);
+}
+
 function loadVerses() {
     const bookSelect = document.getElementById('bookSelect');
     const chapterSelect = document.getElementById('chapterSelect');
@@ -386,6 +431,7 @@ function loadVerses() {
             updateURL();
             updateMetaTags();
             updateChapterNavigationButtons(); // Update navigation buttons after loading verses
+            updateBookNavigationButtons(); // Update book navigation buttons after loading verses
         })
         .catch(error => {
             console.error('Error loading verses:', error);
@@ -433,10 +479,10 @@ function displayVerses(results) {
                     ${versesContent}
                 </div>
                 <div class="d-flex align-items-center">
-                    <button class="btn btn-outline-secondary btn-sm copy-btn" 
+                    <button class="btn btn-outline-primary btn-sm copy-btn" 
                             onclick="copyVerse(${i})" 
                             title="Copy verse">
-                        <i class="bi bi-clipboard"></i>
+                        <i class="bi bi-clipboard-check"></i>
                     </button>
                 </div>
             </div>
@@ -475,12 +521,12 @@ function copyVerse(verseIndex) {
         const originalHTML = btn.innerHTML;
         btn.innerHTML = '<i class="bi bi-check"></i>';
         btn.classList.add('btn-success');
-        btn.classList.remove('btn-outline-secondary');
+        btn.classList.remove('btn-outline-primary');
         
         setTimeout(() => {
             btn.innerHTML = originalHTML;
             btn.classList.remove('btn-success');
-            btn.classList.add('btn-outline-secondary');
+            btn.classList.add('btn-outline-primary');
         }, 1000);
     });
 }
@@ -509,11 +555,56 @@ function updateMetaTags() {
         const bookName = bookSelect.options[bookSelect.selectedIndex].text;
         const chapterNum = chapterSelect.value;
         
-        document.title = `Online Bibles - ${bookName} Chapter ${chapterNum} | WordOfGod.in`;
+        // Get selected Bible information for meta tags
+        const selectedBibleInfo = [];
+        selectedBibles.forEach(bibleAbbr => {
+            for (let langKey in biblesByLanguage) {
+                const langData = biblesByLanguage[langKey];
+                const bible = langData.bibles.find(b => b.abbr === bibleAbbr);
+                if (bible) {
+                    selectedBibleInfo.push({
+                        abbr: bible.abbr,
+                        commonName: bible.commonName,
+                        language: langKey
+                    });
+                    break;
+                }
+            }
+        });
+        
+        // Build meta tag content with Bible information
+        const bibleNames = selectedBibleInfo.map(info => info.commonName);
+        const bibleAbbreviations = selectedBibleInfo.map(info => info.abbr);
+        const languages = [...new Set(selectedBibleInfo.map(info => info.language))];
+        
+        // Create formatted strings for meta tags
+        const bibleNamesStr = bibleNames.length > 0 ? bibleNames.slice(0, 3).join(', ') : 'Bible';
+        const bibleAbbrStr = bibleAbbreviations.length > 0 ? '(' + bibleAbbreviations.slice(0, 3).join(', ') + ')' : '';
+        const languagesStr = languages.join(', ');
+        
+        // Add "and more" if there are more than 3 Bibles selected
+        const finalBibleNamesStr = bibleNames.length > 3 ? 
+            bibleNamesStr + ' and ' + (bibleNames.length - 3) + ' more versions' : 
+            bibleNamesStr;
+        const finalBibleAbbrStr = bibleAbbreviations.length > 3 ? 
+            '(' + bibleAbbreviations.slice(0, 3).join(', ') + ' +' + (bibleAbbreviations.length - 3) + ')' : 
+            bibleAbbrStr;
+        
+        // Update title and meta tags with Bible information
+        document.title = `Online Bibles - ${bookName} Chapter ${chapterNum} | ${finalBibleNamesStr} ${finalBibleAbbrStr} | WordOfGod.in`;
         
         const metaDesc = document.querySelector('meta[name="description"]');
         if (metaDesc) {
-            metaDesc.content = `Read ${bookName} Chapter ${chapterNum} in multiple Bible versions online. Compare different translations side by side.`;
+            metaDesc.content = `Read ${bookName} Chapter ${chapterNum} in ${finalBibleNamesStr} ${finalBibleAbbrStr}. Compare different Bible translations side by side online.`;
+        }
+        
+        const metaKeywords = document.querySelector('meta[name="keywords"]');
+        if (metaKeywords) {
+            let keywords = `bible, online bible, ${bookName}, scripture, biblical text, ${finalBibleNamesStr}, ${bibleAbbreviations.join(', ')}`;
+            if (languagesStr) {
+                keywords += `, ${languagesStr} bible`;
+            }
+            metaKeywords.content = keywords;
         }
     }
 }
@@ -663,6 +754,24 @@ function initializeKeyboardShortcuts() {
             const nextBtn = document.getElementById('nextChapterBtn');
             if (nextBtn && !nextBtn.disabled) {
                 nextChapter();
+            }
+        }
+        
+        // Shift + Left arrow for previous book
+        if (event.key === 'ArrowLeft' && event.shiftKey) {
+            event.preventDefault();
+            const prevBookBtn = document.getElementById('prevBookBtn');
+            if (prevBookBtn && !prevBookBtn.disabled) {
+                previousBook();
+            }
+        }
+        
+        // Shift + Right arrow for next book
+        if (event.key === 'ArrowRight' && event.shiftKey) {
+            event.preventDefault();
+            const nextBookBtn = document.getElementById('nextBookBtn');
+            if (nextBookBtn && !nextBookBtn.disabled) {
+                nextBook();
             }
         }
     });

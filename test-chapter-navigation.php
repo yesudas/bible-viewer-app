@@ -44,11 +44,12 @@
                         <div class="col-md-6">
                             <h6>✅ Features Added:</h6>
                             <ul>
-                                <li><strong>Previous/Next Buttons:</strong> Navigate between chapters easily</li>
-                                <li><strong>Smart Disabled States:</strong> Buttons disable at book boundaries</li>
-                                <li><strong>Cross-Book Navigation:</strong> Automatically move to next/previous book</li>
-                                <li><strong>Responsive Labels:</strong> "< Prev" / "Next >" on desktop, "<" / ">" on mobile</li>
-                                <li><strong>Keyboard Shortcuts:</strong> Arrow keys and comma/period for navigation</li>
+                                <li><strong>Book Navigation Buttons:</strong> Navigate between books with << and >> buttons</li>
+                                <li><strong>Chapter Navigation Buttons:</strong> Navigate between chapters with < and > buttons</li>
+                                <li><strong>Smart Disabled States:</strong> Buttons disable at Bible boundaries</li>
+                                <li><strong>Cross-Book Navigation:</strong> Automatically move to next/previous book from chapters</li>
+                                <li><strong>Responsive Labels:</strong> Full text on desktop, symbols only on mobile</li>
+                                <li><strong>Enhanced Keyboard Shortcuts:</strong> Arrow keys, comma/period, and Shift+Arrow for books</li>
                             </ul>
                         </div>
                         <div class="col-md-6">
@@ -56,6 +57,8 @@
                             <ul>
                                 <li><span class="keyboard-shortcut">←</span> or <span class="keyboard-shortcut">,</span> = Previous Chapter</li>
                                 <li><span class="keyboard-shortcut">→</span> or <span class="keyboard-shortcut">.</span> = Next Chapter</li>
+                                <li><span class="keyboard-shortcut">Shift+←</span> = Previous Book</li>
+                                <li><span class="keyboard-shortcut">Shift+→</span> = Next Book</li>
                                 <li><strong>Note:</strong> Shortcuts work when not typing in input fields</li>
                             </ul>
                         </div>
@@ -74,15 +77,25 @@
                                 <label for="demoBookSelect" class="form-label">
                                     <i class="bi bi-book me-1"></i>Select Book:
                                 </label>
-                                <select class="form-select" id="demoBookSelect" onchange="updateDemoChapters()">
-                                    <option value="1">Genesis (50 chapters)</option>
-                                    <option value="2">Exodus (40 chapters)</option>
-                                    <option value="3">Leviticus (27 chapters)</option>
-                                    <option value="19">Psalms (150 chapters)</option>
-                                    <option value="40">Matthew (28 chapters)</option>
-                                    <option value="41">Mark (16 chapters)</option>
-                                    <option value="66">Revelation (22 chapters)</option>
-                                </select>
+                                <div class="book-navigation-container">
+                                    <button class="book-nav-btn" id="demoPrevBookBtn" onclick="demoPreviousBook()" title="Previous Book">
+                                        <span class="d-none d-md-inline"><< Prev</span>
+                                        <span class="d-md-none"><<</span>
+                                    </button>
+                                    <select class="form-select book-select-with-nav" id="demoBookSelect" onchange="updateDemoChapters()">
+                                        <option value="1">Genesis (50 chapters)</option>
+                                        <option value="2">Exodus (40 chapters)</option>
+                                        <option value="3">Leviticus (27 chapters)</option>
+                                        <option value="19">Psalms (150 chapters)</option>
+                                        <option value="40">Matthew (28 chapters)</option>
+                                        <option value="41">Mark (16 chapters)</option>
+                                        <option value="66">Revelation (22 chapters)</option>
+                                    </select>
+                                    <button class="book-nav-btn" id="demoNextBookBtn" onclick="demoNextBook()" title="Next Book">
+                                        <span class="d-none d-md-inline">Next >></span>
+                                        <span class="d-md-none">>></span>
+                                    </button>
+                                </div>
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label for="demoChapterSelect" class="form-label">
@@ -248,6 +261,7 @@
             
             updateDemoStatus();
             updateDemoButtons();
+            updateDemoBookButtons();
         }
         
         function updateDemoStatus() {
@@ -261,6 +275,7 @@
             
             statusDiv.textContent = `Current: ${book.name} Chapter ${selectedChapter}`;
             updateDemoButtons();
+            updateDemoBookButtons();
         }
         
         function updateDemoButtons() {
@@ -326,6 +341,47 @@
             updateDemoStatus();
         }
         
+        function demoPreviousBook() {
+            const bookSelect = document.getElementById('demoBookSelect');
+            const selectedBookId = parseInt(bookSelect.value);
+            const bookIndex = bookOrder.indexOf(selectedBookId);
+            
+            if (bookIndex > 0) {
+                const prevBookId = bookOrder[bookIndex - 1];
+                bookSelect.value = prevBookId;
+                updateDemoChapters();
+                updateDemoStatus();
+            }
+        }
+        
+        function demoNextBook() {
+            const bookSelect = document.getElementById('demoBookSelect');
+            const selectedBookId = parseInt(bookSelect.value);
+            const bookIndex = bookOrder.indexOf(selectedBookId);
+            
+            if (bookIndex < bookOrder.length - 1) {
+                const nextBookId = bookOrder[bookIndex + 1];
+                bookSelect.value = nextBookId;
+                updateDemoChapters();
+                updateDemoStatus();
+            }
+        }
+        
+        function updateDemoBookButtons() {
+            const bookSelect = document.getElementById('demoBookSelect');
+            const prevBookBtn = document.getElementById('demoPrevBookBtn');
+            const nextBookBtn = document.getElementById('demoNextBookBtn');
+            
+            const selectedBookId = parseInt(bookSelect.value);
+            const bookIndex = bookOrder.indexOf(selectedBookId);
+            
+            // Disable prev if first book
+            prevBookBtn.disabled = (bookIndex === 0);
+            
+            // Disable next if last book
+            nextBookBtn.disabled = (bookIndex === bookOrder.length - 1);
+        }
+        
         // Initialize demo
         document.addEventListener('DOMContentLoaded', function() {
             updateDemoChapters();
@@ -351,6 +407,24 @@
                     const nextBtn = document.getElementById('demoNextBtn');
                     if (!nextBtn.disabled) {
                         demoNextChapter();
+                    }
+                }
+                
+                // Shift + Left arrow for previous book
+                if (event.key === 'ArrowLeft' && event.shiftKey) {
+                    event.preventDefault();
+                    const prevBookBtn = document.getElementById('demoPrevBookBtn');
+                    if (!prevBookBtn.disabled) {
+                        demoPreviousBook();
+                    }
+                }
+                
+                // Shift + Right arrow for next book
+                if (event.key === 'ArrowRight' && event.shiftKey) {
+                    event.preventDefault();
+                    const nextBookBtn = document.getElementById('demoNextBookBtn');
+                    if (!nextBookBtn.disabled) {
+                        demoNextBook();
                     }
                 }
             });

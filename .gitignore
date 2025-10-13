@@ -1,3 +1,4 @@
 /bin/
-sync.ffs_db
+.sync.ffs_db
 .DS_Store
+counter.txt

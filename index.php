@@ -1,4 +1,9 @@
 <?php
+
+include 'counter.php';
+
+$version = "2025.01";
+
 // Get URL parameters from query string
 $selectedLanguages = isset($_GET['langs']) ? explode(',', $_GET['langs']) : [];
 $selectedBibles = isset($_GET['bibles']) ? explode(',', $_GET['bibles']) : [];
@@ -59,9 +64,59 @@ if (file_exists("data/{$firstBible}/bibles.json")) {
 // Get current book name for SEO
 $currentBookName = isset($bookNames[$selectedBook]) ? $bookNames[$selectedBook] : 'Genesis';
 
-// Page Meta data
-$pageTitle = "Online Bibles - {$currentBookName} Chapter {$selectedChapter} | WordOfGod.in";
-$pageDescription = "Read {$currentBookName} Chapter {$selectedChapter} in multiple Bible versions online. Compare different translations side by side.";
+// Get selected Bible information for meta tags
+$selectedBibleInfo = [];
+foreach ($selectedBibles as $bibleAbbr) {
+    $found = false;
+    foreach ($biblesByLanguage as $langKey => $langData) {
+        foreach ($langData['bibles'] as $bible) {
+            if ($bible['abbr'] === $bibleAbbr) {
+                $selectedBibleInfo[] = [
+                    'abbr' => $bible['abbr'],
+                    'commonName' => $bible['commonName'],
+                    'language' => $langKey
+                ];
+                $found = true;
+                break;
+            }
+        }
+        if ($found) break;
+    }
+}
+
+// Build meta tag content with Bible information
+$bibleNames = [];
+$bibleAbbreviations = [];
+$languages = [];
+
+foreach ($selectedBibleInfo as $info) {
+    $bibleNames[] = $info['commonName'];
+    $bibleAbbreviations[] = $info['abbr'];
+    if (!in_array($info['language'], $languages)) {
+        $languages[] = $info['language'];
+    }
+}
+
+// Create formatted strings for meta tags
+$bibleNamesStr = !empty($bibleNames) ? implode(', ', array_slice($bibleNames, 0, 3)) : 'Bible';
+$bibleAbbrStr = !empty($bibleAbbreviations) ? '(' . implode(', ', array_slice($bibleAbbreviations, 0, 3)) . ')' : '';
+$languagesStr = !empty($languages) ? implode(', ', $languages) : '';
+
+// Add "and more" if there are more than 3 Bibles selected
+if (count($bibleNames) > 3) {
+    $bibleNamesStr .= ' and ' . (count($bibleNames) - 3) . ' more versions';
+}
+if (count($bibleAbbreviations) > 3) {
+    $bibleAbbrStr = '(' . implode(', ', array_slice($bibleAbbreviations, 0, 3)) . ' +' . (count($bibleAbbreviations) - 3) . ')';
+}
+
+// Page Meta data with Bible information
+$pageTitle = "Online Bibles - {$currentBookName} Chapter {$selectedChapter} | {$bibleNamesStr} {$bibleAbbrStr} | WordOfGod.in";
+$pageDescription = "Read {$currentBookName} Chapter {$selectedChapter} in {$bibleNamesStr} {$bibleAbbrStr}. Compare different Bible translations side by side online.";
+$pageKeywords = "bible, online bible, {$currentBookName}, scripture, biblical text, {$bibleNamesStr}, " . implode(', ', $bibleAbbreviations);
+if (!empty($languagesStr)) {
+    $pageKeywords .= ", {$languagesStr} bible";
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -70,7 +125,7 @@ $pageDescription = "Read {$currentBookName} Chapter {$selectedChapter} in multip
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
     <title><?php echo htmlspecialchars($pageTitle); ?></title>
     <meta name="description" content="<?php echo htmlspecialchars($pageDescription); ?>">
-    <meta name="keywords" content="bible, online bible, <?php echo htmlspecialchars($currentBookName); ?>, scripture, biblical text">
+    <meta name="keywords" content="<?php echo htmlspecialchars($pageKeywords); ?>">
     
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -89,6 +144,15 @@ $pageDescription = "Read {$currentBookName} Chapter {$selectedChapter} in multip
         echo '<link href="css/styles.css" rel="stylesheet" type="text/css">';
     }
     ?>
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-8ZYHRZG9B8"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-8ZYHRZG9B8');
+    </script>
+
 </head>
 <body>
     <!-- Header Section -->
@@ -103,15 +167,15 @@ $pageDescription = "Read {$currentBookName} Chapter {$selectedChapter} in multip
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="https://wordofgod.in" target="_blank">
-                            <i class="bi bi-globe me-1"></i>WordOfGod.in
-                        </a>
-                    </li>
+                            <a class="nav-link" href="https://wordofgod.in/good-news-collections/" target="_blank"><i class="bi bi-box-seam me-1"></i>Good News Collections</a> </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="https://christianpdf.com" target="_blank">
-                            <i class="bi bi-file-pdf me-1"></i>ChristianPDF.com
-                        </a>
-                    </li>
+                            <a class="nav-link" href="https://wordofgod.in/bibledictionary/" target="_blank"><i class="bi bi-collection me-1"></i>Bible Dictionaries</a> </li>
+                    <li class="nav-item">
+                            <a class="nav-link" href="https://wordofgod.in/bible-wallpapers/" target="_blank"><i class="bi bi-card-image me-1"></i>Bible Wallpapers</a></li>
+                    <li class="nav-item">
+                            <a class="nav-link" href="https://wordofgod.in/bible-app-modules/" target="_blank"><i class="bi bi-phone me-1"></i>Bible App Modules</a></li>
+                    <li class="nav-item">
+                            <a class="nav-link" href="https://wordofgod.in/" target="_blank"><i class="bi bi-gift me-1"></i>Free Christian Resources</a></li>
                 </ul>
             </div>
         </div>
@@ -174,13 +238,23 @@ $pageDescription = "Read {$currentBookName} Chapter {$selectedChapter} in multip
                 <label for="bookSelect" class="form-label">
                     <i class="bi bi-book me-1"></i>Select Book:
                 </label>
-                <select class="form-select" id="bookSelect" onchange="updateChapters()">
-                    <?php foreach ($bookNames as $bookNo => $bookName): ?>
-                        <option value="<?php echo $bookNo; ?>" <?php echo ($bookNo == $selectedBook) ? 'selected' : ''; ?>>
-                            <?php echo htmlspecialchars($bookName); ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
+                <div class="book-navigation-container">
+                    <button class="book-nav-btn" id="prevBookBtn" onclick="previousBook()" title="Previous Book">
+                        <span class="d-none d-md-inline"><< Prev</span>
+                        <span class="d-md-none"><<</span>
+                    </button>
+                    <select class="form-select book-select-with-nav" id="bookSelect" onchange="updateChapters()">
+                        <?php foreach ($bookNames as $bookNo => $bookName): ?>
+                            <option value="<?php echo $bookNo; ?>" <?php echo ($bookNo == $selectedBook) ? 'selected' : ''; ?>>
+                                <?php echo htmlspecialchars($bookName); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                    <button class="book-nav-btn" id="nextBookBtn" onclick="nextBook()" title="Next Book">
+                        <span class="d-none d-md-inline">Next >></span>
+                        <span class="d-md-none">>></span>
+                    </button>
+                </div>
             </div>
             <div class="col-md-6 mb-3">
                 <label for="chapterSelect" class="form-label">
@@ -198,6 +272,17 @@ $pageDescription = "Read {$currentBookName} Chapter {$selectedChapter} in multip
                         <span class="d-none d-md-inline">Next ></span>
                         <span class="d-md-none">></span>
                     </button>
+                    
+                    <!-- Zoom Controls -->
+                    <button class="chapter-nav-btn ms-2" onclick="zoomOut()" title="Zoom Out">
+                        <i class="bi bi-zoom-out"></i>
+                    </button>
+                    <button class="chapter-nav-btn" onclick="resetZoom()" title="Reset Zoom">
+                        <i class="bi bi-arrow-counterclockwise"></i>
+                    </button>
+                    <button class="chapter-nav-btn" onclick="zoomIn()" title="Zoom In">
+                        <i class="bi bi-zoom-in"></i>
+                    </button>
                 </div>
             </div>
         </div>
@@ -214,37 +299,23 @@ $pageDescription = "Read {$currentBookName} Chapter {$selectedChapter} in multip
 
     <!-- Floating Controls -->
     <div class="floating-controls">
-        <button class="btn btn-primary" onclick="zoomIn()" title="Zoom In">
-            <i class="bi bi-zoom-in"></i>
-        </button>
-        <button class="btn btn-primary" onclick="zoomOut()" title="Zoom Out">
-            <i class="bi bi-zoom-out"></i>
-        </button>
-        <button class="btn btn-secondary" onclick="resetZoom()" title="Reset Zoom">
-            <i class="bi bi-arrow-counterclockwise"></i>
-        </button>
         <button class="btn btn-success" onclick="scrollToTop()" title="Go to Top">
             <i class="bi bi-arrow-up"></i>
         </button>
     </div>
 
     <!-- Footer -->
-    <footer class="footer">
+    <footer class="bg-light text-center py-4 mt-5">
         <div class="container">
-            <div class="row">
-                <div class="col-md-6">
-                    <p class="mb-1">&copy; <?php echo date('Y'); ?> Online Bibles. All rights reserved.</p>
-                    <p class="text-muted mb-0">Powered by WordOfGod.in</p>
-                </div>
-                <div class="col-md-6 text-md-end">
-                    <a href="https://wordofgod.in" class="text-decoration-none me-3" target="_blank">
-                        <i class="bi bi-globe me-1"></i>WordOfGod.in
-                    </a>
-                    <a href="https://christianpdf.com" class="text-decoration-none" target="_blank">
-                        <i class="bi bi-file-pdf me-1"></i>ChristianPDF.com
-                    </a>
-                </div>
-            </div>
+            <p class="mb-0 text-muted">No Copyright, Freely Copy and Distribute (as per Matthew 10:8)</p>
+            <p class="mb-0 text-muted">
+                <a href="https://wordofgod.in/good-news-collections/" target="_blank" class="text-decoration-none"><i class="bi bi-box-seam me-1"></i>Good News Collections</a> | 
+                <a href="https://wordofgod.in/bibledictionary/" target="_blank" class="text-decoration-none"><i class="bi bi-collection me-1"></i>Bible Dictionaries</a> | 
+                <a href="https://wordofgod.in/bible-wallpapers/" target="_blank" class="text-decoration-none"><i class="bi bi-card-image me-1"></i>Bible Wallpapers</a> | 
+                <a href="https://wordofgod.in/bible-app-modules/" target="_blank" class="text-decoration-none"><i class="bi bi-phone me-1"></i>Bible App Modules</a> | 
+                <a href="https://wordofgod.in" target="_blank" class="text-decoration-none"><i class="bi bi-gift me-1"></i>Free Christian Resources</a> | 
+                <span class="text-primary"><i class="bi bi-emoji-heart-eyes me-1"></i>Visitors: <?= $visitors2 ?></span>
+            </p>
         </div>
     </footer>
 
