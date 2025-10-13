@@ -377,11 +377,6 @@ if (!empty($languagesStr)) {
                 if (typeof loadVerses === 'function') {
                     loadVerses();
                 }
-                
-                // Initialize mobile controls stabilization
-                if (typeof initializeMobileControls === 'function') {
-                    initializeMobileControls();
-                }
             } else {
                 console.error('initializeGlobalVariables function not found. JavaScript may not have loaded properly.');
             }
