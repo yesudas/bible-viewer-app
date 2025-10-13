@@ -29,6 +29,10 @@
             <strong>Technical:</strong> Initial chapter only used on first load, then defaults to Chapter 1
         </div>
         <div class="fixed-issue">
+            <strong>✅ Fixed:</strong> Bibles section now populates on first page load<br>
+            <strong>Technical:</strong> Added `loadBiblesForLanguage()` call to initialization sequence
+        </div>
+        <div class="fixed-issue">
             <strong>✅ Fixed:</strong> Enhanced copy functionality with proper verse citation<br>
             <strong>Technical:</strong> Copy format now includes "Genesis 1:1" style reference and website URL
         </div>
@@ -42,6 +46,8 @@
         <ul class="test-checklist">
             <li>Default Bible (TOV2017) loads automatically</li>
             <li>"Selected Bibles" section shows selected Bible</li>
+            <li><strong>"Bibles" section shows all available Bibles for selected language</strong></li>
+            <li><strong>Default Bible is highlighted as active in Bibles section</strong></li>
             <li>Language buttons show active state</li>
             <li>Bible buttons show active state</li>
             <li>Book dropdown populated with all books</li>
@@ -128,6 +134,7 @@
                     <li><a href="test-book-selection.php">Book Selection</a></li>
                     <li><a href="test-floating-controls.php">Floating Controls</a></li>
                     <li><a href="test-copy-functionality.php">Copy Functionality</a></li>
+                    <li><a href="test-bibles-initialization.php">Bibles Initialization</a></li>
                     <li><a href="test-dropdowns.php">Dropdowns</a></li>
                 </ul>
             </div>

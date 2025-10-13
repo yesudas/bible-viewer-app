@@ -260,6 +260,11 @@ $pageDescription = "Read {$currentBookName} Chapter {$selectedChapter} in multip
                     updateLanguageButtons();
                 }
                 
+                // Load Bibles for the default selected language
+                if (typeof loadBiblesForLanguage === 'function' && selectedLanguages.length > 0) {
+                    loadBiblesForLanguage(selectedLanguages[0]);
+                }
+                
                 if (typeof updateBibleButtons === 'function') {
                     updateBibleButtons();
                 }
