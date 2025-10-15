@@ -15,8 +15,9 @@ $languagesData = json_decode(file_get_contents('data/languages.json'), true);
 $supportedLanguages = $languagesData['metadata']['supportedLanguages'];
 $biblesByLanguage = $languagesData['biblesByLanguage'];
 
-// Get default bible if no bibles selected
+# Get default bibles if no bibles selected - ENHANCED to support multiple defaults
 if (empty($selectedBibles)) {
+    // Collect all bibles with isDefault: true across all languages
     foreach ($biblesByLanguage as $langKey => $langData) {
         foreach ($langData['bibles'] as $bible) {
             if ($bible['isDefault']) {
@@ -25,12 +26,11 @@ if (empty($selectedBibles)) {
                 if (!in_array($langKey, $selectedLanguages)) {
                     $selectedLanguages[] = $langKey;
                 }
-                break 2;
             }
         }
     }
     
-    // If still no default found, select the first available bible
+    // If still no default found, select the first available bible as fallback
     if (empty($selectedBibles)) {
         foreach ($biblesByLanguage as $langKey => $langData) {
             if (!empty($langData['bibles'])) {

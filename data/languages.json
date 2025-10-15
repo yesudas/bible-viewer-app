@@ -5,7 +5,7 @@
       "languageName" : "Interlinear",
       "bibles" : [ {
         "abbr" : "HSB+",
-        "isDefault" : false,
+        "isDefault" : true,
         "commonName" : "Hebrew Study Bible with Strong's Numbers & Interlinear",
         "hide" : false
       }, {
@@ -100,7 +100,7 @@
         "hide" : false
       }, {
         "abbr" : "KJV1850+",
-        "isDefault" : false,
+        "isDefault" : true,
         "commonName" : "King James Version with Strong's Numbers",
         "hide" : true
       }, {
