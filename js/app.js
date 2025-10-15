@@ -18,8 +18,12 @@ document.addEventListener('DOMContentLoaded', function() {
     document.addEventListener('click', function(event) {
         if (event.target.classList.contains('clickable-word')) {
             const word = event.target.getAttribute('data-word');
+            const strongs = event.target.getAttribute('data-strongs');
             const bible = event.target.getAttribute('data-bible');
-            openConcordance(word, bible);
+            
+            // Use Strong's number if available, otherwise use the word
+            const searchTerm = strongs || word;
+            openConcordance(searchTerm, bible);
         }
     });
 });
@@ -654,8 +658,40 @@ function scrollToTop() {
 
 // Word Concordance Functions
 function makeWordsClickable(text, bibleAbbr) {
-    // Use event delegation approach instead of onclick attributes
-    // Split by spaces and punctuation, then make each meaningful word clickable
+    // First, process Strong's numbers
+    text = processStrongsNumbers(text, bibleAbbr);
+    
+    // Split text while preserving HTML tags from Strong's numbers
+    // Use a more sophisticated approach that doesn't break HTML tags
+    let result = '';
+    let currentPos = 0;
+    
+    // Find all HTML spans (Strong's numbers) and preserve them
+    const htmlSpanRegex = /<span[^>]*class="[^"]*strongs-number[^"]*"[^>]*>.*?<\/span>/g;
+    let match;
+    
+    while ((match = htmlSpanRegex.exec(text)) !== null) {
+        // Process text before this HTML span
+        const beforeSpan = text.substring(currentPos, match.index);
+        result += makeTextWordsClickable(beforeSpan, bibleAbbr);
+        
+        // Add the HTML span as-is
+        result += match[0];
+        
+        currentPos = match.index + match[0].length;
+    }
+    
+    // Process remaining text after last HTML span
+    if (currentPos < text.length) {
+        const remainingText = text.substring(currentPos);
+        result += makeTextWordsClickable(remainingText, bibleAbbr);
+    }
+    
+    return result;
+}
+
+function makeTextWordsClickable(text, bibleAbbr) {
+    // Process plain text (no HTML tags) to make words clickable
     const words = text.split(/(\s+|[.,;:!?'"()[\]{}\-–—])/);
     
     return words.map(word => {
@@ -670,11 +706,25 @@ function makeWordsClickable(text, bibleAbbr) {
         // Make words with letters clickable (minimum 2 characters)
         if (cleanWord && cleanWord.length >= 2) {
             // Use data attributes instead of onclick for better reliability
-            return `<span class="clickable-word" data-word="${cleanWord}" data-bible="${bibleAbbr}" style="cursor: pointer;" title="Click for concordance">${cleanWord}</span>`;
+            return `<span class="clickable-word" data-word="${cleanWord}" data-bible="${bibleAbbr}" style="cursor: pointer;" title="Click for concordance/dictionary">${cleanWord}</span>`;
         }
         
         return word;
     }).join('');
+}
+
+function processStrongsNumbers(text, bibleAbbr) {
+    // Process Hebrew Strong's numbers <WH####>
+    text = text.replace(/<WH(\d+)>/g, (match, number) => {
+        return `<span class="strongs-number clickable-word" data-strongs="H${number}" data-bible="${bibleAbbr}" style="color: blueviolet; cursor: pointer; font-size: 90%;" title="Strong's H${number} - Click for concordance/dictionary">H${number}</span>`;
+    });
+    
+    // Process Greek Strong's numbers <WG####>
+    text = text.replace(/<WG(\d+)>/g, (match, number) => {
+        return `<span class="strongs-number clickable-word" data-strongs="G${number}" data-bible="${bibleAbbr}" style="color: blueviolet; cursor: pointer; font-size: 90%;" title="Strong's G${number} - Click for concordance/dictionary">G${number}</span>`;
+    });
+    
+    return text;
 }
 
 function getFirstLetter(word) {
@@ -739,6 +789,22 @@ function getBibleLanguage(bibleAbbr) {
 
 function openConcordance(word, bibleAbbr) {
     
+    // Check if this is a Strong's number
+    if (word.match(/^[HG]\d+$/)) {
+        // This is a Strong's number
+        const strongsType = word.charAt(0); // H or G
+        const strongsNumber = word.substring(1); // the number part
+        const language = getBibleLanguage(bibleAbbr);
+        
+        // For Strong's numbers, use the correct concordance URL structure with H/G prefix
+        const concordanceUrl = `../bible-concordance/data/${language}/${bibleAbbr}/words/Strongs/Strongs-${strongsType}${strongsNumber}.json`;
+        
+        // Show the modal and load data
+        showConcordanceModal(`Strong's ${word}`, concordanceUrl);
+        return;
+    }
+    
+    // Regular word concordance logic
     const firstLetter = getFirstLetter(word);
     const language = getBibleLanguage(bibleAbbr);
     
