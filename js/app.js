@@ -208,7 +208,7 @@ function removeBible(bibleAbbr) {
 }
 
 function loadBooksForBible(bibleAbbr) {
-    fetch(`api.php?action=getBooks&bible=${bibleAbbr}`)
+    fetch(`api.php?action=getBooks&bible=${encodeURIComponent(bibleAbbr)}`)
         .then(response => response.json())
         .then(data => {
             if (data.success) {
@@ -432,7 +432,7 @@ function loadVerses() {
     
     // Load verses for all selected bibles
     const promises = selectedBibles.map(bibleAbbr => 
-        fetch(`api.php?action=getVerses&bible=${bibleAbbr}&book=${selectedBook}&chapter=${selectedChapter}`)
+        fetch(`api.php?action=getVerses&bible=${encodeURIComponent(bibleAbbr)}&book=${selectedBook}&chapter=${selectedChapter}`)
             .then(response => response.json())
     );
     

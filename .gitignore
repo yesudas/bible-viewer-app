@@ -2,3 +2,4 @@
 .sync.ffs_db
 .DS_Store
 counter.txt
+**/.DS_Store
