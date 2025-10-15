@@ -380,14 +380,9 @@ if (!empty($languagesStr)) {
                     updateSelectedBiblesDisplay();
                 }
                 
-                if (typeof updateChapters === 'function') {
-                    updateChapters();
-                }
+                // The updateChapters() and loadVerses() are now called from initializeGlobalVariables()
+                // when booksData is available, ensuring proper initialization order
                 
-                // Load verses after all UI is updated
-                if (typeof loadVerses === 'function') {
-                    loadVerses();
-                }
             } else {
                 // JavaScript may not have loaded properly
             }

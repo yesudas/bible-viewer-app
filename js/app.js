@@ -134,11 +134,16 @@ function toggleBible(bibleAbbr) {
     updateSelectedBiblesDisplay();
     updateBibleButtons();
     updateLanguageButtons();
-    updateURL();
     
     // If this is the first bible, update book/chapter dropdowns
     if (selectedBibles.length > 0) {
         loadBooksForBible(selectedBibles[0]);
+    } else {
+        // If no bibles selected, update URL without book/chapter
+        const params = new URLSearchParams();
+        if (selectedLanguages.length > 0) params.set('langs', selectedLanguages.join(','));
+        const newURL = window.location.pathname + '?' + params.toString();
+        window.history.replaceState({}, '', newURL);
     }
     
     // Refresh the verses display
@@ -552,15 +557,22 @@ function updateURL() {
     const bookSelect = document.getElementById('bookSelect');
     const chapterSelect = document.getElementById('chapterSelect');
     
-    if (bookSelect && chapterSelect) {
+    if (bookSelect && chapterSelect && bookSelect.value && chapterSelect.value) {
         const params = new URLSearchParams();
         if (selectedBibles.length > 0) params.set('bibles', selectedBibles.join(','));
         if (selectedLanguages.length > 0) params.set('langs', selectedLanguages.join(','));
-        params.set('book', bookSelect.value);
-        params.set('chapter', chapterSelect.value);
         
-        const newURL = window.location.pathname + '?' + params.toString();
-        window.history.replaceState({}, '', newURL);
+        // Only set book and chapter if they have valid values
+        const bookValue = bookSelect.value;
+        const chapterValue = chapterSelect.value;
+        
+        if (bookValue && chapterValue) {
+            params.set('book', bookValue);
+            params.set('chapter', chapterValue);
+            
+            const newURL = window.location.pathname + '?' + params.toString();
+            window.history.replaceState({}, '', newURL);
+        }
     }
 }
 
@@ -857,33 +869,7 @@ function loadConcordanceData(url, word) {
             displayConcordanceResults(data, word);
         })
         .catch(error => {
-            // Try local test files for demonstration
-            let testFile = null;
-            if (word === 'அகங்கரித்துப்' || word.includes('அகங்கரித்து')) {
-                testFile = 'concordance-test/test-word.json';
-            } else if (word === 'தேवன்' || word === 'தேவன்') {
-                testFile = 'concordance-test/test-thevan.json';
-            } else if (word.toLowerCase() === 'god' || word.toLowerCase() === 'lord') {
-                testFile = 'concordance-test/test-english-word.json';
-            }
-            
-            if (testFile) {
-                fetch(testFile)
-                    .then(response => response.json())
-                    .then(data => {
-                        displayConcordanceResults(data, word);
-                        // Show info that this is test data
-                        const infoAlert = document.createElement('div');
-                        infoAlert.className = 'alert alert-info mt-2';
-                        infoAlert.innerHTML = '<small><i class="bi bi-info-circle"></i> This is demo data. Full concordance data will be available from the external API.</small>';
-                        document.getElementById('concordanceContent').insertBefore(infoAlert, document.getElementById('concordanceContent').firstChild);
-                    })
-                    .catch(testError => {
-                        concordanceContent.innerHTML = `<div class="alert alert-warning">No concordance data found for "${word}". <br><small>Attempted URL: ${url}</small></div>`;
-                    });
-            } else {
-                concordanceContent.innerHTML = `<div class="alert alert-warning">No concordance data found for "${word}". <br><small>Attempted URL: ${url}</small></div>`;
-            }
+            concordanceContent.innerHTML = `<div class="alert alert-warning">No concordance data found for "${word}". <br><small>Attempted URL: ${url}</small></div>`;
         });
 }
 
@@ -1010,6 +996,19 @@ function initializeGlobalVariables(phpData) {
     biblesByLanguage = phpData.biblesByLanguage || {};
     booksData = phpData.booksData || [];
     chapterCounts = phpData.chapterCounts || {};
+    
+    // Initialize the interface after data is loaded
+    if (selectedBibles.length > 0) {
+        updateSelectedBiblesDisplay();
+        updateLanguageButtons();
+        updateBibleButtons();
+        
+        // If we have books data, update the dropdowns
+        if (booksData.length > 0) {
+            updateBookDropdown();
+            updateChapters();
+        }
+    }
     
     // Initialize keyboard shortcuts
     initializeKeyboardShortcuts();

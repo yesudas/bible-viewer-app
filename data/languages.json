@@ -1,5 +1,20 @@
 {
   "biblesByLanguage" : {
+    "Interlinear" : {
+      "languageCode" : "IL",
+      "languageName" : "Interlinear",
+      "bibles" : [ {
+        "abbr" : "HSB+",
+        "isDefault" : false,
+        "commonName" : "Hebrew Study Bible with Strong's Numbers & Interlinear",
+        "hide" : false
+      }, {
+        "abbr" : "HSB2+",
+        "isDefault" : false,
+        "commonName" : "Hebrew Study Bible with Strong's Numbers & Interlinear",
+        "hide" : false
+      } ]
+    },
     "English" : {
       "languageCode" : "en",
       "languageName" : "English",
@@ -29,7 +44,7 @@
         "commonName" : "Bishops' Bible, 1572",
         "hide" : false
       }, {
-        "abbr" : "GB1587",
+        "abbr" : "Geneva1587",
         "isDefault" : false,
         "commonName" : "Geneva Bible, 1587",
         "hide" : false
@@ -59,7 +74,7 @@
         "commonName" : "John Wesley's New Testament, 1755",
         "hide" : false
       }, {
-        "abbr" : "KJV1769",
+        "abbr" : "KJV1769+",
         "isDefault" : false,
         "commonName" : "King James Version (Oxford) 1769",
         "hide" : false
@@ -99,7 +114,7 @@
         "commonName" : "Revised Version, 1885",
         "hide" : false
       }, {
-        "abbr" : "DBY1890",
+        "abbr" : "DBY1890+",
         "isDefault" : false,
         "commonName" : "The Darby Bible, 1890",
         "hide" : false
@@ -124,7 +139,7 @@
         "commonName" : "King James Bible 1611: Pure Cambridge Edition, 1900",
         "hide" : false
       }, {
-        "abbr" : "ASV1901",
+        "abbr" : "ASV1901+",
         "isDefault" : false,
         "commonName" : "American Standard Version 1901",
         "hide" : false
@@ -169,7 +184,7 @@
         "commonName" : "King James Clarified NT 1998",
         "hide" : false
       }, {
-        "abbr" : "NASB1995",
+        "abbr" : "NASB1995+",
         "isDefault" : false,
         "commonName" : "New American Standard Bible, 1995",
         "hide" : true
@@ -304,7 +319,7 @@
         "commonName" : "New American Standard Bible, 2020",
         "hide" : true
       }, {
-        "abbr" : "WEB2020",
+        "abbr" : "WEB2020+",
         "isDefault" : false,
         "commonName" : "World English Bible, 2020",
         "hide" : false
@@ -328,17 +343,7 @@
         "isDefault" : false,
         "commonName" : "Hebraic King James Version with embedded Strong's Numbers",
         "hide" : false
-      }, {
-        "abbr" : "HSB+",
-        "isDefault" : false,
-        "commonName" : "Hebrew Study Bible with Strong's Numbers & Interlinear",
-        "hide" : false
-      }, {
-        "abbr" : "HSB2+",
-        "isDefault" : false,
-        "commonName" : "Hebrew Study Bible with Strong's Numbers & Interlinear",
-        "hide" : false
-      }]
+      } ]
     },
     "Greek" : {
       "languageCode" : "grc",
@@ -520,6 +525,6 @@
     "totalLanguages" : 8,
     "totalBibles" : 96,
     "lastUpdated" : "2025-10-15",
-    "supportedLanguages" : [ "English", "Greek", "Hebrew", "Latin", "हिन्दी", "தமிழ்", "ಕನ್ನಡ", "മലയാളം" ]
+    "supportedLanguages" : [ "Interlinear", "English", "Greek", "Hebrew", "Latin", "हिन्दी", "தமிழ்", "ಕನ್ನಡ", "മലയാളം" ]
   }
 }
