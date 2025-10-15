@@ -19,7 +19,6 @@ document.addEventListener('DOMContentLoaded', function() {
         if (event.target.classList.contains('clickable-word')) {
             const word = event.target.getAttribute('data-word');
             const bible = event.target.getAttribute('data-bible');
-            console.log('📝 Word clicked via event delegation:', word, 'Bible:', bible);
             openConcordance(word, bible);
         }
     });
@@ -218,7 +217,9 @@ function loadBooksForBible(bibleAbbr) {
                 updateChapters();
             }
         })
-        .catch(error => console.error('Error loading books:', error));
+        .catch(error => {
+            // Error loading books
+        });
 }
 
 function updateBookDropdown() {
@@ -444,7 +445,6 @@ function loadVerses() {
             updateBookNavigationButtons(); // Update book navigation buttons after loading verses
         })
         .catch(error => {
-            console.error('Error loading verses:', error);
             document.getElementById('versesContainer').innerHTML = 
                 '<div class="alert alert-danger">Error loading verses. Please try again.</div>';
         });
@@ -654,8 +654,6 @@ function scrollToTop() {
 
 // Word Concordance Functions
 function makeWordsClickable(text, bibleAbbr) {
-    console.log('makeWordsClickable called with text:', text.substring(0, 100) + '...', 'Bible:', bibleAbbr);
-    
     // Use event delegation approach instead of onclick attributes
     // Split by spaces and punctuation, then make each meaningful word clickable
     const words = text.split(/(\s+|[.,;:!?'"()[\]{}\-–—])/);
@@ -671,7 +669,6 @@ function makeWordsClickable(text, bibleAbbr) {
         
         // Make words with letters clickable (minimum 2 characters)
         if (cleanWord && cleanWord.length >= 2) {
-            console.log('Making word clickable:', cleanWord);
             // Use data attributes instead of onclick for better reliability
             return `<span class="clickable-word" data-word="${cleanWord}" data-bible="${bibleAbbr}" style="cursor: pointer;" title="Click for concordance">${cleanWord}</span>`;
         }
@@ -683,11 +680,8 @@ function makeWordsClickable(text, bibleAbbr) {
 function getFirstLetter(word) {
     if (!word || word.length === 0) return '';
     
-    console.log('🔤 getFirstLetter called with:', word);
-    
     // Clean the word - remove punctuation and numbers
     const cleanWord = word.replace(/[^\w\u0080-\u0fff\u1000-\u1fff\u2000-\u2fff\u3000-\u3fff\u4000-\u4fff\u5000-\u5fff\u6000-\u6fff\u7000-\u7fff\u8000-\u8fff\u9000-\u9fff\ua000-\uafff\ub000-\ubfff\uc000-\ucfff\ud000-\udfff\ue000-\uefff\uf000-\uffff]/g, '');
-    console.log('🔤 Cleaned word:', cleanWord);
     
     if (!cleanWord) return word.charAt(0).toLowerCase();
     
@@ -698,24 +692,19 @@ function getFirstLetter(word) {
             const segmenter = new Intl.Segmenter(undefined, { granularity: "grapheme" });
             const segments = Array.from(segmenter.segment(cleanWord));
             
-            console.log('🔤 Segments detected:', segments.map(s => s.segment));
-            
             if (segments.length > 0) {
                 const firstSegment = segments[0].segment;
-                console.log('🔤 First segment:', firstSegment);
                 
                 // For Tamil words, return just the first grapheme cluster
                 // Don't try to combine segments as Intl.Segmenter already handles complete syllables
                 if (/[\u0b80-\u0bff]/.test(firstSegment)) {
-                    console.log('🔤 Returning Tamil first segment:', firstSegment);
                     return firstSegment;
                 }
                 
-                console.log('🔤 Returning non-Tamil first segment:', firstSegment);
                 return firstSegment;
             }
         } catch (error) {
-            console.warn('Intl.Segmenter not supported, falling back to simple approach');
+            // Intl.Segmenter not supported, falling back to simple approach
         }
     }
     
@@ -749,7 +738,6 @@ function getBibleLanguage(bibleAbbr) {
 }
 
 function openConcordance(word, bibleAbbr) {
-    console.log('🔍 openConcordance CALLED! Word:', word, 'Bible:', bibleAbbr);
     
     const firstLetter = getFirstLetter(word);
     const language = getBibleLanguage(bibleAbbr);
@@ -764,13 +752,8 @@ function openConcordance(word, bibleAbbr) {
     else if (/[\u3040-\u309f\u30a0-\u30ff]/.test(word)) languageType = 'Japanese';
     else if (/[\uac00-\ud7af]/.test(word)) languageType = 'Korean';
     
-    console.log('✅ First letter/syllable detected:', firstLetter, 'for word:', word);
-    console.log('🌍 Language detected:', languageType, '| Bible language:', language);
-    
     // Construct the concordance URL
     const concordanceUrl = `../bible-concordance/data/${language}/${bibleAbbr}/words/${firstLetter}/${firstLetter}-${word}.json`;
-    
-    console.log('🌐 Concordance URL:', concordanceUrl);
     
     // Show the modal and load data
     showConcordanceModal(word, concordanceUrl);
@@ -808,13 +791,11 @@ function loadConcordanceData(url, word) {
             displayConcordanceResults(data, word);
         })
         .catch(error => {
-            console.error('Error loading concordance data from external URL:', error);
-            
             // Try local test files for demonstration
             let testFile = null;
             if (word === 'அகங்கரித்துப்' || word.includes('அகங்கரித்து')) {
                 testFile = 'concordance-test/test-word.json';
-            } else if (word === 'தேवन்' || word === 'தேவன்') {
+            } else if (word === 'தேवன்' || word === 'தேவன்') {
                 testFile = 'concordance-test/test-thevan.json';
             } else if (word.toLowerCase() === 'god' || word.toLowerCase() === 'lord') {
                 testFile = 'concordance-test/test-english-word.json';
@@ -848,18 +829,12 @@ function displayConcordanceResults(data, word) {
         return;
     }
     
-    console.log('📖 Displaying concordance for word:', word, 'with', data.verses.length, 'verses');
-    
     // Single card containing all verses
     let html = '<div class="concordance-results"><div class="concordance-item p-3 border rounded"><div class="verse-list">';
     
     data.verses.forEach((verseData, index) => {
-        console.log(`Verse ${index + 1}:`, verseData.verse);
-        
         // Highlight the word in the verse text
         const highlightedVerse = highlightWordInText(verseData.verse, word);
-        
-        console.log(`Highlighted verse ${index + 1}:`, highlightedVerse);
         
         // Format: number. verse - reference (all in one line)
         html += `

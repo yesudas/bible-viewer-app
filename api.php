@@ -31,7 +31,14 @@ function getBooks() {
         return;
     }
     
-    $bibleFile = "data/{$bibleAbbr}/bibles.json";
+    // Find the language for this Bible
+    $language = findBibleLanguage($bibleAbbr);
+    if (!$language) {
+        echo json_encode(['success' => false, 'error' => 'Bible language not found']);
+        return;
+    }
+    
+    $bibleFile = "data/{$language}/{$bibleAbbr}/bibles.json";
     
     if (!file_exists($bibleFile)) {
         echo json_encode(['success' => false, 'error' => 'Bible data not found']);
@@ -65,8 +72,15 @@ function getVerses() {
     }
     
     try {
+        // Find the language for this Bible
+        $language = findBibleLanguage($bibleAbbr);
+        if (!$language) {
+            echo json_encode(['success' => false, 'error' => 'Bible language not found']);
+            return;
+        }
+        
         // First get the book information to find the folder name
-        $bibleFile = "data/{$bibleAbbr}/bibles.json";
+        $bibleFile = "data/{$language}/{$bibleAbbr}/bibles.json";
         
         if (!file_exists($bibleFile)) {
             echo json_encode(['success' => false, 'error' => 'Bible data not found']);
@@ -97,7 +111,7 @@ function getVerses() {
         
         // Construct the verse file path
         $bookFolder = "{$bookNo}-{$book['longName']}";
-        $verseFile = "data/{$bibleAbbr}/{$bookFolder}/{$chapterNo}.json";
+        $verseFile = "data/{$language}/{$bibleAbbr}/{$bookFolder}/{$chapterNo}.json";
         
         if (!file_exists($verseFile)) {
             echo json_encode(['success' => false, 'error' => 'Verse file not found: ' . $verseFile]);
@@ -121,6 +135,37 @@ function getVerses() {
         
     } catch (Exception $e) {
         echo json_encode(['success' => false, 'error' => 'Error reading verse data: ' . $e->getMessage()]);
+    }
+}
+
+function findBibleLanguage($bibleAbbr) {
+    // Load languages data
+    $languagesFile = 'data/languages.json';
+    if (!file_exists($languagesFile)) {
+        return null;
+    }
+    
+    try {
+        $languagesData = json_decode(file_get_contents($languagesFile), true);
+        
+        if (!isset($languagesData['biblesByLanguage'])) {
+            return null;
+        }
+        
+        // Search through all languages to find the Bible
+        foreach ($languagesData['biblesByLanguage'] as $language => $langData) {
+            if (isset($langData['bibles'])) {
+                foreach ($langData['bibles'] as $bible) {
+                    if ($bible['abbr'] === $bibleAbbr) {
+                        return $language;
+                    }
+                }
+            }
+        }
+        
+        return null;
+    } catch (Exception $e) {
+        return null;
     }
 }
 

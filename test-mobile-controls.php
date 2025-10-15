@@ -240,8 +240,6 @@
             const floatingControls = document.querySelector('.floating-controls');
             if (!floatingControls) return;
             
-            console.log('🔧 Stabilizing mobile controls...');
-            
             // Method 1: Force hardware acceleration
             floatingControls.style.transform = 'translate3d(0, 0, 0)';
             floatingControls.style.webkitTransform = 'translate3d(0, 0, 0)';
@@ -276,8 +274,6 @@
         // Initialize mobile controls stabilization
         function initializeMobileControls() {
             if (isMobileDevice()) {
-                console.log('📱 Initializing mobile controls...');
-                
                 // Add event listeners for orientation changes
                 window.addEventListener('orientationchange', () => {
                     setTimeout(stabilizeMobileControls, 100);

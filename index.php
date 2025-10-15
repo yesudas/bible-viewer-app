@@ -50,8 +50,19 @@ $booksData = [];
 $bookNames = [];
 $chapterCounts = [];
 
-if (file_exists("data/{$firstBible}/bibles.json")) {
-    $bibleData = json_decode(file_get_contents("data/{$firstBible}/bibles.json"), true);
+// Find the language for the first Bible
+$firstBibleLanguage = 'தமிழ்'; // Default to Tamil
+foreach ($biblesByLanguage as $langKey => $langData) {
+    foreach ($langData['bibles'] as $bible) {
+        if ($bible['abbr'] === $firstBible) {
+            $firstBibleLanguage = $langKey;
+            break 2;
+        }
+    }
+}
+
+if (file_exists("data/{$firstBibleLanguage}/{$firstBible}/bibles.json")) {
+    $bibleData = json_decode(file_get_contents("data/{$firstBibleLanguage}/{$firstBible}/bibles.json"), true);
     if (isset($bibleData['bibles'][0]['books'])) {
         $booksData = $bibleData['bibles'][0]['books'];
         foreach ($booksData as $book) {
@@ -378,7 +389,7 @@ if (!empty($languagesStr)) {
                     loadVerses();
                 }
             } else {
-                console.error('initializeGlobalVariables function not found. JavaScript may not have loaded properly.');
+                // JavaScript may not have loaded properly
             }
         });
     </script>
