@@ -138,6 +138,15 @@ if (!empty($languagesStr)) {
     <meta name="description" content="<?php echo htmlspecialchars($pageDescription); ?>">
     <meta name="keywords" content="<?php echo htmlspecialchars($pageKeywords); ?>">
     
+    <!-- PWA Support -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#2196f3">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Online Bibles">
+    <link rel="apple-touch-icon" href="images/icon-192.png">
+    
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons -->
@@ -166,6 +175,32 @@ if (!empty($languagesStr)) {
 
 </head>
 <body>
+    <!-- PWA Install Banner (Top Pulldown) -->
+    <div id="pwaInstallBanner" class="pwa-install-banner" style="display: none;">
+        <div class="container-fluid">
+            <div class="d-flex align-items-center justify-content-between py-2">
+                <div class="d-flex align-items-center flex-grow-1">
+                    <i class="bi bi-phone me-2 text-primary" style="font-size: 1.5rem;"></i>
+                    <div>
+                        <strong>Install Online Bibles App</strong>
+                        <p class="mb-0 small">Get quick access to Bible study tools. Works offline!</p>
+                    </div>
+                </div>
+                <div class="d-flex gap-2 align-items-center">
+                    <button class="btn btn-primary btn-sm install-app-btn" id="installAppBtnBanner">
+                        <i class="bi bi-download me-1"></i>Install
+                    </button>
+                    <button class="btn btn-outline-secondary btn-sm" id="dismissBannerBtn">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                    <button class="btn btn-link btn-sm text-muted" id="dontShowAgainBtn">
+                        Don't show again
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Header Section -->
     <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
         <div class="container-fluid">
@@ -182,11 +217,18 @@ if (!empty($languagesStr)) {
                     <li class="nav-item">
                             <a class="nav-link" href="https://wordofgod.in/bibledictionary/" target="_blank"><i class="bi bi-collection me-1"></i>Bible Dictionaries</a> </li>
                     <li class="nav-item">
+                            <a class="nav-link" href="https://wordofgod.in/bible-concordance/" target="_blank"><i class="bi bi-search me-1"></i>Bible Concordances</a></li>
+                    <li class="nav-item">
                             <a class="nav-link" href="https://wordofgod.in/bible-wallpapers/" target="_blank"><i class="bi bi-card-image me-1"></i>Bible Wallpapers</a></li>
                     <li class="nav-item">
                             <a class="nav-link" href="https://wordofgod.in/bible-app-modules/" target="_blank"><i class="bi bi-phone me-1"></i>Bible App Modules</a></li>
                     <li class="nav-item">
                             <a class="nav-link" href="https://wordofgod.in/" target="_blank"><i class="bi bi-gift me-1"></i>Free Christian Resources</a></li>
+                    <li class="nav-item">
+                            <button class="btn btn-primary btn-sm ms-2 install-app-btn" id="installAppBtnHeader" style="display: none;">
+                                <i class="bi bi-download me-1"></i>Install App
+                            </button>
+                    </li>
                 </ul>
             </div>
         </div>
@@ -318,10 +360,16 @@ if (!empty($languagesStr)) {
     <!-- Footer -->
     <footer class="bg-light text-center py-4 mt-5">
         <div class="container">
-            <p class="mb-0 text-muted">No Copyright, Freely Copy and Distribute (as per Matthew 10:8)</p>
+            <p class="mb-2 text-muted">No Copyright, Freely Copy and Distribute (as per Matthew 10:8)</p>
+            <div class="mb-3">
+                <button class="btn btn-primary btn-sm install-app-btn" id="installAppBtnFooter" style="display: none;">
+                    <i class="bi bi-download me-1"></i>Install as App
+                </button>
+            </div>
             <p class="mb-0 text-muted">
                 <a href="https://wordofgod.in/good-news-collections/" target="_blank" class="text-decoration-none"><i class="bi bi-box-seam me-1"></i>Good News Collections</a> | 
                 <a href="https://wordofgod.in/bibledictionary/" target="_blank" class="text-decoration-none"><i class="bi bi-collection me-1"></i>Bible Dictionaries</a> | 
+                <a href="https://wordofgod.in/bible-concordance/" target="_blank" class="text-decoration-none"><i class="bi bi-search me-1"></i>Bible Concordances</a> | 
                 <a href="https://wordofgod.in/bible-wallpapers/" target="_blank" class="text-decoration-none"><i class="bi bi-card-image me-1"></i>Bible Wallpapers</a> | 
                 <a href="https://wordofgod.in/bible-app-modules/" target="_blank" class="text-decoration-none"><i class="bi bi-phone me-1"></i>Bible App Modules</a> | 
                 <a href="https://wordofgod.in" target="_blank" class="text-decoration-none"><i class="bi bi-gift me-1"></i>Free Christian Resources</a> | 
@@ -332,6 +380,9 @@ if (!empty($languagesStr)) {
 
     <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- PWA Script -->
+    <script src="js/script.js"></script>
     
     <?php
     // Check if JS file exists and embed it directly to avoid server issues

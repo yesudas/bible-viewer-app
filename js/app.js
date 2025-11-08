@@ -640,11 +640,12 @@ function updateMetaTags() {
 
 // Zoom functionality
 function zoomIn() {
-    if (currentFontSize < 24) {
+    if (currentFontSize < 40) {
         currentFontSize += 2;
         updateFontSize();
     }
 }
+
 
 function zoomOut() {
     if (currentFontSize > 12) {

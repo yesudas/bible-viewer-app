@@ -4,6 +4,11 @@
       "languageCode" : "IL",
       "languageName" : "Interlinear",
       "bibles" : [ {
+        "abbr" : "BIB2020+",
+        "isDefault" : false,
+        "commonName" : "Berean Interlinear Bible. Old and New Testament. 2016, 2020.",
+        "hide" : false
+      }, {
         "abbr" : "HSB+",
         "isDefault" : true,
         "commonName" : "Hebrew Study Bible with Strong's Numbers & Interlinear",
@@ -12,6 +17,136 @@
         "abbr" : "HSB2+",
         "isDefault" : false,
         "commonName" : "Hebrew Study Bible with Strong's Numbers & Interlinear",
+        "hide" : false
+      } ]
+    },
+    "தமிழ்" : {
+      "languageCode" : "ta",
+      "languageName" : "தமிழ்",
+      "bibles" : [{
+        "abbr" : "TZB1714",
+        "isDefault" : false,
+        "commonName" : "சீகன்பால்க் அஞ்சு வேத பொஷ்த்தகம் 1714 - Ziegenbalg Bible 1714",
+        "hide" : true
+      }, {
+        "abbr" : "TCB1973",
+        "isDefault" : false,
+        "commonName" : "கத்தோலிக்க பரிசுத்த வேதாகமம் 1973 - Tamil Catholic Holy Bible 1973",
+        "hide" : false
+      }, {
+        "abbr" : "TOV1986",
+        "isDefault" : false,
+        "commonName" : "பரிசுத்த வேதாகமம் 1986 - Tamil Holy Bible 1986 - Old Version - O.V",
+        "hide" : false
+      }, {
+        "abbr" : "TCL1995",
+        "isDefault" : false,
+        "commonName" : "திருவிவிலியம் - Thiruviviliam 1995",
+        "hide" : false
+      }, {
+        "abbr" : "TERV1998",
+        "isDefault" : false,
+        "commonName" : "பரிசுத்த பைபிள் ERV 1998",
+        "hide" : false
+      }, {
+        "abbr" : "TOV2017",
+        "isDefault" : true,
+        "commonName" : "பரிசுத்த வேதாகமம் 2017 - Tamil Holy Bible 2017 - Old Version - O.V",
+        "hide" : false
+      }, {
+        "abbr" : "TIRV2017",
+        "isDefault" : false,
+        "commonName" : "தமிழ் IRV 2017",
+        "hide" : false
+      }, {
+        "abbr" : "TIRV2019",
+        "isDefault" : false,
+        "commonName" : "தமிழ் IRV 2019",
+        "hide" : false
+      }, {
+        "abbr" : "TCVIN2020NT",
+        "isDefault" : false,
+        "commonName" : "தமிழ் இந்திய சமகால மொழிபெயர்ப்பு 2020 NT",
+        "hide" : false
+      }, {
+        "abbr" : "TCVIN2022",
+        "isDefault" : false,
+        "commonName" : "தமிழ் இந்திய சமகால மொழிபெயர்ப்பு 2022",
+        "hide" : false
+      }, {
+        "abbr" : "TCVSL2022NT",
+        "isDefault" : false,
+        "commonName" : "தமிழ் இலங்கை சமகால/இலகு தமிழ் மொழிபெயர்ப்பு 2022 NT",
+        "hide" : false
+      }]
+    },
+    "ಕನ್ನಡ" : {
+      "languageCode" : "kn",
+      "languageName" : "ಕನ್ನಡ",
+      "bibles" : [ {
+        "abbr" : "KNCL",
+        "isDefault" : false,
+        "commonName" : "Kannada Common Language",
+        "hide" : false
+      }, {
+        "abbr" : "KNJV",
+        "isDefault" : false,
+        "commonName" : "Kannada Jehova Version",
+        "hide" : false
+      } ]
+    },
+    "తెలుగు" : {
+      "languageCode" : "te",
+      "languageName" : "తెలుగు",
+      "bibles" : [ {
+        "abbr" : "teERV1997",
+        "isDefault" : false,
+        "commonName" : "పవిత్ర బైబిల్ - Telugu ERV 1997",
+        "hide" : false
+      }, {
+        "abbr" : "teOV2016",
+        "isDefault" : false,
+        "commonName" : "పరిశుద్ధ గ్రంథము - Telugu Old Version 2016",
+        "hide" : false
+      } ]
+    },
+    "മലയാളം" : {
+      "languageCode" : "ml",
+      "languageName" : "മലയാളം",
+      "bibles" : [ {
+        "abbr" : "MOV",
+        "isDefault" : false,
+        "commonName" : "Malayalam Old Version",
+        "hide" : false
+      } ]
+    },
+    "हिन्दी" : {
+      "languageCode" : "hi",
+      "languageName" : "हिन्दी",
+      "bibles" : [ {
+        "abbr" : "HOV2012",
+        "isDefault" : false,
+        "commonName" : "Hindi O.V. Re-Edited 2012",
+        "hide" : false
+      } ]
+    },
+    "Original" : {
+      "languageCode" : "Original",
+      "languageName" : "Original",
+      "bibles" : [ {
+        "abbr" : "Orig2013+",
+        "isDefault" : false,
+        "commonName" : "IHOT+ and ABPGR+ - Bible in original languages without vowels",
+        "hide" : false
+      }, {
+        "abbr" : "Orig2014+",
+        "isDefault" : false,
+        "commonName" : "HSB3+ and GNT5+ - Bible in original languages with morphology, Red letter edition",
+        "hide" : false
+      }, {
+        "abbr" : "OSHG2010+",
+        "isDefault" : false,
+        "commonName" : "Open Scriptures Hebrew Bible • The Greek New Testament: SBL Edition",
         "hide" : false
       } ]
     },
@@ -345,6 +480,31 @@
         "hide" : false
       } ]
     },
+    "Hebrew" : {
+      "languageCode" : "iw",
+      "languageName" : "Hebrew",
+      "bibles" : [ {
+        "abbr" : "HAC",
+        "isDefault" : false,
+        "commonName" : "Hebrew Tanah Aleppo Codex",
+        "hide" : false
+      }, {
+        "abbr" : "HSB4",
+        "isDefault" : false,
+        "commonName" : "HSB4 Hebrew Bible",
+        "hide" : false
+      }, {
+        "abbr" : "MHB",
+        "isDefault" : false,
+        "commonName" : "MHB Hebrew Bible",
+        "hide" : false
+      }, {
+        "abbr" : "WLCv",
+        "isDefault" : false,
+        "commonName" : "WLCv Hebrew Bible",
+        "hide" : false
+      } ]
+    },
     "Greek" : {
       "languageCode" : "grc",
       "languageName" : "Greek",
@@ -390,32 +550,7 @@
         "hide" : false
       } ]
     },
-    "Hebrew" : {
-      "languageCode" : "iw",
-      "languageName" : "Hebrew",
-      "bibles" : [ {
-        "abbr" : "HAC",
-        "isDefault" : false,
-        "commonName" : "Hebrew Tanah Aleppo Codex",
-        "hide" : false
-      }, {
-        "abbr" : "HSB4",
-        "isDefault" : false,
-        "commonName" : "HSB4 Hebrew Bible",
-        "hide" : false
-      }, {
-        "abbr" : "MHB",
-        "isDefault" : false,
-        "commonName" : "MHB Hebrew Bible",
-        "hide" : false
-      }, {
-        "abbr" : "WLCv",
-        "isDefault" : false,
-        "commonName" : "WLCv Hebrew Bible",
-        "hide" : false
-      } ]
-    },
-    "Latina" : {
+    "Latin" : {
       "languageCode" : "la",
       "languageName" : "Latin",
       "bibles" : [ {
@@ -425,106 +560,156 @@
         "hide" : false
       } ]
     },
-    "हिन्दी" : {
-      "languageCode" : "hi",
-      "languageName" : "हिन्दी",
+    "Marathi" : {
+      "languageCode" : "mr",
+      "languageName" : "Marathi",
       "bibles" : [ {
-        "abbr" : "HOV2012",
+        "abbr" : "mrRV2015",
         "isDefault" : false,
-        "commonName" : "Hindi O.V. Re-Edited 2012",
+        "commonName" : "पवित्र शास्त्र - Marathi R.V. Re-edited 2015",
         "hide" : false
       } ]
     },
-    "தமிழ்" : {
-      "languageCode" : "ta",
-      "languageName" : "தமிழ்",
-      "bibles" : [{
-        "abbr" : "TZB1714",
-        "isDefault" : false,
-        "commonName" : "சீகன்பால்க் அஞ்சு வேத பொஷ்த்தகம் 1714 - Ziegenbalg Bible 1714",
-        "hide" : true
-      }, {
-        "abbr" : "TCB1973",
-        "isDefault" : false,
-        "commonName" : "கத்தோலிக்க பரிசுத்த வேதாகமம் 1973 - Tamil Catholic Holy Bible 1973",
-        "hide" : false
-      }, {
-        "abbr" : "TOV1986",
-        "isDefault" : false,
-        "commonName" : "பரிசுத்த வேதாகமம் 1986 - Tamil Holy Bible 1986 - Old Version - O.V",
-        "hide" : false
-      }, {
-        "abbr" : "TCL1995",
-        "isDefault" : false,
-        "commonName" : "திருவிவிலியம் - Thiruviviliam 1995",
-        "hide" : false
-      }, {
-        "abbr" : "TERV1998",
-        "isDefault" : false,
-        "commonName" : "பரிசுத்த பைபிள் ERV 1998",
-        "hide" : false
-      }, {
-        "abbr" : "TOV2017",
-        "isDefault" : true,
-        "commonName" : "பரிசுத்த வேதாகமம் 2017 - Tamil Holy Bible 2017 - Old Version - O.V",
-        "hide" : false
-      }, {
-        "abbr" : "TIRV2017",
-        "isDefault" : false,
-        "commonName" : "தமிழ் IRV 2017",
-        "hide" : false
-      }, {
-        "abbr" : "TIRV2019",
-        "isDefault" : false,
-        "commonName" : "தமிழ் IRV 2019",
-        "hide" : false
-      }, {
-        "abbr" : "TCVIN2020NT",
-        "isDefault" : false,
-        "commonName" : "தமிழ் இந்திய சமகால மொழிபெயர்ப்பு 2020 NT",
-        "hide" : false
-      }, {
-        "abbr" : "TCVIN2022",
-        "isDefault" : false,
-        "commonName" : "தமிழ் இந்திய சமகால மொழிபெயர்ப்பு 2022",
-        "hide" : false
-      }, {
-        "abbr" : "TCVSL2022NT",
-        "isDefault" : false,
-        "commonName" : "தமிழ் இலங்கை சமகால/இலகு தமிழ் மொழிபெயர்ப்பு 2022 NT",
-        "hide" : false
-      }]
-    },
-    "ಕನ್ನಡ" : {
-      "languageCode" : "kn",
-      "languageName" : "ಕನ್ನಡ",
+    "Bengali" : {
+      "languageCode" : "bn",
+      "languageName" : "Bengali",
       "bibles" : [ {
-        "abbr" : "KNCL",
+        "abbr" : "bnOV2016",
         "isDefault" : false,
-        "commonName" : "Kannada Common Language",
-        "hide" : false
-      }, {
-        "abbr" : "KNJV",
-        "isDefault" : false,
-        "commonName" : "Kannada Jehova Version",
+        "commonName" : "পবিত্র বাইবেল - Bengali Old Version Bible",
         "hide" : false
       } ]
     },
-    "മലയാളം" : {
-      "languageCode" : "ml",
-      "languageName" : "മലയാളം",
+    "Gujarati" : {
+      "languageCode" : "gu",
+      "languageName" : "Gujarati",
       "bibles" : [ {
-        "abbr" : "MOV",
+        "abbr" : "guOV2016",
         "isDefault" : false,
-        "commonName" : "Malayalam Old Version",
+        "commonName" : "પવિત્ર બાઇબલ - Gujarati Old Version (Reference Bible)",
+        "hide" : false
+      } ]
+    },
+    "Odia" : {
+      "languageCode" : "or",
+      "languageName" : "Odia",
+      "bibles" : [ {
+        "abbr" : "orOV2014",
+        "isDefault" : false,
+        "commonName" : "ପବିତ୍ର ବାଇବଲ - Odia Old Version Re-edited 2014",
+        "hide" : false
+      } ]
+    },
+    "Punjabi" : {
+      "languageCode" : "pa",
+      "languageName" : "Punjabi",
+      "bibles" : [ {
+        "abbr" : "paOV2016",
+        "isDefault" : false,
+        "commonName" : "ਪਵਿੱਤਰ ਬਾਈਬਲ - Punjabi Old Version 2016",
+        "hide" : false
+      } ]
+    },
+    "Manipuri" : {
+      "languageCode" : "mni",
+      "languageName" : "Manipuri",
+      "bibles" : [ {
+        "abbr" : "mniRNT2022",
+        "isDefault" : false,
+        "commonName" : "Anouba Warepnaba (Roman Script) - Meitei New Testament 2022",
+        "hide" : false
+      } ]
+    },
+    "Nepali" : {
+      "languageCode" : "ne",
+      "languageName" : "Nepali",
+      "bibles" : [ {
+        "abbr" : "neNRV2012",
+        "isDefault" : false,
+        "commonName" : "Nepali New Revised Version, 2012",
+        "hide" : false
+      } ]
+    },
+    "Sanskrit" : {
+      "languageCode" : "sa",
+      "languageName" : "Sanskrit",
+      "bibles" : [ {
+        "abbr" : "saNT2015",
+        "isDefault" : false,
+        "commonName" : "Sanskrit New Testament 2015",
+        "hide" : false
+      } ]
+    },
+    "Awadhi" : {
+      "languageCode" : "awa",
+      "languageName" : "Awadhi",
+      "bibles" : [ {
+        "abbr" : "awaERV2005",
+        "isDefault" : false,
+        "commonName" : "पवित्तर बाइबिल",
+        "hide" : false
+      } ]
+    },
+    "Maithili" : {
+      "languageCode" : "mai",
+      "languageName" : "Maithili",
+      "bibles" : [ {
+        "abbr" : "maiNT",
+        "isDefault" : false,
+        "commonName" : "Jivən Səndesh - Maithili New Testament",
+        "hide" : false
+      } ]
+    },
+    "Malay" : {
+      "languageCode" : "ms",
+      "languageName" : "Malay",
+      "bibles" : [ {
+        "abbr" : "msAB1996",
+        "isDefault" : false,
+        "commonName" : "Today's Malay Version – Alkitab Berita Baik - Malay — Bahasa Melayu",
+        "hide" : false
+      } ]
+    },
+    "Sinhala" : {
+      "languageCode" : "si",
+      "languageName" : "Sinhala",
+      "bibles" : [ {
+        "abbr" : "siROV",
+        "isDefault" : false,
+        "commonName" : "සිංහල - Sinhala Revised Old Version",
+        "hide" : false
+      } ]
+    },
+    "Urdu" : {
+      "languageCode" : "ur",
+      "languageName" : "Urdu",
+      "bibles" : [ {
+        "abbr" : "urDGV2010",
+        "isDefault" : false,
+        "commonName" : "किताब-ए मुक़द्दस - Urdu Devanagari Geo Version 2010",
+        "hide" : false
+      }, {
+        "abbr" : "urGV2010",
+        "isDefault" : false,
+        "commonName" : "اردو جیو ورژن Urdu Geo Version 2010",
+        "hide" : false
+      }, {
+        "abbr" : "urRGV2017",
+        "isDefault" : false,
+        "commonName" : "Roman Urdu Geo Version Bible 2017",
+        "hide" : false
+      }, {
+        "abbr" : "urRV2010",
+        "isDefault" : false,
+        "commonName" : "Revised Urdu Bible 2010",
         "hide" : false
       } ]
     }
   },
   "metadata" : {
-    "totalLanguages" : 8,
-    "totalBibles" : 96,
-    "lastUpdated" : "2025-10-15",
-    "supportedLanguages" : [ "Interlinear", "English", "Greek", "Hebrew", "Latin", "हिन्दी", "தமிழ்", "ಕನ್ನಡ", "മലയാളം" ]
+    "totalLanguages" : 23,
+    "totalBibles" : 118,
+    "lastUpdated" : "2025-10-16",
+    "supportedLanguages" : [ "Interlinear", "Original", "தமிழ்", "ಕನ್ನಡ", "తెలుగు", "മലയാളം", "हिन्दी", "English", "Hebrew", "Greek", "Latin", "Bengali", "Gujarati", "Marathi", "Nepali", "Awadhi", "Malay", "Punjabi", "Sinhala", "Urdu" ]
   }
 }
