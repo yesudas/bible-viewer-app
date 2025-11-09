@@ -183,7 +183,7 @@ if (!empty($languagesStr)) {
                     <i class="bi bi-phone me-2 text-primary" style="font-size: 1.5rem;"></i>
                     <div>
                         <strong>Install Online Bibles App</strong>
-                        <p class="mb-0 small">Get quick access to Bible study tools. Works offline!</p>
+                        <p class="mb-0 small">Get quick access to Bible study tools. Needs internet!</p>
                     </div>
                 </div>
                 <div class="d-flex gap-2 align-items-center">

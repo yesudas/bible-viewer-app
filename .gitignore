@@ -6,3 +6,4 @@ counter.txt
 error_log
 **/error_log
 *.log
+**/.sync.ffs_db
