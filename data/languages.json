@@ -39,6 +39,11 @@
         "commonName" : "பரிசுத்த வேதாகமம் 1986 - Tamil Holy Bible 1986 - Old Version - O.V",
         "hide" : false
       }, {
+        "abbr" : "THNGV",
+        "isDefault" : false,
+        "commonName" : "தேவனின் எபிரேயப் பெயர்கள் பதிப்பு - Hebrew Names OF God Version in Tamil",
+        "hide" : false
+      }, {
         "abbr" : "TCL1995",
         "isDefault" : false,
         "commonName" : "திருவிவிலியம் - Thiruviviliam 1995",

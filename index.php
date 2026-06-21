@@ -2,7 +2,7 @@
 
 include 'counter.php';
 
-$version = "2025.01";
+$version = "2026.02";
 
 // Get URL parameters from query string
 $selectedLanguages = isset($_GET['langs']) ? explode(',', $_GET['langs']) : [];
@@ -17,10 +17,10 @@ $biblesByLanguage = $languagesData['biblesByLanguage'];
 
 # Get default bibles if no bibles selected - ENHANCED to support multiple defaults
 if (empty($selectedBibles)) {
-    // Collect all bibles with isDefault: true across all languages
+    // Collect all bibles with isDefault: true AND hide: false across all languages
     foreach ($biblesByLanguage as $langKey => $langData) {
         foreach ($langData['bibles'] as $bible) {
-            if ($bible['isDefault']) {
+            if ($bible['isDefault'] && empty($bible['hide'])) {
                 $selectedBibles[] = $bible['abbr'];
                 // Also add the language to selectedLanguages
                 if (!in_array($langKey, $selectedLanguages)) {
@@ -30,15 +30,17 @@ if (empty($selectedBibles)) {
         }
     }
     
-    // If still no default found, select the first available bible as fallback
+    // If still no default found, select the first visible bible as fallback
     if (empty($selectedBibles)) {
         foreach ($biblesByLanguage as $langKey => $langData) {
-            if (!empty($langData['bibles'])) {
-                $selectedBibles[] = $langData['bibles'][0]['abbr'];
-                if (!in_array($langKey, $selectedLanguages)) {
-                    $selectedLanguages[] = $langKey;
+            foreach ($langData['bibles'] as $bible) {
+                if (empty($bible['hide'])) {
+                    $selectedBibles[] = $bible['abbr'];
+                    if (!in_array($langKey, $selectedLanguages)) {
+                        $selectedLanguages[] = $langKey;
+                    }
+                    break 2;
                 }
-                break;
             }
         }
     }

@@ -400,3 +400,14 @@ body {
 .verse-list .verse-text {
     margin-right: 4px;
 }
+
+.emphasis {
+    font-style: italic;
+    color: #338fe0;
+}
+
+.notes {
+    font-size: 0.9em;
+    color: #6c757d;
+    margin-top: 5px;
+}

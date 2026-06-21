@@ -33,7 +33,7 @@ function initializeSelections() {
     if (selectedBibles.length === 0) {
         for (let langKey in biblesByLanguage) {
             for (let bible of biblesByLanguage[langKey].bibles) {
-                if (bible.isDefault) {
+                if (bible.isDefault && !bible.hide) {
                     selectedBibles.push(bible.abbr);
                     break;
                 }
@@ -92,6 +92,9 @@ function loadBiblesForLanguage(language) {
     
     if (biblesByLanguage[language] && biblesByLanguage[language].bibles) {
         biblesByLanguage[language].bibles.forEach(bible => {
+            // Skip hidden bibles
+            if (bible.hide) return;
+
             const button = document.createElement('button');
             button.type = 'button';
             button.className = 'bible-tab-btn';
@@ -680,7 +683,7 @@ function makeWordsClickable(text, bibleAbbr) {
     let currentPos = 0;
     
     // Find all HTML spans (Strong's numbers) and preserve them
-    const htmlSpanRegex = /<span[^>]*class="[^"]*strongs-number[^"]*"[^>]*>.*?<\/span>/g;
+    const htmlSpanRegex = /<span[^>]*class="[^"]*(?:strongs-number|emphasis|notes)[^"]*"[^>]*>.*?<\/span>/g;
     let match;
     
     while ((match = htmlSpanRegex.exec(text)) !== null) {
@@ -688,8 +691,18 @@ function makeWordsClickable(text, bibleAbbr) {
         const beforeSpan = text.substring(currentPos, match.index);
         result += makeTextWordsClickable(beforeSpan, bibleAbbr);
         
-        // Add the HTML span as-is
-        result += match[0];
+        // For strongs-number spans, preserve as-is
+        // For emphasis/notes spans, process inner text to make words clickable
+        if (/class="[^"]*strongs-number[^"]*"/.test(match[0])) {
+            result += match[0];
+        } else {
+            const spanParts = match[0].match(/^(<span[^>]*>)([\s\S]*?)(<\/span>)$/);
+            if (spanParts) {
+                result += spanParts[1] + makeTextWordsClickable(spanParts[2], bibleAbbr) + spanParts[3];
+            } else {
+                result += match[0];
+            }
+        }
         
         currentPos = match.index + match[0].length;
     }
