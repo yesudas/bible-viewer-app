@@ -1,3 +1,12 @@
+// The word-study features (Dictionary, Devotions, Commentary, Cross References) fetch from
+// sibling paths on wordofgod.in that don't send CORS headers, so those fetches only work when
+// same-origin. The site is reachable at both the bare and www hosts without a forced redirect,
+// so hardcoding either one breaks fetches for visitors on the other - derive the origin actually
+// in use instead, falling back to the bare host for any other environment (e.g. local testing).
+const WORDOFGOD_ORIGIN = /(^|\.)wordofgod\.in$/.test(window.location.hostname)
+    ? window.location.origin
+    : 'https://wordofgod.in';
+
 // Global variables
 let selectedBibles = [];
 let selectedLanguages = [];
@@ -35,6 +44,16 @@ let currentCrossRefEntries = [];
 // Max citations shown inline under a verse before falling back to "view all" in the modal
 const INLINE_CROSSREF_LIMIT = 8;
 let crossRefInlineRequestId = 0; // guards against a slow chapter fetch overwriting a newer chapter's verses
+
+// Commentary sources. Change DEFAULT_COMMENTARY_SOURCE to switch the default.
+const COMMENTARY_SOURCES = [
+    { key: 'MHWBC', label: "MHWBC - Matthew Henry's Whole Bible Commentary" },
+    { key: 'GNTBC', label: 'GNTBC - Good News தமிழ் வேதாகம விளக்கவுரை' }
+];
+const DEFAULT_COMMENTARY_SOURCE = 'MHWBC';
+let currentCommentarySource = DEFAULT_COMMENTARY_SOURCE;
+let loadedCommentaryKey = ''; // `${book}|${chapter}|${source}`
+let currentCommentarySections = [];
 
 // Cross references can point anywhere across all 66 books, but `booksData` only reflects
 // whichever Bible currently drives the book/chapter dropdown (which may be a partial-canon
@@ -171,6 +190,16 @@ document.addEventListener('DOMContentLoaded', function() {
             navigateToCrossReference(book, chapter, verse);
             return;
         }
+
+        // Commentary table-of-contents entry: jump straight to that section instead of
+        // making the user scroll past every preceding section to reach it
+        const commentaryTocLink = event.target.closest('.commentary-toc-link');
+        if (commentaryTocLink) {
+            event.preventDefault();
+            const targetEl = document.getElementById(commentaryTocLink.getAttribute('data-target'));
+            if (targetEl) targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            return;
+        }
     });
 
     // Load dictionary content when the Dictionary tab is shown
@@ -189,6 +218,29 @@ document.addEventListener('DOMContentLoaded', function() {
         devotionsTabEl.addEventListener('shown.bs.tab', function() {
             if (currentModalBook && currentModalChapter && currentModalVerse) {
                 loadDevotionsData(currentModalBook, currentModalChapter, currentModalVerse, currentModalLanguage);
+            }
+        });
+    }
+
+    // Load cross references when the Cross References tab is shown. openCrossReferences()
+    // already loads data when entered via an inline citation click, but a word click leaves
+    // this tab unloaded until the user switches to it manually - this listener covers that path.
+    const crossreferencesTabEl = document.getElementById('crossreferences-tab');
+    if (crossreferencesTabEl) {
+        crossreferencesTabEl.addEventListener('shown.bs.tab', function() {
+            if (currentModalBook && currentModalChapter && currentModalVerse) {
+                loadCrossReferencesData(currentModalBook, currentModalChapter, currentModalVerse);
+            }
+        });
+    }
+
+    // Load commentary content when the Commentary tab is shown. Word clicks and cross-reference
+    // clicks both set currentModalBook/currentModalChapter, so this tab works from either entry point.
+    const commentaryTabEl = document.getElementById('commentary-tab');
+    if (commentaryTabEl) {
+        commentaryTabEl.addEventListener('shown.bs.tab', function() {
+            if (currentModalBook && currentModalChapter) {
+                loadCommentaryData(currentModalBook, currentModalChapter);
             }
         });
     }
@@ -1151,7 +1203,7 @@ function loadDictionaryData(word) {
 
     dictionaryContent.innerHTML = '<div class="text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>';
 
-    const listUrl = `https://wordofgod.in/bibledictionary/api.php?action=getDictionaries&word=${encodeURIComponent(word)}`;
+    const listUrl = `${WORDOFGOD_ORIGIN}/bibledictionary/api.php?action=getDictionaries&word=${encodeURIComponent(word)}`;
 
     fetch(listUrl)
         .then(response => {
@@ -1219,7 +1271,7 @@ function renderDictionarySections(dictionaries, word) {
 
     dictionaries.forEach((entry, index) => {
         const sectionId = `dictionary-section-${index}`;
-        const entryUrl = `https://wordofgod.in/bibledictionary/${encodeURIComponent(entry.dictionary)}/data/${encodeURIComponent(entry.slug)}.json`;
+        const entryUrl = `${WORDOFGOD_ORIGIN}/bibledictionary/${encodeURIComponent(entry.dictionary)}/data/${encodeURIComponent(entry.slug)}.json`;
 
         fetch(entryUrl)
             .then(response => {
@@ -1282,7 +1334,7 @@ function loadDevotionsData(book, chapter, verse, language) {
 
     devotionsContent.innerHTML = '<div class="text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>';
 
-    const listUrl = `https://wordofgod.in/bible-devotions/api.php?action=getDevotions&lang=${encodeURIComponent(language)}&book=${encodeURIComponent(book)}&chapter=${encodeURIComponent(chapter)}&verse=${encodeURIComponent(verse)}`;
+    const listUrl = `${WORDOFGOD_ORIGIN}/bible-devotions/api.php?action=getDevotions&lang=${encodeURIComponent(language)}&book=${encodeURIComponent(book)}&chapter=${encodeURIComponent(chapter)}&verse=${encodeURIComponent(verse)}`;
 
     fetch(listUrl)
         .then(response => {
@@ -1349,7 +1401,7 @@ function renderDevotionSections(devotions, language, key) {
 
     devotions.forEach((entry, index) => {
         const sectionId = `devotion-section-${index}`;
-        const entryUrl = `https://wordofgod.in/bible-devotions/${encodeURIComponent(entry.brand)}/meditations/${encodeURIComponent(language)}/${encodeURIComponent(entry.filename)}`;
+        const entryUrl = `${WORDOFGOD_ORIGIN}/bible-devotions/${encodeURIComponent(entry.brand)}/meditations/${encodeURIComponent(language)}/${encodeURIComponent(entry.filename)}`;
 
         fetch(entryUrl)
             .then(response => {
@@ -1442,6 +1494,143 @@ function displayDevotionEntry(sectionId, entryData) {
     sectionEl.innerHTML = html || '<div class="alert alert-info mb-0">Could not load this devotion.</div>';
 }
 
+function populateCommentarySourceSelect() {
+    const select = document.getElementById('commentarySourceSelect');
+    if (!select || select.dataset.populated === 'true') return;
+
+    select.innerHTML = COMMENTARY_SOURCES.map(source =>
+        `<option value="${source.key}">${escapeHtml(source.label)}</option>`
+    ).join('');
+    select.dataset.populated = 'true';
+
+    select.addEventListener('change', function() {
+        currentCommentarySource = select.value;
+        loadCommentaryData(currentModalBook, currentModalChapter);
+    });
+}
+
+function loadCommentaryData(book, chapter) {
+    populateCommentarySourceSelect();
+    const select = document.getElementById('commentarySourceSelect');
+    if (select) select.value = currentCommentarySource;
+
+    const key = `${book}|${chapter}|${currentCommentarySource}`;
+    if (loadedCommentaryKey === key) {
+        renderCommentarySections(key);
+        return;
+    }
+
+    const sectionsEl = document.getElementById('commentarySections');
+    sectionsEl.innerHTML = '<div class="text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>';
+
+    const paddedBook = pad(book, 2);
+    const paddedChapter = pad(chapter, 3);
+    const commentaryUrl = `${WORDOFGOD_ORIGIN}/bible-commentaries/data/${currentCommentarySource}/${paddedBook}/${paddedChapter}.json`;
+
+    fetch(commentaryUrl)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (loadedCommentaryKey === key) return; // already resolved by a newer/duplicate call
+            currentCommentarySections = {
+                meta: data.commentary || null,
+                sections: Array.isArray(data.sections) ? data.sections : []
+            };
+            loadedCommentaryKey = key;
+            renderCommentarySections(key);
+        })
+        .catch(error => {
+            if (loadedCommentaryKey === key) return;
+            currentCommentarySections = { meta: null, sections: [] };
+            loadedCommentaryKey = key;
+            renderCommentarySections(key);
+        });
+}
+
+// Commentary sources ship their own scoped CSS (colors, table styling) with %COLOR_X% placeholder
+// tokens. Substitute the tokens with the app's palette and scope every rule under the content
+// container so it can't leak out and affect the rest of the page.
+const COMMENTARY_STYLE_COLORS = {
+    '%COLOR_GREEN%': '#198754',
+    '%COLOR_BLUE%': '#0d6efd'
+};
+
+function scopeCommentaryStyle(css, scopeSelector) {
+    let scoped = css;
+    Object.keys(COMMENTARY_STYLE_COLORS).forEach(token => {
+        scoped = scoped.split(token).join(COMMENTARY_STYLE_COLORS[token]);
+    });
+
+    return scoped.replace(/([^{}]+)\{([^{}]*)\}/g, function(match, selectors, body) {
+        const scopedSelectors = selectors.split(',')
+            .map(s => `${scopeSelector} ${s.trim()}`)
+            .join(', ');
+        return `${scopedSelectors} { ${body} }`;
+    });
+}
+
+// Sections without a real verse range (verse_from/verse_to null or 0) aren't necessarily all
+// the chapter introduction - some sources use it for several untitled sections in one chapter.
+// Only the first one is labelled "Introduction"; the rest are numbered "Section 2", "Section 3", ...
+// so the table of contents doesn't show a wall of identical "Introduction" entries.
+function commentarySectionLabels(sections) {
+    let untitledCount = 0;
+    return sections.map(section => {
+        const from = section.verse_from;
+        const to = section.verse_to;
+        if (!from && !to) {
+            untitledCount++;
+            return untitledCount === 1 ? 'Introduction' : `Section ${untitledCount}`;
+        }
+        if (from === to) return `Verse ${from}`;
+        return `Verses ${from}-${to}`;
+    });
+}
+
+function renderCommentarySections(key) {
+    if (loadedCommentaryKey !== key) return;
+
+    const sectionsEl = document.getElementById('commentarySections');
+    const { meta, sections } = currentCommentarySections;
+
+    if (sections.length === 0) {
+        sectionsEl.innerHTML = '<div class="alert alert-info">No commentary found for this chapter.</div>';
+        return;
+    }
+
+    let styleTag = '';
+    if (meta && meta.html_style) {
+        styleTag = `<style>${scopeCommentaryStyle(meta.html_style, '#commentarySections')}</style>`;
+    }
+
+    const labels = commentarySectionLabels(sections);
+
+    let tocHtml = '<div class="commentary-toc mb-2"><div class="commentary-toc-label">Contents</div><div class="commentary-toc-list">';
+    sections.forEach((_, index) => {
+        const sectionId = `commentary-section-${index}`;
+        tocHtml += `<a href="#" class="commentary-toc-link" data-target="${sectionId}">${escapeHtml(labels[index])}</a>`;
+    });
+    tocHtml += '</div></div>';
+
+    let html = styleTag + tocHtml + '<div class="commentary-results">';
+    sections.forEach((section, index) => {
+        const sectionId = `commentary-section-${index}`;
+        html += `
+            <div class="commentary-section mb-3" id="${sectionId}">
+                <div class="commentary-section-header">${escapeHtml(labels[index])}</div>
+                <div class="commentary-section-body">${section.text || ''}</div>
+            </div>
+        `;
+    });
+    html += '</div>';
+
+    sectionsEl.innerHTML = html;
+}
+
 function pad(num, len) {
     return String(num).padStart(len, '0');
 }
@@ -1464,7 +1653,7 @@ function loadInlineCrossReferences(book, chapter) {
 
     const paddedBook = pad(book, 2);
     const paddedChapter = pad(chapter, 3);
-    const listUrl = `https://wordofgod.in/bible-cross-references/data/${DEFAULT_CROSS_REFERENCE_SOURCE}/${paddedBook}/${paddedChapter}.json`;
+    const listUrl = `${WORDOFGOD_ORIGIN}/bible-cross-references/data/${DEFAULT_CROSS_REFERENCE_SOURCE}/${paddedBook}/${paddedChapter}.json`;
 
     fetch(listUrl)
         .then(response => {
@@ -1557,7 +1746,7 @@ function loadCrossReferencesData(book, chapter, verse) {
 
     const paddedBook = pad(book, 2);
     const paddedChapter = pad(chapter, 3);
-    const listUrl = `https://wordofgod.in/bible-cross-references/data/${currentCrossRefSource}/${paddedBook}/${paddedChapter}.json`;
+    const listUrl = `${WORDOFGOD_ORIGIN}/bible-cross-references/data/${currentCrossRefSource}/${paddedBook}/${paddedChapter}.json`;
 
     fetch(listUrl)
         .then(response => {

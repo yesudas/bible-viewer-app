@@ -476,6 +476,11 @@ if (!empty($languagesStr)) {
                                 Devotions
                             </button>
                         </li>
+                        <li class="nav-item nav-item-commentary" role="presentation">
+                            <button class="nav-link" id="commentary-tab" data-bs-toggle="tab" data-bs-target="#commentary" type="button" role="tab" aria-controls="commentary" aria-selected="false">
+                                Commentary
+                            </button>
+                        </li>
                         <li class="nav-item nav-item-crossreferences" role="presentation">
                             <button class="nav-link" id="crossreferences-tab" data-bs-toggle="tab" data-bs-target="#crossreferences" type="button" role="tab" aria-controls="crossreferences" aria-selected="false">
                                 Cross References
@@ -498,6 +503,18 @@ if (!empty($languagesStr)) {
                         <div class="tab-pane fade" id="devotions" role="tabpanel" aria-labelledby="devotions-tab">
                             <div id="devotionsContent">
                                 <!-- Devotions content will be loaded here -->
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="commentary" role="tabpanel" aria-labelledby="commentary-tab">
+                            <div id="commentaryContent">
+                                <div class="mb-3">
+                                    <select id="commentarySourceSelect" class="form-select form-select-sm">
+                                        <!-- Options populated by JS -->
+                                    </select>
+                                </div>
+                                <div id="commentarySections">
+                                    <!-- Commentary sections will be loaded here -->
+                                </div>
                             </div>
                         </div>
                         <div class="tab-pane fade" id="crossreferences" role="tabpanel" aria-labelledby="crossreferences-tab">

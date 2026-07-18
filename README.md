@@ -25,19 +25,28 @@ A responsive, mobile-first web application for reading and comparing multiple Bi
 - URL-based navigation with history support
 
 ### 📚 Word Study Tools
-Clicking any word (or Strong's number) in a verse opens a modal with four tabs:
+Clicking any word (or Strong's number) in a verse opens a modal with five tabs:
 - **Concordance**: Every other verse where that word appears
 - **Dictionary**: Matching entries from available Bible dictionaries
 - **Devotions**: Devotional readings available for that specific verse, grouped into collapsible panels (one per devotion, titled with the devotion's title). Opening a panel automatically closes any other open panel.
+- **Commentary**: Verse-by-verse commentary sections for the current chapter, with a dropdown to switch between available commentaries (see below)
 - **Cross References**: Hidden in this word-click mode (see below) — surfaced through its own entry point instead.
 
 ### 🔗 Cross References
-Every verse shows a line of short citations underneath it (e.g. `Joh 1:1-3; Heb 11:3; Isa 45:18 … click for more`), sourced from a configurable default cross-reference set. Clicking any citation, or the trailing "click for more" link, opens the same word-study modal in a dedicated 2-tab mode — **Cross References** first, **Devotions** second, with Concordance/Dictionary hidden (word clicks continue to use the full 4-tab mode, unaffected).
+Every verse shows a line of short citations underneath it (e.g. `Joh 1:1-3; Heb 11:3; Isa 45:18 … click for more`), sourced from a configurable default cross-reference set. Clicking any citation, or the trailing "click for more" link, opens the same word-study modal in a dedicated 3-tab mode — **Cross References** first, **Devotions** second, **Commentary** third, with Concordance/Dictionary hidden (word clicks continue to use the full 5-tab mode, unaffected).
 
 Inside the Cross References tab:
 - A dropdown lets you switch between the available cross-reference sources (OB, RST, TSK)
 - One collapsible panel per currently-selected Bible shows that source's referenced verses in that translation, lazy-loaded when you expand the panel
 - Clicking a resolved verse inside a panel navigates the reader straight to it and closes the modal
+
+### 📜 Commentary
+The **Commentary** tab is always available, in both the word-click and cross-reference-click modes, since both already carry the book/chapter needed to look up commentary for the current chapter.
+
+- A dropdown lets you switch between available commentaries (default: `MHWBC` — Matthew Henry's Whole Bible Commentary; also `GNTBC` — Good News தமிழ் வேதாகம விளக்கவுரை)
+- The chapter's commentary is split into sections (e.g. "Introduction", "Verses 1-2", "Verse 31"), each shown under its own colored header
+- A **Contents** bar of pill-style links sits above the sections, listing every section for the chapter — clicking one jumps straight to that section instead of scrolling past everything before it
+- Commentary text is rendered as trusted HTML from the source (it may include its own inline styling and links back to specific verses on wordofgod.in); each commentary's own CSS is scoped to the tab so it can't affect the rest of the page
 
 ### ⚡ Performance & SEO
 - Fast loading with optimized data structure
@@ -156,6 +165,15 @@ https://yourdomain.com/?book=19&chapter=119&verse=6
 - The modal's source dropdown (OB / RST / TSK) lets you switch cross-reference sets; switching reloads the per-Bible panels
 - Each translation panel lazy-fetches its resolved verse text via `api.php?action=getVersesByRefs` only when expanded
 - Reference targets can fall outside the canon of whichever Bible currently drives the book/chapter dropdown (e.g. an Old-Testament-only edition and a New-Testament reference) — navigation falls back to a static 66-book table (`CROSSREF_BOOKS`) so it still works, and the reader simply omits any selected Bible that doesn't have that book
+- The tab lazy-loads the same way when entered via a word click and the user switches to it manually (not just via an inline citation click), so it never stays blank regardless of how the modal was opened
+
+#### Commentary
+- A configurable default source (`DEFAULT_COMMENTARY_SOURCE` in `js/app.js`, alongside the full `COMMENTARY_SOURCES` list) is lazy-fetched per chapter the first time the tab is shown
+- The dropdown lets you switch between available commentaries; switching reloads the sections for the current chapter
+- Each section is rendered with a colored header derived from its verse range (`verse_from`/`verse_to`), followed by the section's HTML body. A section with no real verse range (`verse_from`/`verse_to` null or `0`) is labelled "Introduction" only if it's the first such section in the chapter; any further untitled sections are numbered "Section 2", "Section 3", etc. instead of all repeating "Introduction"
+- A Contents bar above the sections links to every section by that same header label; clicking one calls `scrollIntoView` on the matching section so long chapters don't require scrolling past every earlier section to reach it
+- The source's own `html_style` (CSS with `%COLOR_X%` placeholder tokens) is substituted with the app's palette and scoped under `#commentarySections` before injection, so it only styles that tab's content
+- Links embedded in the commentary text point directly at `https://www.wordofgod.in/bibles/?book=&chapter=&verse=`, which `index.php` already reads as query parameters — no special click handling is needed for them to navigate to the referenced verse
 
 ## Technical Details
 
@@ -186,11 +204,12 @@ The application uses a JSON-based data structure:
 - `POST /api.php?action=getVersesByRefs` - Batch-resolve cross-reference targets into verse text. Body: `{"bible": "{abbr}", "refs": [{"book": num, "chapter": num, "verseStart": num, "verseEnd": num}, ...]}`. Reads each distinct book/chapter file only once even if many refs share it, and returns `{success, verses: [{book, chapter, verseStart, verseEnd, bookName, text}, ...]}` in the same order as the request (`text`/`bookName` are `null` for a ref the given Bible doesn't have).
 
 ### External Word Study APIs
-The Concordance, Dictionary, Devotions, and Cross References features pull data live from wordofgod.in:
+The Concordance, Dictionary, Devotions, Commentary, and Cross References features pull data live from wordofgod.in. Dictionary, Devotions, Commentary, and Cross References use a shared `WORDOFGOD_ORIGIN` constant (`js/app.js`) that resolves to whichever host (`wordofgod.in` or `www.wordofgod.in`) the page itself was loaded from — those sibling paths don't send CORS headers, so the fetch must be same-origin, and the site is reachable at both hosts without a forced redirect. On any other host (e.g. local testing) it falls back to the bare `https://wordofgod.in` domain.
 - Concordance: `https://.../bible-concordance/data/{language}/{bible}/words/...`
-- Dictionary: `https://wordofgod.in/bibledictionary/api.php?action=getDictionaries&word={word}`
-- Devotions: `https://wordofgod.in/bible-devotions/api.php?action=getDevotions&lang={language}&book={num}&chapter={num}&verse={num}`
-- Cross References: `https://wordofgod.in/bible-cross-references/data/{source}/{book:2digits}/{chapter:3digits}.json` — `{source}` is `OB` (Open Bible), `RST` (Russian Synodal Bible), or `TSK` (Treasury of Scripture Knowledge); book/chapter numbers are zero-padded (e.g. `data/OB/01/001.json` for Genesis 1)
+- Dictionary: `{WORDOFGOD_ORIGIN}/bibledictionary/api.php?action=getDictionaries&word={word}`
+- Devotions: `{WORDOFGOD_ORIGIN}/bible-devotions/api.php?action=getDevotions&lang={language}&book={num}&chapter={num}&verse={num}`
+- Commentary: `{WORDOFGOD_ORIGIN}/bible-commentaries/data/{source}/{book:2digits}/{chapter:3digits}.json` — `{source}` is `MHWBC` (Matthew Henry's Whole Bible Commentary, default) or `GNTBC` (Good News தமிழ் வேதாகம விளக்கவுரை); book/chapter numbers are zero-padded (e.g. `data/MHWBC/01/001.json` for Genesis 1)
+- Cross References: `{WORDOFGOD_ORIGIN}/bible-cross-references/data/{source}/{book:2digits}/{chapter:3digits}.json` — `{source}` is `OB` (Open Bible), `RST` (Russian Synodal Bible), or `TSK` (Treasury of Scripture Knowledge); book/chapter numbers are zero-padded (e.g. `data/OB/01/001.json` for Genesis 1)
 
 These require the app to be served from a domain the wordofgod.in APIs allow via CORS; testing from an arbitrary local origin (e.g. `http://localhost`) may show "no data found" for the per-entry lookups even though the list APIs succeed.
 
