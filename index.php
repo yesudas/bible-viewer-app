@@ -461,19 +461,24 @@ if (!empty($languagesStr)) {
                 <div class="modal-body">
                     <!-- Tabs -->
                     <ul class="nav nav-tabs" id="concordanceTabs" role="tablist">
-                        <li class="nav-item" role="presentation">
+                        <li class="nav-item nav-item-concordance" role="presentation">
                             <button class="nav-link active" id="concordance-tab" data-bs-toggle="tab" data-bs-target="#concordance" type="button" role="tab" aria-controls="concordance" aria-selected="true">
                                 Concordance
                             </button>
                         </li>
-                        <li class="nav-item" role="presentation">
+                        <li class="nav-item nav-item-dictionary" role="presentation">
                             <button class="nav-link" id="dictionary-tab" data-bs-toggle="tab" data-bs-target="#dictionary" type="button" role="tab" aria-controls="dictionary" aria-selected="false">
                                 Dictionary
                             </button>
                         </li>
-                        <li class="nav-item" role="presentation">
+                        <li class="nav-item nav-item-devotions" role="presentation">
                             <button class="nav-link" id="devotions-tab" data-bs-toggle="tab" data-bs-target="#devotions" type="button" role="tab" aria-controls="devotions" aria-selected="false">
                                 Devotions
+                            </button>
+                        </li>
+                        <li class="nav-item nav-item-crossreferences" role="presentation">
+                            <button class="nav-link" id="crossreferences-tab" data-bs-toggle="tab" data-bs-target="#crossreferences" type="button" role="tab" aria-controls="crossreferences" aria-selected="false">
+                                Cross References
                             </button>
                         </li>
                     </ul>
@@ -493,6 +498,18 @@ if (!empty($languagesStr)) {
                         <div class="tab-pane fade" id="devotions" role="tabpanel" aria-labelledby="devotions-tab">
                             <div id="devotionsContent">
                                 <!-- Devotions content will be loaded here -->
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="crossreferences" role="tabpanel" aria-labelledby="crossreferences-tab">
+                            <div id="crossreferencesContent">
+                                <div class="mb-3">
+                                    <select id="crossrefSourceSelect" class="form-select form-select-sm">
+                                        <!-- Options populated by JS -->
+                                    </select>
+                                </div>
+                                <div id="crossrefPanels">
+                                    <!-- Collapsible per-bible panels will be loaded here -->
+                                </div>
                             </div>
                         </div>
                     </div>

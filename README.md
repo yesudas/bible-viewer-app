@@ -25,10 +25,19 @@ A responsive, mobile-first web application for reading and comparing multiple Bi
 - URL-based navigation with history support
 
 ### 📚 Word Study Tools
-Clicking any word (or Strong's number) in a verse opens a modal with three tabs:
+Clicking any word (or Strong's number) in a verse opens a modal with four tabs:
 - **Concordance**: Every other verse where that word appears
 - **Dictionary**: Matching entries from available Bible dictionaries
 - **Devotions**: Devotional readings available for that specific verse, grouped into collapsible panels (one per devotion, titled with the devotion's title). Opening a panel automatically closes any other open panel.
+- **Cross References**: Hidden in this word-click mode (see below) — surfaced through its own entry point instead.
+
+### 🔗 Cross References
+Every verse shows a line of short citations underneath it (e.g. `Joh 1:1-3; Heb 11:3; Isa 45:18 … click for more`), sourced from a configurable default cross-reference set. Clicking any citation, or the trailing "click for more" link, opens the same word-study modal in a dedicated 2-tab mode — **Cross References** first, **Devotions** second, with Concordance/Dictionary hidden (word clicks continue to use the full 4-tab mode, unaffected).
+
+Inside the Cross References tab:
+- A dropdown lets you switch between the available cross-reference sources (OB, RST, TSK)
+- One collapsible panel per currently-selected Bible shows that source's referenced verses in that translation, lazy-loaded when you expand the panel
+- Clicking a resolved verse inside a panel navigates the reader straight to it and closes the modal
 
 ### ⚡ Performance & SEO
 - Fast loading with optimized data structure
@@ -141,6 +150,13 @@ https://yourdomain.com/?book=19&chapter=119&verse=6
 - **Dictionary** tab lazy-loads entries only when clicked, so lookups don't fire for words the user never inspects
 - **Devotions** tab lazy-loads devotions available for the exact book/chapter/verse of the clicked word (not the word itself), rendered as collapsible, accordion-style panels — only one panel can be expanded at a time
 
+#### Cross References
+- A configurable default source (`DEFAULT_CROSS_REFERENCE_SOURCE` in `js/app.js`) is fetched per chapter and rendered as short citations under every verse
+- Citations are capped at 8 per verse (`INLINE_CROSSREF_LIMIT`); clicking any citation or the "click for more" link opens the full modal for that verse
+- The modal's source dropdown (OB / RST / TSK) lets you switch cross-reference sets; switching reloads the per-Bible panels
+- Each translation panel lazy-fetches its resolved verse text via `api.php?action=getVersesByRefs` only when expanded
+- Reference targets can fall outside the canon of whichever Bible currently drives the book/chapter dropdown (e.g. an Old-Testament-only edition and a New-Testament reference) — navigation falls back to a static 66-book table (`CROSSREF_BOOKS`) so it still works, and the reader simply omits any selected Bible that doesn't have that book
+
 ## Technical Details
 
 ### Data Structure
@@ -167,12 +183,14 @@ The application uses a JSON-based data structure:
 ### API Endpoints
 - `GET /api.php?action=getBooks&bible={abbr}` - Retrieve books for a Bible
 - `GET /api.php?action=getVerses&bible={abbr}&book={num}&chapter={num}` - Get verses
+- `POST /api.php?action=getVersesByRefs` - Batch-resolve cross-reference targets into verse text. Body: `{"bible": "{abbr}", "refs": [{"book": num, "chapter": num, "verseStart": num, "verseEnd": num}, ...]}`. Reads each distinct book/chapter file only once even if many refs share it, and returns `{success, verses: [{book, chapter, verseStart, verseEnd, bookName, text}, ...]}` in the same order as the request (`text`/`bookName` are `null` for a ref the given Bible doesn't have).
 
 ### External Word Study APIs
-The Concordance, Dictionary, and Devotions tabs pull data live from wordofgod.in:
+The Concordance, Dictionary, Devotions, and Cross References features pull data live from wordofgod.in:
 - Concordance: `https://.../bible-concordance/data/{language}/{bible}/words/...`
 - Dictionary: `https://wordofgod.in/bibledictionary/api.php?action=getDictionaries&word={word}`
 - Devotions: `https://wordofgod.in/bible-devotions/api.php?action=getDevotions&lang={language}&book={num}&chapter={num}&verse={num}`
+- Cross References: `https://wordofgod.in/bible-cross-references/data/{source}/{book:2digits}/{chapter:3digits}.json` — `{source}` is `OB` (Open Bible), `RST` (Russian Synodal Bible), or `TSK` (Treasury of Scripture Knowledge); book/chapter numbers are zero-padded (e.g. `data/OB/01/001.json` for Genesis 1)
 
 These require the app to be served from a domain the wordofgod.in APIs allow via CORS; testing from an arbitrary local origin (e.g. `http://localhost`) may show "no data found" for the per-entry lookups even though the list APIs succeed.
 

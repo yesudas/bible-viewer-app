@@ -21,6 +21,96 @@ const DICTIONARY_LABELS = {
     'சத்திய-வேதாகமப்-பெயர்-அகராதி': 'சத்திய வேதாகமப் பெயர் அகராதி'
 };
 
+// Cross reference sources. Change DEFAULT_CROSS_REFERENCE_SOURCE to switch the default.
+const CROSS_REFERENCE_SOURCES = [
+    { key: 'OB', label: 'OB - Open Bible', count: 344799 },
+    { key: 'RST', label: 'RST - Russian Synodal Bible', count: 7434 },
+    { key: 'TSK', label: 'TSK - Treasury of Scripture Knowledge', count: 627045 }
+];
+const DEFAULT_CROSS_REFERENCE_SOURCE = 'OB';
+let currentCrossRefSource = DEFAULT_CROSS_REFERENCE_SOURCE;
+let loadedCrossReferencesKey = ''; // `${book}|${chapter}|${verse}|${source}`
+let currentCrossRefEntries = [];
+
+// Max citations shown inline under a verse before falling back to "view all" in the modal
+const INLINE_CROSSREF_LIMIT = 8;
+let crossRefInlineRequestId = 0; // guards against a slow chapter fetch overwriting a newer chapter's verses
+
+// Cross references can point anywhere across all 66 books, but `booksData` only reflects
+// whichever Bible currently drives the book/chapter dropdown (which may be a partial-canon
+// edition, e.g. an Old-Testament-only interlinear). This static table lets us label and
+// navigate to any cross-reference target regardless of which Bible currently drives the
+// dropdown - the selected Bibles that actually contain the target book will still render
+// its text once we get there; the ones that don't will simply be skipped for that chapter.
+const CROSSREF_BOOKS = {
+    1: { shortName: 'Gen', longName: 'Genesis', chapterCount: 50 },
+    2: { shortName: 'Exo', longName: 'Exodus', chapterCount: 40 },
+    3: { shortName: 'Lev', longName: 'Leviticus', chapterCount: 27 },
+    4: { shortName: 'Num', longName: 'Numbers', chapterCount: 36 },
+    5: { shortName: 'Deu', longName: 'Deuteronomy', chapterCount: 34 },
+    6: { shortName: 'Jos', longName: 'Joshua', chapterCount: 24 },
+    7: { shortName: 'Jdg', longName: 'Judges', chapterCount: 21 },
+    8: { shortName: 'Rth', longName: 'Ruth', chapterCount: 4 },
+    9: { shortName: '1Sa', longName: '1 Samuel', chapterCount: 31 },
+    10: { shortName: '2Sa', longName: '2 Samuel', chapterCount: 24 },
+    11: { shortName: '1Ki', longName: '1 Kings', chapterCount: 22 },
+    12: { shortName: '2Ki', longName: '2 Kings', chapterCount: 25 },
+    13: { shortName: '1Ch', longName: '1 Chronicles', chapterCount: 29 },
+    14: { shortName: '2Ch', longName: '2 Chronicles', chapterCount: 36 },
+    15: { shortName: 'Ezr', longName: 'Ezra', chapterCount: 10 },
+    16: { shortName: 'Neh', longName: 'Nehemiah', chapterCount: 13 },
+    17: { shortName: 'Est', longName: 'Esther', chapterCount: 10 },
+    18: { shortName: 'Job', longName: 'Job', chapterCount: 42 },
+    19: { shortName: 'Psa', longName: 'Psalms', chapterCount: 150 },
+    20: { shortName: 'Pro', longName: 'Proverbs', chapterCount: 31 },
+    21: { shortName: 'Ecc', longName: 'Ecclesiastes', chapterCount: 12 },
+    22: { shortName: 'Son', longName: 'Song of Songs', chapterCount: 8 },
+    23: { shortName: 'Isa', longName: 'Isaiah', chapterCount: 66 },
+    24: { shortName: 'Jer', longName: 'Jeremiah', chapterCount: 52 },
+    25: { shortName: 'Lam', longName: 'Lamentations', chapterCount: 5 },
+    26: { shortName: 'Eze', longName: 'Ezekiel', chapterCount: 48 },
+    27: { shortName: 'Dan', longName: 'Daniel', chapterCount: 12 },
+    28: { shortName: 'Hos', longName: 'Hosea', chapterCount: 14 },
+    29: { shortName: 'Joe', longName: 'Joel', chapterCount: 3 },
+    30: { shortName: 'Amo', longName: 'Amos', chapterCount: 9 },
+    31: { shortName: 'Oba', longName: 'Obadiah', chapterCount: 1 },
+    32: { shortName: 'Jon', longName: 'Jonah', chapterCount: 4 },
+    33: { shortName: 'Mic', longName: 'Micah', chapterCount: 7 },
+    34: { shortName: 'Nah', longName: 'Nahum', chapterCount: 3 },
+    35: { shortName: 'Hab', longName: 'Habakkuk', chapterCount: 3 },
+    36: { shortName: 'Zep', longName: 'Zephaniah', chapterCount: 3 },
+    37: { shortName: 'Hag', longName: 'Haggai', chapterCount: 2 },
+    38: { shortName: 'Zec', longName: 'Zechariah', chapterCount: 14 },
+    39: { shortName: 'Mal', longName: 'Malachi', chapterCount: 4 },
+    40: { shortName: 'Mat', longName: 'Matthew', chapterCount: 28 },
+    41: { shortName: 'Mar', longName: 'Mark', chapterCount: 16 },
+    42: { shortName: 'Luk', longName: 'Luke', chapterCount: 24 },
+    43: { shortName: 'Joh', longName: 'John', chapterCount: 21 },
+    44: { shortName: 'Act', longName: 'Acts of the Apostles', chapterCount: 28 },
+    45: { shortName: 'Rom', longName: 'Romans', chapterCount: 16 },
+    46: { shortName: '1Co', longName: '1 Corinthians', chapterCount: 16 },
+    47: { shortName: '2Co', longName: '2 Corinthians', chapterCount: 13 },
+    48: { shortName: 'Gal', longName: 'Galatians', chapterCount: 6 },
+    49: { shortName: 'Eph', longName: 'Ephesians', chapterCount: 6 },
+    50: { shortName: 'Php', longName: 'Philippians', chapterCount: 4 },
+    51: { shortName: 'Col', longName: 'Colossians', chapterCount: 4 },
+    52: { shortName: '1Th', longName: '1 Thessalonians', chapterCount: 5 },
+    53: { shortName: '2Th', longName: '2 Thessalonians', chapterCount: 3 },
+    54: { shortName: '1Ti', longName: '1 Timothy', chapterCount: 6 },
+    55: { shortName: '2Ti', longName: '2 Timothy', chapterCount: 4 },
+    56: { shortName: 'Tit', longName: 'Titus', chapterCount: 3 },
+    57: { shortName: 'Phm', longName: 'Philemon', chapterCount: 1 },
+    58: { shortName: 'Heb', longName: 'Hebrews', chapterCount: 13 },
+    59: { shortName: 'Jas', longName: 'James', chapterCount: 5 },
+    60: { shortName: '1Pe', longName: '1 Peter', chapterCount: 5 },
+    61: { shortName: '2Pe', longName: '2 Peter', chapterCount: 3 },
+    62: { shortName: '1Jn', longName: '1 John', chapterCount: 5 },
+    63: { shortName: '2Jn', longName: '2 John', chapterCount: 1 },
+    64: { shortName: '3Jn', longName: '3 John', chapterCount: 1 },
+    65: { shortName: 'Jud', longName: 'Jude', chapterCount: 1 },
+    66: { shortName: 'Rev', longName: 'Revelation', chapterCount: 22 }
+};
+
 // Initialize the app
 document.addEventListener('DOMContentLoaded', function() {
     // Don't call these functions here - they will be called after PHP data is loaded
@@ -43,9 +133,43 @@ document.addEventListener('DOMContentLoaded', function() {
             currentModalLanguage = getBibleLanguage(bible);
             loadedDevotionsKey = '';
 
+            // Word clicks always use the full 3-tab (Concordance/Dictionary/Devotions) mode
+            const tabsEl = document.getElementById('concordanceTabs');
+            if (tabsEl) tabsEl.classList.remove('mode-crossref');
+
             // Use Strong's number if available, otherwise use the word
             const searchTerm = strongs || word;
             openConcordance(searchTerm, bible);
+            return;
+        }
+
+        // Both the individual inline citations (e.g. "Joh 1:1-3") and the trailing
+        // "click for more" link open the Cross References modal for the verse being read
+        const crossrefOpener = event.target.closest('.crossref-more-link, .crossref-inline-ref');
+        if (crossrefOpener) {
+            event.preventDefault();
+            const book = crossrefOpener.getAttribute('data-book');
+            const chapter = crossrefOpener.getAttribute('data-chapter');
+            const verse = crossrefOpener.getAttribute('data-verse');
+
+            currentModalBook = book;
+            currentModalChapter = chapter;
+            currentModalVerse = verse;
+            currentModalLanguage = getBibleLanguage(selectedBibles[0]);
+            loadedDevotionsKey = '';
+
+            openCrossReferences(book, chapter, verse);
+            return;
+        }
+
+        const crossrefRefLink = event.target.closest('.crossref-ref-link');
+        if (crossrefRefLink) {
+            event.preventDefault();
+            const book = crossrefRefLink.getAttribute('data-book');
+            const chapter = crossrefRefLink.getAttribute('data-chapter');
+            const verse = crossrefRefLink.getAttribute('data-verse');
+            navigateToCrossReference(book, chapter, verse);
+            return;
         }
     });
 
@@ -460,10 +584,18 @@ function updateBookNavigationButtons() {
     
     const currentBookNo = parseInt(bookSelect.value);
     const currentBookIndex = booksData.findIndex(b => b.bookNo === currentBookNo);
-    
+
+    if (currentBookIndex === -1) {
+        // Current book isn't in this Bible's list (e.g. we navigated here via a cross
+        // reference into a book the primary Bible doesn't have) - prev/next book are undefined
+        prevBtn.disabled = true;
+        nextBtn.disabled = true;
+        return;
+    }
+
     // Enable/disable previous button
     prevBtn.disabled = currentBookIndex === 0;
-    
+
     // Enable/disable next button
     nextBtn.disabled = currentBookIndex === (booksData.length - 1);
 }
@@ -502,9 +634,10 @@ function loadVerses() {
             updateMetaTags();
             updateChapterNavigationButtons(); // Update navigation buttons after loading verses
             updateBookNavigationButtons(); // Update book navigation buttons after loading verses
+            loadInlineCrossReferences(selectedBook, selectedChapter);
         })
         .catch(error => {
-            document.getElementById('versesContainer').innerHTML = 
+            document.getElementById('versesContainer').innerHTML =
                 '<div class="alert alert-danger">Error loading verses. Please try again.</div>';
         });
 }
@@ -513,7 +646,7 @@ function displayVerses(results, selectedBook, selectedChapter) {
     const container = document.getElementById('versesContainer');
     container.innerHTML = '';
 
-    if (results.length === 0 || !results[0].success) {
+    if (results.length === 0 || !results.some(r => r.success)) {
         container.innerHTML = '<div class="alert alert-warning">No verses found.</div>';
         return;
     }
@@ -546,11 +679,18 @@ function displayVerses(results, selectedBook, selectedChapter) {
         
         verseContainer.dataset.verseNumber = verseNumber;
 
+        const crossrefLinkRow = `
+            <div class="crossref-inline-row mt-1">
+                <span class="crossref-inline-list" id="crossref-inline-${verseNumber}">${renderCrossRefMoreLink(selectedBook, selectedChapter, verseNumber)}</span>
+            </div>
+        `;
+
         verseContainer.innerHTML = `
             <div class="d-flex">
                 <div class="verse-number p-2 text-center">${verseNumber}</div>
                 <div class="flex-grow-1 px-3">
                     ${versesContent}
+                    ${crossrefLinkRow}
                 </div>
                 <div class="d-flex align-items-center">
                     <button class="btn btn-outline-primary btn-sm copy-btn"
@@ -1300,6 +1440,300 @@ function displayDevotionEntry(sectionId, entryData) {
     });
 
     sectionEl.innerHTML = html || '<div class="alert alert-info mb-0">Could not load this devotion.</div>';
+}
+
+function pad(num, len) {
+    return String(num).padStart(len, '0');
+}
+
+function renderCrossRefMoreLink(book, chapter, verse) {
+    return `<a href="#" class="crossref-more-link" data-book="${book}" data-chapter="${chapter}" data-verse="${verse}" title="View all cross references">click for more</a>`;
+}
+
+function crossRefTargetLabel(entry) {
+    const bookInfo = CROSSREF_BOOKS[entry.to_book_no];
+    const shortName = bookInfo ? bookInfo.shortName : `Book${entry.to_book_no}`;
+    const rangeLabel = entry.to_verse_end > entry.to_verse_start
+        ? `${entry.to_verse_start}-${entry.to_verse_end}`
+        : `${entry.to_verse_start}`;
+    return `${escapeHtml(shortName)} ${entry.to_chapter_no}:${rangeLabel}`;
+}
+
+function loadInlineCrossReferences(book, chapter) {
+    const requestId = ++crossRefInlineRequestId;
+
+    const paddedBook = pad(book, 2);
+    const paddedChapter = pad(chapter, 3);
+    const listUrl = `https://wordofgod.in/bible-cross-references/data/${DEFAULT_CROSS_REFERENCE_SOURCE}/${paddedBook}/${paddedChapter}.json`;
+
+    fetch(listUrl)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (requestId !== crossRefInlineRequestId) return; // a newer chapter has since loaded
+
+            const entries = Array.isArray(data) ? data : [];
+            const byVerse = {};
+            entries.forEach(entry => {
+                if (entry.book_no !== Number(book) || entry.chapter_no !== Number(chapter)) return;
+                const rangeEnd = entry.verse_no_end || entry.verse_no;
+                for (let vn = entry.verse_no; vn <= rangeEnd; vn++) {
+                    if (!byVerse[vn]) byVerse[vn] = [];
+                    byVerse[vn].push(entry);
+                }
+            });
+
+            Object.keys(byVerse).forEach(verseNumber => {
+                const sectionEl = document.getElementById(`crossref-inline-${verseNumber}`);
+                if (!sectionEl) return;
+
+                const verseEntries = byVerse[verseNumber].sort((a, b) => (b.votes || 0) - (a.votes || 0));
+                const shown = verseEntries.slice(0, INLINE_CROSSREF_LIMIT);
+
+                // Clicking any citation opens the modal for this verse (the source verse,
+                // not the target) - same destination as the "click for more" link
+                const citationsHtml = shown.map(entry =>
+                    `<a href="#" class="crossref-inline-ref" data-book="${book}" data-chapter="${chapter}" data-verse="${verseNumber}">${crossRefTargetLabel(entry)}</a>`
+                ).join('; ');
+
+                const moreLink = renderCrossRefMoreLink(book, chapter, verseNumber);
+                sectionEl.innerHTML = citationsHtml ? `${citationsHtml} ${moreLink}` : moreLink;
+            });
+        })
+        .catch(error => {
+            // Leave the existing "more" icon in place; inline citations are a nice-to-have
+        });
+}
+
+function openCrossReferences(book, chapter, verse) {
+    const tabsEl = document.getElementById('concordanceTabs');
+    if (tabsEl) tabsEl.classList.add('mode-crossref');
+
+    const bookInfo = booksData.find(b => b.bookNo === Number(book));
+    const bookName = bookInfo ? bookInfo.longName : `Book ${book}`;
+    document.getElementById('concordanceModalLabel').textContent = `Cross References: ${bookName} ${chapter}:${verse}`;
+
+    const crossrefTabEl = document.getElementById('crossreferences-tab');
+    bootstrap.Tab.getOrCreateInstance(crossrefTabEl).show();
+
+    const modalEl = document.getElementById('concordanceModal');
+    bootstrap.Modal.getOrCreateInstance(modalEl).show();
+
+    loadCrossReferencesData(book, chapter, verse);
+}
+
+function populateCrossRefSourceSelect() {
+    const select = document.getElementById('crossrefSourceSelect');
+    if (!select || select.dataset.populated === 'true') return;
+
+    select.innerHTML = CROSS_REFERENCE_SOURCES.map(source =>
+        `<option value="${source.key}">${escapeHtml(source.label)} (${source.count.toLocaleString()})</option>`
+    ).join('');
+    select.dataset.populated = 'true';
+
+    select.addEventListener('change', function() {
+        currentCrossRefSource = select.value;
+        loadCrossReferencesData(currentModalBook, currentModalChapter, currentModalVerse);
+    });
+}
+
+function loadCrossReferencesData(book, chapter, verse) {
+    populateCrossRefSourceSelect();
+    const select = document.getElementById('crossrefSourceSelect');
+    if (select) select.value = currentCrossRefSource;
+
+    const key = `${book}|${chapter}|${verse}|${currentCrossRefSource}`;
+    if (loadedCrossReferencesKey === key) {
+        renderCrossRefPanels(key);
+        return;
+    }
+
+    const panelsEl = document.getElementById('crossrefPanels');
+    panelsEl.innerHTML = '<div class="text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>';
+
+    const paddedBook = pad(book, 2);
+    const paddedChapter = pad(chapter, 3);
+    const listUrl = `https://wordofgod.in/bible-cross-references/data/${currentCrossRefSource}/${paddedBook}/${paddedChapter}.json`;
+
+    fetch(listUrl)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (loadedCrossReferencesKey === key) return; // already resolved by a newer/duplicate call
+            const entries = Array.isArray(data) ? data : [];
+            const verseNum = Number(verse);
+            currentCrossRefEntries = entries.filter(entry => {
+                return entry.book_no === Number(book) &&
+                    entry.chapter_no === Number(chapter) &&
+                    verseNum >= entry.verse_no &&
+                    verseNum <= (entry.verse_no_end || entry.verse_no);
+            }).sort((a, b) => (b.votes || 0) - (a.votes || 0));
+            loadedCrossReferencesKey = key;
+            renderCrossRefPanels(key);
+        })
+        .catch(error => {
+            if (loadedCrossReferencesKey === key) return;
+            currentCrossRefEntries = [];
+            loadedCrossReferencesKey = key;
+            renderCrossRefPanels(key);
+        });
+}
+
+function renderCrossRefPanels(key) {
+    if (loadedCrossReferencesKey !== key) return;
+
+    const panelsEl = document.getElementById('crossrefPanels');
+
+    if (currentCrossRefEntries.length === 0) {
+        panelsEl.innerHTML = '<div class="alert alert-info">No cross references found for this verse.</div>';
+        return;
+    }
+
+    let html = '<div class="crossref-results">';
+    selectedBibles.forEach((bibleAbbr, index) => {
+        const sectionId = `crossref-section-${index}`;
+        const collapseId = `crossref-collapse-${index}`;
+        html += `
+            <div class="crossref-section mb-2 border rounded">
+                <h6 class="mb-0">
+                    <button class="btn crossref-section-toggle w-100 text-start d-flex justify-content-between align-items-center collapsed"
+                            type="button" data-bs-toggle="collapse" data-bs-target="#${collapseId}"
+                            aria-expanded="false" aria-controls="${collapseId}">
+                        <span class="text-primary fw-bold">${escapeHtml(bibleAbbr)} &mdash; ${currentCrossRefEntries.length} reference(s)</span>
+                        <i class="bi bi-chevron-down crossref-toggle-icon"></i>
+                    </button>
+                </h6>
+                <div id="${collapseId}" class="collapse">
+                    <div id="${sectionId}" class="crossref-section-body p-2" data-bible="${escapeHtml(bibleAbbr)}" data-loaded="false">
+                        <div class="text-center"><div class="spinner-border spinner-border-sm" role="status"><span class="visually-hidden">Loading...</span></div></div>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    html += '</div>';
+    panelsEl.innerHTML = html;
+
+    selectedBibles.forEach((bibleAbbr, index) => {
+        const collapseEl = document.getElementById(`crossref-collapse-${index}`);
+        const sectionId = `crossref-section-${index}`;
+        collapseEl.addEventListener('shown.bs.collapse', function() {
+            if (loadedCrossReferencesKey !== key) return;
+            const sectionEl = document.getElementById(sectionId);
+            if (!sectionEl || sectionEl.dataset.loaded === 'true') return;
+            loadCrossRefVersesForBible(bibleAbbr, sectionId, key);
+        });
+    });
+}
+
+function loadCrossRefVersesForBible(bibleAbbr, sectionId, key) {
+    const entries = currentCrossRefEntries;
+    const refs = entries.map(entry => ({
+        book: entry.to_book_no,
+        chapter: entry.to_chapter_no,
+        verseStart: entry.to_verse_start,
+        verseEnd: entry.to_verse_end
+    }));
+
+    fetch('api.php?action=getVersesByRefs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ bible: bibleAbbr, refs: refs })
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (loadedCrossReferencesKey !== key) return;
+            const sectionEl = document.getElementById(sectionId);
+            if (!sectionEl) return;
+
+            if (!data.success || !Array.isArray(data.verses)) {
+                sectionEl.innerHTML = '<div class="alert alert-warning mb-0">Could not load cross-referenced verses.</div>';
+                return;
+            }
+
+            sectionEl.dataset.loaded = 'true';
+            let html = '';
+            data.verses.forEach((resolved, i) => {
+                const entry = entries[i];
+                if (!resolved || !resolved.text) return;
+
+                const rangeLabel = resolved.verseEnd > resolved.verseStart
+                    ? `${resolved.verseStart}-${resolved.verseEnd}`
+                    : `${resolved.verseStart}`;
+
+                html += `
+                    <div class="crossref-item mb-2 pb-2 border-bottom">
+                        <a href="#" class="crossref-ref-link fw-bold text-primary"
+                           data-book="${entry.to_book_no}" data-chapter="${entry.to_chapter_no}" data-verse="${entry.to_verse_start}">
+                            ${escapeHtml(resolved.bookName || '')} ${resolved.chapter}:${rangeLabel}
+                        </a>
+                        <div class="crossref-verse-text">${escapeHtml(resolved.text)}</div>
+                    </div>
+                `;
+            });
+
+            sectionEl.innerHTML = html || '<div class="alert alert-info mb-0">No verse text found.</div>';
+        })
+        .catch(error => {
+            if (loadedCrossReferencesKey !== key) return;
+            const sectionEl = document.getElementById(sectionId);
+            if (sectionEl) {
+                sectionEl.innerHTML = '<div class="alert alert-warning mb-0">Could not load cross-referenced verses.</div>';
+            }
+        });
+}
+
+function navigateToCrossReference(bookNo, chapterNo, verseNo) {
+    const bookSelect = document.getElementById('bookSelect');
+    const chapterSelect = document.getElementById('chapterSelect');
+
+    // `booksData` only reflects whichever single Bible currently drives the book/chapter
+    // dropdown, which may be a partial-canon edition (e.g. Old-Testament-only). A reference
+    // can still be valid even if that particular Bible doesn't have it - one of the other
+    // currently selected Bibles might (that's often exactly the panel the user clicked from).
+    // Fall back to the canonical book table and inject a temporary <option> so navigation
+    // still works; loadVerses() will simply skip any selected Bible that lacks this book.
+    let chapterCount = booksData.find(b => b.bookNo === Number(bookNo))?.chapterCount;
+    if (!chapterCount) {
+        const fallbackBook = CROSSREF_BOOKS[bookNo];
+        if (!fallbackBook) return; // unknown book number, nothing we can do
+        chapterCount = fallbackBook.chapterCount;
+        if (!bookSelect.querySelector(`option[value="${bookNo}"]`)) {
+            const option = document.createElement('option');
+            option.value = bookNo;
+            option.textContent = fallbackBook.longName;
+            bookSelect.appendChild(option);
+        }
+    }
+
+    window.initialSelectedVerse = Number(verseNo);
+    bookSelect.value = bookNo;
+
+    chapterSelect.innerHTML = '';
+    for (let i = 1; i <= chapterCount; i++) {
+        const option = document.createElement('option');
+        option.value = i;
+        option.textContent = `Chapter ${i}`;
+        if (i === Number(chapterNo)) option.selected = true;
+        chapterSelect.appendChild(option);
+    }
+
+    updateURL();
+    updateChapterNavigationButtons();
+    updateBookNavigationButtons();
+    loadVerses();
+
+    const modalEl = document.getElementById('concordanceModal');
+    const modalInstance = bootstrap.Modal.getInstance(modalEl);
+    if (modalInstance) modalInstance.hide();
 }
 
 function highlightWordInText(text, searchWord) {

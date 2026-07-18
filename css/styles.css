@@ -524,6 +524,86 @@ body {
     margin-right: 4px;
 }
 
+/* Cross References tab styling */
+#concordanceTabs.mode-crossref .nav-item-concordance,
+#concordanceTabs.mode-crossref .nav-item-dictionary {
+    display: none;
+}
+
+#concordanceTabs.mode-crossref .nav-item-crossreferences {
+    order: -1;
+}
+
+.crossref-inline-row {
+    font-size: 0.85rem;
+}
+
+.crossref-inline-ref {
+    color: #6c757d;
+    text-decoration: none;
+}
+
+.crossref-inline-ref:hover {
+    color: #0d6efd;
+    text-decoration: underline;
+}
+
+.crossref-more-link {
+    color: #adb5bd;
+    text-decoration: none;
+    font-style: italic;
+}
+
+.crossref-more-link:hover {
+    color: #0d6efd;
+}
+
+.crossref-results {
+    max-height: 450px;
+    overflow-y: auto;
+}
+
+.crossref-section-body {
+    line-height: 1.6;
+    max-height: 320px;
+    overflow-y: auto;
+}
+
+.crossref-section-toggle {
+    padding: 0.5rem 0.75rem;
+    background-color: #f8f9fa;
+    border: none;
+    border-radius: 0.375rem;
+}
+
+.crossref-section-toggle:hover {
+    background-color: #eef1f4;
+}
+
+.crossref-toggle-icon {
+    transition: transform 0.2s ease;
+}
+
+.crossref-section-toggle.collapsed .crossref-toggle-icon {
+    transform: rotate(-90deg);
+}
+
+.crossref-item {
+    font-size: 0.95rem;
+}
+
+.crossref-ref-link {
+    text-decoration: none;
+}
+
+.crossref-ref-link:hover {
+    text-decoration: underline;
+}
+
+.crossref-verse-text {
+    margin-top: 0.15rem;
+}
+
 .emphasis {
     font-style: italic;
     color: #338fe0;

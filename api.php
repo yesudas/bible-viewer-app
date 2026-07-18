@@ -18,6 +18,9 @@ switch ($action) {
     case 'getVerses':
         getVerses();
         break;
+    case 'getVersesByRefs':
+        getVersesByRefs();
+        break;
     default:
         echo json_encode(['success' => false, 'error' => 'Invalid action']);
         break;
@@ -133,6 +136,101 @@ function getVerses() {
             'chapterNumber' => $verseData['chapterNumber'] ?? $chapterNo
         ]);
         
+    } catch (Exception $e) {
+        echo json_encode(['success' => false, 'error' => 'Error reading verse data: ' . $e->getMessage()]);
+    }
+}
+
+function getVersesByRefs() {
+    $input = json_decode(file_get_contents('php://input'), true);
+    $bibleAbbr = $input['bible'] ?? '';
+    $refs = $input['refs'] ?? [];
+
+    if (empty($bibleAbbr) || !is_array($refs) || count($refs) === 0) {
+        echo json_encode(['success' => false, 'error' => 'Bible and refs required']);
+        return;
+    }
+
+    try {
+        $language = findBibleLanguage($bibleAbbr);
+        if (!$language) {
+            echo json_encode(['success' => false, 'error' => 'Bible language not found']);
+            return;
+        }
+
+        $bibleFile = "data/{$language}/{$bibleAbbr}/bibles.json";
+        if (!file_exists($bibleFile)) {
+            echo json_encode(['success' => false, 'error' => 'Bible data not found']);
+            return;
+        }
+
+        $bibleData = json_decode(file_get_contents($bibleFile), true);
+        $books = $bibleData['bibles'][0]['books'] ?? [];
+        $booksByNo = [];
+        foreach ($books as $b) {
+            $booksByNo[$b['bookNo']] = $b;
+        }
+
+        $chapterCache = [];
+        $results = [];
+
+        foreach ($refs as $ref) {
+            $bookNo = intval($ref['book'] ?? 0);
+            $chapterNo = intval($ref['chapter'] ?? 0);
+            $verseStart = intval($ref['verseStart'] ?? 0);
+            $verseEnd = intval($ref['verseEnd'] ?? $verseStart);
+            if ($verseEnd < $verseStart) {
+                $verseEnd = $verseStart;
+            }
+
+            $book = $booksByNo[$bookNo] ?? null;
+            if (!$book || $verseStart <= 0) {
+                $results[] = [
+                    'book' => $bookNo, 'chapter' => $chapterNo,
+                    'verseStart' => $verseStart, 'verseEnd' => $verseEnd,
+                    'bookName' => null, 'text' => null
+                ];
+                continue;
+            }
+
+            $cacheKey = "{$bookNo}-{$chapterNo}";
+            if (!isset($chapterCache[$cacheKey])) {
+                $bookFolder = "{$bookNo}-{$book['longName']}";
+                $verseFile = "data/{$language}/{$bibleAbbr}/{$bookFolder}/{$chapterNo}.json";
+                $versesByNumber = [];
+                if (file_exists($verseFile)) {
+                    $verseData = json_decode(file_get_contents($verseFile), true);
+                    if (isset($verseData['verses'])) {
+                        foreach ($verseData['verses'] as $v) {
+                            $versesByNumber[$v['number']] = $v['verse'];
+                        }
+                    }
+                }
+                $chapterCache[$cacheKey] = $versesByNumber;
+            }
+            $versesByNumber = $chapterCache[$cacheKey];
+
+            $textParts = [];
+            for ($vn = $verseStart; $vn <= $verseEnd; $vn++) {
+                if (isset($versesByNumber[$vn])) {
+                    $verseText = preg_replace('/<W[HG]\d+>/', '', $versesByNumber[$vn]);
+                    $verseText = strip_tags($verseText);
+                    $textParts[] = ($verseEnd > $verseStart ? "{$vn} " : '') . $verseText;
+                }
+            }
+
+            $results[] = [
+                'book' => $bookNo,
+                'chapter' => $chapterNo,
+                'verseStart' => $verseStart,
+                'verseEnd' => $verseEnd,
+                'bookName' => $book['longName'],
+                'text' => count($textParts) > 0 ? implode(' ', $textParts) : null
+            ];
+        }
+
+        echo json_encode(['success' => true, 'verses' => $results]);
+
     } catch (Exception $e) {
         echo json_encode(['success' => false, 'error' => 'Error reading verse data: ' . $e->getMessage()]);
     }
