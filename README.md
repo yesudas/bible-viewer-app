@@ -174,6 +174,7 @@ https://yourdomain.com/?book=19&chapter=119&verse=6
 - A Contents bar above the sections links to every section by that same header label; clicking one calls `scrollIntoView` on the matching section so long chapters don't require scrolling past every earlier section to reach it
 - The source's own `html_style` (CSS with `%COLOR_X%` placeholder tokens) is substituted with the app's palette and scoped under `#commentarySections` before injection, so it only styles that tab's content
 - Links embedded in the commentary text point directly at `https://www.wordofgod.in/bibles/?book=&chapter=&verse=`, which `index.php` already reads as query parameters — no special click handling is needed for them to navigate to the referenced verse
+- Before insertion, `enrichCommentaryVerseLinks()` appends the reader's current `bibles`/`langs` selection to any such link (matched by hostname, not just an exact string), so following a commentary link keeps the same Bible/language comparison instead of resetting to the site's defaults
 
 ## Technical Details
 

@@ -27,7 +27,23 @@ let currentVerseNumber = null; // verse to highlight/keep in the URL for the cur
 // Friendly names for known dictionary slugs returned by the getDictionaries API
 const DICTIONARY_LABELS = {
     'tamil-bible-dictionary': 'Tamil Bible Dictionary',
-    'சத்திய-வேதாகமப்-பெயர்-அகராதி': 'சத்திய வேதாகமப் பெயர் அகராதி'
+    'சத்திய-வேதாகமப்-பெயர்-அகராதி': 'சத்திய வேதாகமப் பெயர் அகராதி',
+    'பரிபூரண-பெயர்ப்-பொக்கிஷம்': 'பரிபூரண பெயர்ப் பொக்கிஷம்',
+    'ஸ்ட்ராங்க்ஸ்-எபிரேய-அகராதி': 'ஸ்ட்ராங்க்ஸ் எபிரேய அகராதி',
+    'ஸ்ட்ராங்க்ஸ்-கிரேக்க-அகராதி': 'ஸ்ட்ராங்க்ஸ் கிரேக்க அகராதி',
+    'bdag3-greek-dictionary': 'BDAG3 Greek Dictionary',
+    'bdb-t-bible-dictionary': 'BDB-T Bible Dictionary',
+    'danker-greek-dictionary': 'Danker Greek Dictionary',
+    'eastons-bible-dictionary': 'Easton\'s Bible Dictionary',
+    'gesenius-hebrew-dictionary': 'Gesenius Hebrew Dictionary',
+    'gr-en-ls-greek-dictionary': 'Gr-En-LS Greek Dictionary',
+    'he-en-b-hebrew-dictionary': 'He-En-B Hebrew Dictionary',
+    'lxx-green-dictionary': 'LXX Greek Dictionary',
+    'mlsj-greek-dictionary': 'MLSJ Greek Dictionary',
+    'smiths-bible-dictionary': 'Smith\'s Bible Dictionary',
+    'strongs-bible-dictionary': 'Strong\'s Bible Dictionary',
+    'naves-bible-dictionary': 'Nave\'s Bible Dictionary',
+    'thompson-chain-reference': 'Thompson Chain Reference'
 };
 
 // Cross reference sources. Change DEFAULT_CROSS_REFERENCE_SOURCE to switch the default.
@@ -47,10 +63,14 @@ let crossRefInlineRequestId = 0; // guards against a slow chapter fetch overwrit
 
 // Commentary sources. Change DEFAULT_COMMENTARY_SOURCE to switch the default.
 const COMMENTARY_SOURCES = [
+    { key: 'GNTBC', label: 'GNTBC - Good News தமிழ் வேதாகம விளக்கவுரை' },
     { key: 'MHWBC', label: "MHWBC - Matthew Henry's Whole Bible Commentary" },
-    { key: 'GNTBC', label: 'GNTBC - Good News தமிழ் வேதாகம விளக்கவுரை' }
+    { key: 'Barnes', label: 'Barnes - Albert Barnes\' Notes on the Whole Bible' },
+    { key: 'Gill', label: 'Gill - John Gill\'s Exposition of the Entire Bible' },
+    { key: 'JFB', label: 'JFB - Jamieson, Fausset & Brown Commentary' },
+    { key: 'KD', label: 'KD - Keil & Delitzsch Commentary on the Old Testament' }
 ];
-const DEFAULT_COMMENTARY_SOURCE = 'MHWBC';
+const DEFAULT_COMMENTARY_SOURCE = 'GNTBC';
 let currentCommentarySource = DEFAULT_COMMENTARY_SOURCE;
 let loadedCommentaryKey = ''; // `${book}|${chapter}|${source}`
 let currentCommentarySections = [];
@@ -1629,6 +1649,30 @@ function renderCommentarySections(key) {
     html += '</div>';
 
     sectionsEl.innerHTML = html;
+    enrichCommentaryVerseLinks(sectionsEl);
+}
+
+// Commentary sections embed links back to specific verses on wordofgod.in (e.g.
+// https://www.wordofgod.in/bibles/?book=1&chapter=1&verse=1). Append the reader's currently
+// selected Bibles/languages so following one of these links keeps the same comparison set
+// instead of resetting to the site's defaults.
+function enrichCommentaryVerseLinks(container) {
+    if (selectedBibles.length === 0 && selectedLanguages.length === 0) return;
+
+    container.querySelectorAll('a[href]').forEach(link => {
+        let url;
+        try {
+            url = new URL(link.getAttribute('href'), window.location.href);
+        } catch (e) {
+            return;
+        }
+        if (!/(^|\.)wordofgod\.in$/.test(url.hostname)) return;
+        if (!url.pathname.replace(/\/+$/, '').endsWith('/bibles')) return;
+
+        if (selectedBibles.length > 0) url.searchParams.set('bibles', selectedBibles.join(','));
+        if (selectedLanguages.length > 0) url.searchParams.set('langs', selectedLanguages.join(','));
+        link.setAttribute('href', url.toString());
+    });
 }
 
 function pad(num, len) {
