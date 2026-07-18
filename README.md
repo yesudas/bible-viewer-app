@@ -15,6 +15,7 @@ A responsive, mobile-first web application for reading and comparing multiple Bi
 - **Multiple Bible Versions**: Compare different translations side by side
 - **Dynamic Selection**: Easy language and Bible version selection
 - **Bookmarkable URLs**: SEO-friendly URLs for sharing specific passages
+- **Verse Deep Linking**: Link directly to a specific verse — the page scrolls to it and briefly highlights it
 - **Verse Copy Function**: One-click copying of verses with all versions
 
 ### 🔍 Navigation & Search
@@ -22,6 +23,12 @@ A responsive, mobile-first web application for reading and comparing multiple Bi
 - Dynamic book and chapter dropdowns
 - Intelligent default selection based on availability
 - URL-based navigation with history support
+
+### 📚 Word Study Tools
+Clicking any word (or Strong's number) in a verse opens a modal with three tabs:
+- **Concordance**: Every other verse where that word appears
+- **Dictionary**: Matching entries from available Bible dictionaries
+- **Devotions**: Devotional readings available for that specific verse, grouped into collapsible panels (one per devotion, titled with the devotion's title). Opening a panel automatically closes any other open panel.
 
 ### ⚡ Performance & SEO
 - Fast loading with optimized data structure
@@ -90,15 +97,19 @@ location ~ ^/api/(.*)$ {
 4. **Read & Compare**: View verses side by side from multiple versions
 
 ### URL Structure
-- **Home**: `/`
-- **Specific Passage**: `/bible/{bibles}/{book}/{chapter}`
-- **Language Filter**: `/lang/{language}`
+The app reads state from query string parameters on `index.php` and keeps the URL bar in sync as you navigate:
+- `book` — numeric book ID (matches `bookNo` in the Bible's `bibles.json`)
+- `chapter` — chapter number
+- `verse` — *(optional)* verse number to scroll to and highlight
+- `bibles` — comma-separated Bible abbreviations to compare
+- `langs` — comma-separated languages to show tabs for
 
 ### Examples
 ```
-https://yourdomain.com/bible/TOV2017,TCB1973/1/1
-https://yourdomain.com/lang/தமிழ்
-https://yourdomain.com/bible/TCVIN2022/40/5
+https://yourdomain.com/?book=1&chapter=1
+https://yourdomain.com/?bibles=TOV2017,TCB1973&book=1&chapter=1
+https://yourdomain.com/?langs=தமிழ்&book=1&chapter=1
+https://yourdomain.com/?book=19&chapter=119&verse=6
 ```
 
 ### Advanced Features
@@ -107,6 +118,11 @@ https://yourdomain.com/bible/TCVIN2022/40/5
 - Select multiple Bible versions across different languages
 - Maintain selection order for consistent display
 - Remove individual selections with one click
+
+#### Verse Deep Linking
+- Add `&verse={num}` to a book/chapter URL to link straight to a specific verse
+- On load, the page scrolls to that verse and briefly highlights it, then fades back to normal after a few seconds
+- The `verse` param stays in the URL while you're viewing that verse (e.g. toggling a Bible version), and is dropped once you navigate to a different chapter or book
 
 #### Copy Functionality
 - Click the copy icon next to any verse
@@ -118,6 +134,12 @@ https://yourdomain.com/bible/TCVIN2022/40/5
 - **Minus (-)**: Decrease font size  
 - **Reset**: Return to default size
 - **Top Arrow**: Smooth scroll to page top
+
+#### Concordance, Dictionary & Devotions
+- Click any word (or Strong's number) in a verse to open the word-study modal
+- **Concordance** tab loads immediately, showing other occurrences of the word
+- **Dictionary** tab lazy-loads entries only when clicked, so lookups don't fire for words the user never inspects
+- **Devotions** tab lazy-loads devotions available for the exact book/chapter/verse of the clicked word (not the word itself), rendered as collapsible, accordion-style panels — only one panel can be expanded at a time
 
 ## Technical Details
 
@@ -145,6 +167,14 @@ The application uses a JSON-based data structure:
 ### API Endpoints
 - `GET /api.php?action=getBooks&bible={abbr}` - Retrieve books for a Bible
 - `GET /api.php?action=getVerses&bible={abbr}&book={num}&chapter={num}` - Get verses
+
+### External Word Study APIs
+The Concordance, Dictionary, and Devotions tabs pull data live from wordofgod.in:
+- Concordance: `https://.../bible-concordance/data/{language}/{bible}/words/...`
+- Dictionary: `https://wordofgod.in/bibledictionary/api.php?action=getDictionaries&word={word}`
+- Devotions: `https://wordofgod.in/bible-devotions/api.php?action=getDevotions&lang={language}&book={num}&chapter={num}&verse={num}`
+
+These require the app to be served from a domain the wordofgod.in APIs allow via CORS; testing from an arbitrary local origin (e.g. `http://localhost`) may show "no data found" for the per-entry lookups even though the list APIs succeed.
 
 ### Security Features
 - Input validation and sanitization

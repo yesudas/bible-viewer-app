@@ -6,6 +6,20 @@ let biblesByLanguage = {};
 let booksData = [];
 let chapterCounts = {};
 let currentFontSize = 16;
+let currentModalWord = '';
+let loadedDictionaryWord = '';
+let currentModalBook = null;
+let currentModalChapter = null;
+let currentModalVerse = null;
+let currentModalLanguage = '';
+let loadedDevotionsKey = '';
+let currentVerseNumber = null; // verse to highlight/keep in the URL for the current chapter view
+
+// Friendly names for known dictionary slugs returned by the getDictionaries API
+const DICTIONARY_LABELS = {
+    'tamil-bible-dictionary': 'Tamil Bible Dictionary',
+    'சத்திய-வேதாகமப்-பெயர்-அகராதி': 'சத்திய வேதாகமப் பெயர் அகராதி'
+};
 
 // Initialize the app
 document.addEventListener('DOMContentLoaded', function() {
@@ -20,12 +34,40 @@ document.addEventListener('DOMContentLoaded', function() {
             const word = event.target.getAttribute('data-word');
             const strongs = event.target.getAttribute('data-strongs');
             const bible = event.target.getAttribute('data-bible');
-            
+
+            // Track the book/chapter/verse/language of the clicked word so the Devotions
+            // tab can look up devotions for this verse regardless of which word was clicked
+            currentModalBook = event.target.getAttribute('data-book');
+            currentModalChapter = event.target.getAttribute('data-chapter');
+            currentModalVerse = event.target.getAttribute('data-verse');
+            currentModalLanguage = getBibleLanguage(bible);
+            loadedDevotionsKey = '';
+
             // Use Strong's number if available, otherwise use the word
             const searchTerm = strongs || word;
             openConcordance(searchTerm, bible);
         }
     });
+
+    // Load dictionary content when the Dictionary tab is shown
+    const dictionaryTabEl = document.getElementById('dictionary-tab');
+    if (dictionaryTabEl) {
+        dictionaryTabEl.addEventListener('shown.bs.tab', function() {
+            if (currentModalWord) {
+                loadDictionaryData(currentModalWord);
+            }
+        });
+    }
+
+    // Load devotions content when the Devotions tab is shown
+    const devotionsTabEl = document.getElementById('devotions-tab');
+    if (devotionsTabEl) {
+        devotionsTabEl.addEventListener('shown.bs.tab', function() {
+            if (currentModalBook && currentModalChapter && currentModalVerse) {
+                loadDevotionsData(currentModalBook, currentModalChapter, currentModalVerse, currentModalLanguage);
+            }
+        });
+    }
 });
 
 function initializeSelections() {
@@ -262,7 +304,7 @@ function updateChapters() {
         // Use initialSelectedChapter only on first load, otherwise default to chapter 1
         const defaultChapter = window.initialSelectedChapter || 1;
         const shouldUseInitial = window.initialSelectedChapter && !window.hasLoadedOnce;
-        
+
         for (let i = 1; i <= book.chapterCount; i++) {
             const option = document.createElement('option');
             option.value = i;
@@ -431,7 +473,12 @@ function loadVerses() {
     const chapterSelect = document.getElementById('chapterSelect');
     const selectedBook = parseInt(bookSelect.value);
     const selectedChapter = parseInt(chapterSelect.value);
-    
+
+    // Clear any previously highlighted verse unless a fresh deep-link verse is queued for this load
+    if (!window.initialSelectedVerse) {
+        currentVerseNumber = null;
+    }
+
     if (selectedBibles.length === 0) {
         document.getElementById('versesContainer').innerHTML = 
             '<div class="alert alert-warning">Please select at least one Bible version.</div>';
@@ -450,7 +497,7 @@ function loadVerses() {
     
     Promise.all(promises)
         .then(results => {
-            displayVerses(results);
+            displayVerses(results, selectedBook, selectedChapter);
             updateURL();
             updateMetaTags();
             updateChapterNavigationButtons(); // Update navigation buttons after loading verses
@@ -462,31 +509,31 @@ function loadVerses() {
         });
 }
 
-function displayVerses(results) {
+function displayVerses(results, selectedBook, selectedChapter) {
     const container = document.getElementById('versesContainer');
     container.innerHTML = '';
-    
+
     if (results.length === 0 || !results[0].success) {
         container.innerHTML = '<div class="alert alert-warning">No verses found.</div>';
         return;
     }
-    
+
     const maxVerses = Math.max(...results.map(r => r.success ? r.verses.length : 0));
-    
+
     for (let i = 0; i < maxVerses; i++) {
         const verseContainer = document.createElement('div');
         verseContainer.className = 'verse-container p-3';
-        
+
         let verseNumber = '';
         let versesContent = '';
-        
+
         results.forEach((result, index) => {
             if (result.success && result.verses[i]) {
                 const verse = result.verses[i];
                 if (!verseNumber) verseNumber = verse.number;
-                
+
                 // Make words clickable by wrapping each word in a span
-                const clickableText = makeWordsClickable(verse.verse, selectedBibles[index]);
+                const clickableText = makeWordsClickable(verse.verse, selectedBibles[index], selectedBook, selectedChapter, verse.number);
                 
                 versesContent += `
                     <div class="mb-2">
@@ -497,6 +544,8 @@ function displayVerses(results) {
             }
         });
         
+        verseContainer.dataset.verseNumber = verseNumber;
+
         verseContainer.innerHTML = `
             <div class="d-flex">
                 <div class="verse-number p-2 text-center">${verseNumber}</div>
@@ -504,17 +553,35 @@ function displayVerses(results) {
                     ${versesContent}
                 </div>
                 <div class="d-flex align-items-center">
-                    <button class="btn btn-outline-primary btn-sm copy-btn" 
-                            onclick="copyVerse(${i})" 
+                    <button class="btn btn-outline-primary btn-sm copy-btn"
+                            onclick="copyVerse(${i})"
                             title="Copy verse">
                         <i class="bi bi-clipboard-check"></i>
                     </button>
                 </div>
             </div>
         `;
-        
+
         container.appendChild(verseContainer);
     }
+
+    scrollToInitialVerseIfNeeded();
+}
+
+function scrollToInitialVerseIfNeeded() {
+    if (!window.initialSelectedVerse) return;
+
+    const targetVerse = String(window.initialSelectedVerse);
+    window.initialSelectedVerse = null; // consume once so the scroll/highlight doesn't refire
+
+    const verseEl = document.querySelector(`.verse-container[data-verse-number="${targetVerse}"]`);
+    if (!verseEl) return;
+
+    currentVerseNumber = targetVerse;
+
+    verseEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    verseEl.classList.add('verse-highlight');
+    setTimeout(() => verseEl.classList.remove('verse-highlight'), 3000);
 }
 
 function copyVerse(verseIndex) {
@@ -572,7 +639,8 @@ function updateURL() {
         if (bookValue && chapterValue) {
             params.set('book', bookValue);
             params.set('chapter', chapterValue);
-            
+            if (currentVerseNumber) params.set('verse', currentVerseNumber);
+
             const newURL = window.location.pathname + '?' + params.toString();
             window.history.replaceState({}, '', newURL);
         }
@@ -673,9 +741,9 @@ function scrollToTop() {
 }
 
 // Word Concordance Functions
-function makeWordsClickable(text, bibleAbbr) {
+function makeWordsClickable(text, bibleAbbr, book, chapter, verse) {
     // First, process Strong's numbers
-    text = processStrongsNumbers(text, bibleAbbr);
+    text = processStrongsNumbers(text, bibleAbbr, book, chapter, verse);
     
     // Split text while preserving HTML tags from Strong's numbers
     // Use a more sophisticated approach that doesn't break HTML tags
@@ -689,8 +757,8 @@ function makeWordsClickable(text, bibleAbbr) {
     while ((match = htmlSpanRegex.exec(text)) !== null) {
         // Process text before this HTML span
         const beforeSpan = text.substring(currentPos, match.index);
-        result += makeTextWordsClickable(beforeSpan, bibleAbbr);
-        
+        result += makeTextWordsClickable(beforeSpan, bibleAbbr, book, chapter, verse);
+
         // For strongs-number spans, preserve as-is
         // For emphasis/notes spans, process inner text to make words clickable
         if (/class="[^"]*strongs-number[^"]*"/.test(match[0])) {
@@ -698,58 +766,58 @@ function makeWordsClickable(text, bibleAbbr) {
         } else {
             const spanParts = match[0].match(/^(<span[^>]*>)([\s\S]*?)(<\/span>)$/);
             if (spanParts) {
-                result += spanParts[1] + makeTextWordsClickable(spanParts[2], bibleAbbr) + spanParts[3];
+                result += spanParts[1] + makeTextWordsClickable(spanParts[2], bibleAbbr, book, chapter, verse) + spanParts[3];
             } else {
                 result += match[0];
             }
         }
-        
+
         currentPos = match.index + match[0].length;
     }
-    
+
     // Process remaining text after last HTML span
     if (currentPos < text.length) {
         const remainingText = text.substring(currentPos);
-        result += makeTextWordsClickable(remainingText, bibleAbbr);
+        result += makeTextWordsClickable(remainingText, bibleAbbr, book, chapter, verse);
     }
-    
+
     return result;
 }
 
-function makeTextWordsClickable(text, bibleAbbr) {
+function makeTextWordsClickable(text, bibleAbbr, book, chapter, verse) {
     // Process plain text (no HTML tags) to make words clickable
     const words = text.split(/(\s+|[.,;:!?'"()[\]{}\-–—])/);
-    
+
     return words.map(word => {
         // Skip whitespace and punctuation
         if (!word || /^\s*$/.test(word) || /^[.,;:!?'"()[\]{}\-–—]+$/.test(word)) {
             return word;
         }
-        
+
         // Clean up the word
         const cleanWord = word.trim().replace(/^[.,;:!?'"()[\]{}]+|[.,;:!?'"()[\]{}]+$/g, '');
-        
+
         // Make words with letters clickable (minimum 2 characters)
         if (cleanWord && cleanWord.length >= 2) {
             // Use data attributes instead of onclick for better reliability
-            return `<span class="clickable-word" data-word="${cleanWord}" data-bible="${bibleAbbr}" style="cursor: pointer;" title="Click for concordance/dictionary">${cleanWord}</span>`;
+            return `<span class="clickable-word" data-word="${cleanWord}" data-bible="${bibleAbbr}" data-book="${book}" data-chapter="${chapter}" data-verse="${verse}" style="cursor: pointer;" title="Click for concordance/dictionary">${cleanWord}</span>`;
         }
-        
+
         return word;
     }).join('');
 }
 
-function processStrongsNumbers(text, bibleAbbr) {
+function processStrongsNumbers(text, bibleAbbr, book, chapter, verse) {
     // Process Hebrew Strong's numbers <WH####>
     text = text.replace(/<WH(\d+)>/g, (match, number) => {
-        return `<span class="strongs-number clickable-word" data-strongs="H${number}" data-bible="${bibleAbbr}" style="color: blueviolet; cursor: pointer; font-size: 90%;" title="Strong's H${number} - Click for concordance/dictionary">H${number}</span>`;
+        return `<span class="strongs-number clickable-word" data-strongs="H${number}" data-bible="${bibleAbbr}" data-book="${book}" data-chapter="${chapter}" data-verse="${verse}" style="color: blueviolet; cursor: pointer; font-size: 90%;" title="Strong's H${number} - Click for concordance/dictionary">H${number}</span>`;
     });
-    
+
     // Process Greek Strong's numbers <WG####>
     text = text.replace(/<WG(\d+)>/g, (match, number) => {
-        return `<span class="strongs-number clickable-word" data-strongs="G${number}" data-bible="${bibleAbbr}" style="color: blueviolet; cursor: pointer; font-size: 90%;" title="Strong's G${number} - Click for concordance/dictionary">G${number}</span>`;
+        return `<span class="strongs-number clickable-word" data-strongs="G${number}" data-bible="${bibleAbbr}" data-book="${book}" data-chapter="${chapter}" data-verse="${verse}" style="color: blueviolet; cursor: pointer; font-size: 90%;" title="Strong's G${number} - Click for concordance/dictionary">G${number}</span>`;
     });
-    
+
     return text;
 }
 
@@ -825,8 +893,8 @@ function openConcordance(word, bibleAbbr) {
         // For Strong's numbers, use the correct concordance URL structure with H/G prefix
         const concordanceUrl = `../bible-concordance/data/${language}/${bibleAbbr}/words/Strongs/Strongs-${strongsType}${strongsNumber}.json`;
         
-        // Show the modal and load data
-        showConcordanceModal(`Strong's ${word}`, concordanceUrl);
+        // Show the modal and load data (display label differs from the raw word used for dictionary lookups)
+        showConcordanceModal(`Strong's ${word}`, concordanceUrl, word, bibleAbbr);
         return;
     }
     
@@ -848,29 +916,44 @@ function openConcordance(word, bibleAbbr) {
     const concordanceUrl = `../bible-concordance/data/${language}/${bibleAbbr}/words/${firstLetter}/${firstLetter}-${word}.json`;
     
     // Show the modal and load data
-    showConcordanceModal(word, concordanceUrl);
+    showConcordanceModal(word, concordanceUrl, null, bibleAbbr);
 }
 
-function showConcordanceModal(word, url) {
+function showConcordanceModal(word, url, dictionaryWord, bibleAbbr) {
     // Set the modal title
     document.getElementById('concordanceModalLabel').textContent = `Concordance: ${word}`;
-    
+
+    // Track the word currently shown in the modal (used for the Dictionary tab)
+    // Any in-flight dictionary fetches for a previous word are invalidated by this reassignment
+    // For Strong's numbers, the display label ("Strong's H7225") differs from the raw
+    // lookup word ("H7225") the dictionary API expects
+    currentModalWord = dictionaryWord || word;
+    loadedDictionaryWord = '';
+
+    // Always reopen on the Concordance tab so Dictionary data only loads on an explicit click,
+    // and stale content from a previous word is never left showing on the Dictionary pane
+    const concordanceTabEl = document.getElementById('concordance-tab');
+    if (concordanceTabEl && window.bootstrap && bootstrap.Tab) {
+        bootstrap.Tab.getOrCreateInstance(concordanceTabEl).show();
+    }
+    document.getElementById('dictionaryContent').innerHTML = '<div class="text-muted">Loading dictionary entries will start when you open the Dictionary tab.</div>';
+
     // Show the modal
     const modal = new bootstrap.Modal(document.getElementById('concordanceModal'));
     modal.show();
-    
+
     // Load concordance data
-    loadConcordanceData(url, word);
+    loadConcordanceData(url, word, bibleAbbr);
 }
 
-function loadConcordanceData(url, word) {
+function loadConcordanceData(url, word, bibleAbbr) {
     const concordanceContent = document.getElementById('concordanceContent');
     const dictionaryContent = document.getElementById('dictionaryContent');
-    
+
     // Show loading in concordance tab
     concordanceContent.innerHTML = '<div class="text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>';
-    dictionaryContent.innerHTML = '<div class="alert alert-info">Dictionary content will be available soon.</div>';
-    
+    dictionaryContent.innerHTML = '<div class="text-muted">Loading dictionary entries will start when you open the Dictionary tab.</div>';
+
     // Fetch concordance data
     fetch(url)
         .then(response => {
@@ -883,7 +966,7 @@ function loadConcordanceData(url, word) {
             displayConcordanceResults(data, word);
         })
         .catch(error => {
-            concordanceContent.innerHTML = `<div class="alert alert-warning">No concordance data found for "${word}". <br><small>Attempted URL: ${url}</small></div>`;
+            concordanceContent.innerHTML = `<div class="alert alert-warning">No concordance data found for "${word}" in ${bibleAbbr}.</div>`;
         });
 }
 
@@ -915,6 +998,308 @@ function displayConcordanceResults(data, word) {
     
     html += '</div></div></div>';
     concordanceContent.innerHTML = html;
+}
+
+function loadDictionaryData(word) {
+    const dictionaryContent = document.getElementById('dictionaryContent');
+
+    // Avoid re-fetching if we've already loaded this word's dictionary data
+    if (loadedDictionaryWord === word) {
+        return;
+    }
+    loadedDictionaryWord = word;
+
+    dictionaryContent.innerHTML = '<div class="text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>';
+
+    const listUrl = `https://wordofgod.in/bibledictionary/api.php?action=getDictionaries&word=${encodeURIComponent(word)}`;
+
+    fetch(listUrl)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Ignore late responses for a word the user has already navigated away from
+            if (currentModalWord !== word) return;
+
+            const dictionaries = (data && data.dictionaries) || [];
+            if (dictionaries.length === 0) {
+                dictionaryContent.innerHTML = `<div class="alert alert-info">No dictionary entries found for "${word}".</div>`;
+                return;
+            }
+            renderDictionarySections(dictionaries, word);
+        })
+        .catch(error => {
+            if (currentModalWord !== word) return;
+            dictionaryContent.innerHTML = `<div class="alert alert-warning">No dictionary data found for "${word}".</div>`;
+        });
+}
+
+function formatDictionaryLabel(dictionarySlug) {
+    if (DICTIONARY_LABELS[dictionarySlug]) {
+        return DICTIONARY_LABELS[dictionarySlug];
+    }
+    // Fallback: turn hyphenated slug into a readable label
+    return dictionarySlug.split('-').map(part => {
+        return /^[a-zA-Z]/.test(part) ? part.charAt(0).toUpperCase() + part.slice(1) : part;
+    }).join(' ');
+}
+
+function renderDictionarySections(dictionaries, word) {
+    if (currentModalWord !== word) return;
+
+    const dictionaryContent = document.getElementById('dictionaryContent');
+
+    let html = '<div class="dictionary-results" id="dictionaryAccordion">';
+    dictionaries.forEach((entry, index) => {
+        const sectionId = `dictionary-section-${index}`;
+        const collapseId = `dictionary-collapse-${index}`;
+        html += `
+            <div class="dictionary-section mb-2 border rounded">
+                <h6 class="mb-0">
+                    <button class="btn dictionary-section-toggle w-100 text-start d-flex justify-content-between align-items-center collapsed"
+                            type="button" data-bs-toggle="collapse" data-bs-target="#${collapseId}"
+                            aria-expanded="false" aria-controls="${collapseId}">
+                        <span class="text-primary fw-bold">${formatDictionaryLabel(entry.dictionary)}</span>
+                        <i class="bi bi-chevron-down dictionary-toggle-icon"></i>
+                    </button>
+                </h6>
+                <div id="${collapseId}" class="collapse" data-bs-parent="#dictionaryAccordion">
+                    <div id="${sectionId}" class="dictionary-section-body p-2">
+                        <div class="text-center"><div class="spinner-border spinner-border-sm" role="status"><span class="visually-hidden">Loading...</span></div></div>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    html += '</div>';
+    dictionaryContent.innerHTML = html;
+
+    dictionaries.forEach((entry, index) => {
+        const sectionId = `dictionary-section-${index}`;
+        const entryUrl = `https://wordofgod.in/bibledictionary/${encodeURIComponent(entry.dictionary)}/data/${encodeURIComponent(entry.slug)}.json`;
+
+        fetch(entryUrl)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                return response.json();
+            })
+            .then(entryData => {
+                // Section IDs are reused per word, so confirm this response still belongs
+                // to the word currently shown in the modal before touching the DOM
+                if (currentModalWord !== word) return;
+                displayDictionaryEntry(sectionId, entryData, word);
+            })
+            .catch(error => {
+                if (currentModalWord !== word) return;
+                const sectionEl = document.getElementById(sectionId);
+                if (sectionEl) {
+                    sectionEl.innerHTML = `<div class="alert alert-warning mb-0">No entry found for "${word}".</div>`;
+                }
+            });
+    });
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+function displayDictionaryEntry(sectionId, entryData, word) {
+    const sectionEl = document.getElementById(sectionId);
+    if (!sectionEl) return;
+
+    const sections = (entryData && entryData.sections) || [];
+    if (sections.length === 0) {
+        sectionEl.innerHTML = `<div class="alert alert-info mb-0">No entry found for "${word}".</div>`;
+        return;
+    }
+
+    let html = '';
+    if (entryData && entryData.word) {
+        html += `<div class="dictionary-entry-word mb-2">${escapeHtml(entryData.word)}</div>`;
+    }
+    sections.forEach(section => {
+        html += `<div class="dictionary-paragraph mb-2">${section.paragraph}</div>`;
+    });
+    sectionEl.innerHTML = html;
+}
+
+function loadDevotionsData(book, chapter, verse, language) {
+    const devotionsContent = document.getElementById('devotionsContent');
+    const key = `${language}|${book}|${chapter}|${verse}`;
+
+    // Avoid re-fetching if we've already loaded devotions for this verse
+    if (loadedDevotionsKey === key) {
+        return;
+    }
+    loadedDevotionsKey = key;
+
+    devotionsContent.innerHTML = '<div class="text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>';
+
+    const listUrl = `https://wordofgod.in/bible-devotions/api.php?action=getDevotions&lang=${encodeURIComponent(language)}&book=${encodeURIComponent(book)}&chapter=${encodeURIComponent(chapter)}&verse=${encodeURIComponent(verse)}`;
+
+    fetch(listUrl)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Ignore late responses for a verse the user has already navigated away from
+            if (loadedDevotionsKey !== key) return;
+
+            const devotions = Array.isArray(data) ? data : [];
+            if (devotions.length === 0) {
+                devotionsContent.innerHTML = '<div class="alert alert-info">No devotions found for this verse.</div>';
+                return;
+            }
+            renderDevotionSections(devotions, language, key);
+        })
+        .catch(error => {
+            if (loadedDevotionsKey !== key) return;
+            devotionsContent.innerHTML = '<div class="alert alert-warning">No devotions found for this verse.</div>';
+        });
+}
+
+function formatDevotionBrandLabel(brandSlug) {
+    return brandSlug.split('-').map(part => {
+        return /^[a-zA-Z]/.test(part) ? part.charAt(0).toUpperCase() + part.slice(1) : part;
+    }).join(' ');
+}
+
+function renderDevotionSections(devotions, language, key) {
+    if (loadedDevotionsKey !== key) return;
+
+    const devotionsContent = document.getElementById('devotionsContent');
+
+    let html = '<div class="devotion-results" id="devotionsAccordion">';
+    devotions.forEach((entry, index) => {
+        const sectionId = `devotion-section-${index}`;
+        const collapseId = `devotion-collapse-${index}`;
+        html += `
+            <div class="devotion-section mb-2 border rounded">
+                <h6 class="mb-0">
+                    <button class="btn devotion-section-toggle w-100 text-start d-flex justify-content-between align-items-center collapsed"
+                            type="button" data-bs-toggle="collapse" data-bs-target="#${collapseId}"
+                            aria-expanded="false" aria-controls="${collapseId}">
+                        <span>
+                            <span class="d-block devotion-brand-label">${escapeHtml(formatDevotionBrandLabel(entry.brand))}</span>
+                            <span class="text-primary fw-bold">${escapeHtml(entry.title)}</span>
+                        </span>
+                        <i class="bi bi-chevron-down devotion-toggle-icon"></i>
+                    </button>
+                </h6>
+                <div id="${collapseId}" class="collapse" data-bs-parent="#devotionsAccordion">
+                    <div id="${sectionId}" class="devotion-section-body p-2">
+                        <div class="text-center"><div class="spinner-border spinner-border-sm" role="status"><span class="visually-hidden">Loading...</span></div></div>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    html += '</div>';
+    devotionsContent.innerHTML = html;
+
+    devotions.forEach((entry, index) => {
+        const sectionId = `devotion-section-${index}`;
+        const entryUrl = `https://wordofgod.in/bible-devotions/${encodeURIComponent(entry.brand)}/meditations/${encodeURIComponent(language)}/${encodeURIComponent(entry.filename)}`;
+
+        fetch(entryUrl)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                return response.json();
+            })
+            .then(entryData => {
+                // Section IDs are reused per verse, so confirm this response still belongs
+                // to the verse currently shown in the modal before touching the DOM
+                if (loadedDevotionsKey !== key) return;
+                displayDevotionEntry(sectionId, entryData);
+            })
+            .catch(error => {
+                if (loadedDevotionsKey !== key) return;
+                const sectionEl = document.getElementById(sectionId);
+                if (sectionEl) {
+                    sectionEl.innerHTML = '<div class="alert alert-warning mb-0">Could not load this devotion.</div>';
+                }
+            });
+    });
+}
+
+// Fields rendered as raw trusted HTML from our own devotions API (e.g. audio/video embeds)
+const DEVOTION_HTML_FIELDS = new Set(['embed']);
+const DEVOTION_SKIP_FIELDS = new Set(['uniqueid', 'title', 'date']);
+
+function displayDevotionEntry(sectionId, entryData) {
+    const sectionEl = document.getElementById(sectionId);
+    if (!sectionEl) return;
+
+    if (!entryData) {
+        sectionEl.innerHTML = '<div class="alert alert-info mb-0">Could not load this devotion.</div>';
+        return;
+    }
+
+    let html = '';
+
+    Object.keys(entryData).forEach(fieldKey => {
+        if (DEVOTION_SKIP_FIELDS.has(fieldKey)) return;
+
+        const field = entryData[fieldKey];
+        if (!field || typeof field !== 'object') return;
+
+        const label = field.label ? escapeHtml(field.label) : formatDevotionBrandLabel(fieldKey);
+
+        if (fieldKey === 'audio_mp3' && field.url) {
+            html += `
+                <div class="devotion-field">
+                    <div class="devotion-field-label">${label}</div>
+                    <audio controls class="w-100" src="${escapeHtml(field.url)}"></audio>
+                </div>
+            `;
+            return;
+        }
+
+        if (fieldKey === 'author') {
+            const authorName = field.author ? escapeHtml(field.author) : '';
+            const website = field.website ? `<a href="${escapeHtml(field.website)}" target="_blank" rel="noopener">${escapeHtml(field.website)}</a>` : '';
+            html += `
+                <div class="devotion-field">
+                    <div class="devotion-field-label">${label}</div>
+                    <div class="devotion-field-text">${authorName}${website ? ' - ' + website : ''}</div>
+                </div>
+            `;
+            return;
+        }
+
+        if (DEVOTION_HTML_FIELDS.has(fieldKey) && field.text) {
+            html += `
+                <div class="devotion-field">
+                    <div class="devotion-field-label">${label}</div>
+                    <div class="devotion-field-text">${field.text}</div>
+                </div>
+            `;
+            return;
+        }
+
+        if (field.text) {
+            html += `
+                <div class="devotion-field">
+                    <div class="devotion-field-label">${label}</div>
+                    <div class="devotion-field-text">${escapeHtml(field.text)}</div>
+                </div>
+            `;
+        }
+    });
+
+    sectionEl.innerHTML = html || '<div class="alert alert-info mb-0">Could not load this devotion.</div>';
 }
 
 function highlightWordInText(text, searchWord) {

@@ -285,6 +285,14 @@ body {
     border-radius: 8px;
     margin-bottom: 15px;
     background: #fff;
+    scroll-margin-top: 20px;
+    transition: background-color 1.5s ease;
+}
+
+.verse-container.verse-highlight {
+    background: #fff3cd;
+    border-color: #ffe69c;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 .verse-number {
@@ -395,6 +403,121 @@ body {
 .verse-list .verse-separator {
     color: #6c757d;
     margin: 0 4px;
+}
+
+/* Dictionary tab styling */
+.dictionary-results {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.dictionary-section-body {
+    line-height: 1.6;
+    max-height: 320px;
+    overflow-y: auto;
+}
+
+.dictionary-section-toggle {
+    padding: 0.5rem 0.75rem;
+    background-color: #f8f9fa;
+    border: none;
+    border-radius: 0.375rem;
+}
+
+.dictionary-section-toggle:hover {
+    background-color: #eef1f4;
+}
+
+.dictionary-toggle-icon {
+    transition: transform 0.2s ease;
+}
+
+.dictionary-section-toggle.collapsed .dictionary-toggle-icon {
+    transform: rotate(-90deg);
+}
+
+.dictionary-entry-word {
+    color: #b8860b;
+    font-weight: 700;
+    font-size: 1.05rem;
+    padding-bottom: 0.25rem;
+    border-bottom: 1px solid #eee;
+}
+
+.dictionary-paragraph {
+    margin-bottom: 0.5rem;
+}
+
+.dictionary-paragraph p {
+    margin-bottom: 0.5rem;
+}
+
+.dictionary-paragraph h1,
+.dictionary-paragraph h2,
+.dictionary-paragraph h3,
+.dictionary-paragraph h4,
+.dictionary-paragraph h5,
+.dictionary-paragraph h6 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0.5rem 0;
+}
+
+.dictionary-paragraph b,
+.dictionary-paragraph strong {
+    font-weight: 600;
+}
+
+/* Devotions tab styling */
+.devotion-results {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.devotion-section-body {
+    line-height: 1.6;
+    max-height: 320px;
+    overflow-y: auto;
+}
+
+.devotion-section-toggle {
+    padding: 0.5rem 0.75rem;
+    background-color: #f8f9fa;
+    border: none;
+    border-radius: 0.375rem;
+}
+
+.devotion-section-toggle:hover {
+    background-color: #eef1f4;
+}
+
+.devotion-toggle-icon {
+    transition: transform 0.2s ease;
+}
+
+.devotion-section-toggle.collapsed .devotion-toggle-icon {
+    transform: rotate(-90deg);
+}
+
+.devotion-brand-label {
+    font-size: 0.8rem;
+    color: #6c757d;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.devotion-field {
+    margin-bottom: 0.75rem;
+}
+
+.devotion-field-label {
+    color: #b8860b;
+    font-weight: 700;
+    margin-bottom: 0.15rem;
+}
+
+.devotion-field-text {
+    white-space: pre-line;
 }
 
 .verse-list .verse-text {

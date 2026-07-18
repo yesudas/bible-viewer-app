@@ -2,13 +2,15 @@
 
 include 'counter.php';
 
-$version = "2026.02";
+$version = "2026.07";
+
 
 // Get URL parameters from query string
 $selectedLanguages = isset($_GET['langs']) ? explode(',', $_GET['langs']) : [];
 $selectedBibles = isset($_GET['bibles']) ? explode(',', $_GET['bibles']) : [];
 $selectedBook = isset($_GET['book']) ? intval($_GET['book']) : 1;
 $selectedChapter = isset($_GET['chapter']) ? intval($_GET['chapter']) : 1;
+$selectedVerse = isset($_GET['verse']) ? intval($_GET['verse']) : null;
 
 // Load languages data
 $languagesData = json_decode(file_get_contents('data/languages.json'), true);
@@ -124,8 +126,9 @@ if (count($bibleAbbreviations) > 3) {
 }
 
 // Page Meta data with Bible information
-$pageTitle = "Online Bibles - {$currentBookName} Chapter {$selectedChapter} | {$bibleNamesStr} {$bibleAbbrStr} | WordOfGod.in";
-$pageDescription = "Read {$currentBookName} Chapter {$selectedChapter} in {$bibleNamesStr} {$bibleAbbrStr}. Compare different Bible translations side by side online.";
+$chapterVerseLabel = $selectedChapter . ($selectedVerse ? ":{$selectedVerse}" : '');
+$pageTitle = "Online Bibles - {$currentBookName} Chapter {$chapterVerseLabel} | {$bibleNamesStr} {$bibleAbbrStr} | WordOfGod.in";
+$pageDescription = "Read {$currentBookName} Chapter {$chapterVerseLabel} in {$bibleNamesStr} {$bibleAbbrStr}. Compare different Bible translations side by side online.";
 $pageKeywords = "bible, online bible, {$currentBookName}, scripture, biblical text, {$bibleNamesStr}, " . implode(', ', $bibleAbbreviations);
 if (!empty($languagesStr)) {
     $pageKeywords .= ", {$languagesStr} bible";
@@ -407,6 +410,11 @@ if (!empty($languagesStr)) {
         document.addEventListener('DOMContentLoaded', function() {
             // Ensure the initialization function exists
             if (typeof initializeGlobalVariables === 'function') {
+                // Set the initial chapter/verse selection before initializeGlobalVariables runs,
+                // since it synchronously calls updateChapters() which reads these globals.
+                window.initialSelectedChapter = <?php echo $selectedChapter; ?>;
+                window.initialSelectedVerse = <?php echo $selectedVerse ? $selectedVerse : 'null'; ?>;
+
                 initializeGlobalVariables({
                     selectedBibles: <?php echo json_encode($selectedBibles); ?>,
                     selectedLanguages: <?php echo json_encode($selectedLanguages); ?>,
@@ -414,10 +422,7 @@ if (!empty($languagesStr)) {
                     booksData: <?php echo json_encode($booksData); ?>,
                     chapterCounts: <?php echo json_encode($chapterCounts); ?>
                 });
-                
-                // Set the initial chapter selection for the updateChapters function
-                window.initialSelectedChapter = <?php echo $selectedChapter; ?>;
-                
+
                 // Update UI components after initialization in correct order
                 if (typeof updateLanguageButtons === 'function') {
                     updateLanguageButtons();
@@ -466,8 +471,13 @@ if (!empty($languagesStr)) {
                                 Dictionary
                             </button>
                         </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="devotions-tab" data-bs-toggle="tab" data-bs-target="#devotions" type="button" role="tab" aria-controls="devotions" aria-selected="false">
+                                Devotions
+                            </button>
+                        </li>
                     </ul>
-                    
+
                     <!-- Tab Content -->
                     <div class="tab-content mt-3" id="concordanceTabContent">
                         <div class="tab-pane fade show active" id="concordance" role="tabpanel" aria-labelledby="concordance-tab">
@@ -478,6 +488,11 @@ if (!empty($languagesStr)) {
                         <div class="tab-pane fade" id="dictionary" role="tabpanel" aria-labelledby="dictionary-tab">
                             <div id="dictionaryContent">
                                 <!-- Dictionary content will be loaded here -->
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="devotions" role="tabpanel" aria-labelledby="devotions-tab">
+                            <div id="devotionsContent">
+                                <!-- Devotions content will be loaded here -->
                             </div>
                         </div>
                     </div>
