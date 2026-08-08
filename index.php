@@ -135,10 +135,36 @@ if (!empty($languagesStr)) {
 }
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
+    <script>
+      (function() {
+        function isDarkTheme(t) {
+          return t === 'dark' || t === 'warm-dark' || t === 'true-black';
+        }
+        function resolveAutoTheme() {
+          if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            return 'dark';
+          }
+          var h = new Date().getHours();
+          return (h >= 18 || h < 6) ? 'dark' : 'light';
+        }
+        function getEffectiveTheme(stored) {
+          if (stored === 'auto') return resolveAutoTheme();
+          return stored;
+        }
+        var stored = localStorage.getItem('bibleViewerTheme');
+        if (!stored && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+          stored = 'dark';
+        }
+        stored = stored || 'light';
+        var effective = getEffectiveTheme(stored);
+        document.documentElement.setAttribute('data-theme', effective);
+        document.documentElement.setAttribute('data-bs-theme', isDarkTheme(effective) ? 'dark' : 'light');
+      })();
+    </script>
     <title><?php echo htmlspecialchars($pageTitle); ?></title>
     <meta name="description" content="<?php echo htmlspecialchars($pageDescription); ?>">
     <meta name="keywords" content="<?php echo htmlspecialchars($pageKeywords); ?>">
@@ -207,14 +233,33 @@ if (!empty($languagesStr)) {
     </div>
 
     <!-- Header Section -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
+    <nav class="navbar navbar-expand-lg navbar-light app-navbar border-bottom">
         <div class="container-fluid">
             <a class="navbar-brand" href="https://www.wordofgod.in/bibles/">
                 <i class="bi bi-book me-2"></i>Online Bibles
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
+            <div class="d-flex align-items-center gap-2 ms-auto order-lg-last">
+                <div class="dropdown">
+                    <button class="theme-selector-btn dropdown-toggle" type="button" id="themeDropdown" data-bs-toggle="dropdown" aria-expanded="false" title="Change theme">
+                        <i class="bi bi-palette"></i>
+                        <span class="d-none d-sm-inline" id="themeLabel">Light</span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="themeDropdown">
+                        <li><button class="dropdown-item" type="button" data-theme="light" onclick="setTheme('light')"><span class="theme-swatch theme-swatch-light me-2"></span>Light</button></li>
+                        <li><button class="dropdown-item" type="button" data-theme="light-gray" onclick="setTheme('light-gray')"><span class="theme-swatch theme-swatch-light-gray me-2"></span>Light Gray</button></li>
+                        <li><button class="dropdown-item" type="button" data-theme="gray" onclick="setTheme('gray')"><span class="theme-swatch theme-swatch-gray me-2"></span>Gray</button></li>
+                        <li><button class="dropdown-item" type="button" data-theme="dark" onclick="setTheme('dark')"><span class="theme-swatch theme-swatch-dark me-2"></span>Dark</button></li>
+                        <li><button class="dropdown-item" type="button" data-theme="warm-dark" onclick="setTheme('warm-dark')"><span class="theme-swatch theme-swatch-warm-dark me-2"></span>Warm Dark</button></li>
+                        <li><button class="dropdown-item" type="button" data-theme="true-black" onclick="setTheme('true-black')"><span class="theme-swatch theme-swatch-true-black me-2"></span>True Black</button></li>
+                        <li><button class="dropdown-item" type="button" data-theme="sepia" onclick="setTheme('sepia')"><span class="theme-swatch theme-swatch-sepia me-2"></span>Sepia</button></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><button class="dropdown-item" type="button" data-theme="auto" onclick="setTheme('auto')"><span class="theme-swatch theme-swatch-auto me-2"></span>Auto <small class="text-muted">(sunset / system)</small></button></li>
+                    </ul>
+                </div>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+            </div>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
@@ -363,7 +408,7 @@ if (!empty($languagesStr)) {
     </div>
 
     <!-- Footer -->
-    <footer class="bg-light text-center py-4 mt-5">
+    <footer class="app-footer text-center py-4 mt-5">
         <div class="container">
             <p class="mb-2 text-muted">No Copyright, Freely Copy and Distribute (as per Matthew 10:8)</p>
             <div class="mb-3">
@@ -439,6 +484,10 @@ if (!empty($languagesStr)) {
                 
                 if (typeof updateSelectedBiblesDisplay === 'function') {
                     updateSelectedBiblesDisplay();
+                }
+
+                if (typeof initTheme === 'function') {
+                    initTheme();
                 }
                 
                 // The updateChapters() and loadVerses() are now called from initializeGlobalVariables()

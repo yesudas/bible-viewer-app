@@ -24,6 +24,104 @@ let currentModalLanguage = '';
 let loadedDevotionsKey = '';
 let currentVerseNumber = null; // verse to highlight/keep in the URL for the current chapter view
 
+// Theme support
+const THEME_STORAGE_KEY = 'bibleViewerTheme';
+const DARK_THEMES = ['dark', 'warm-dark', 'true-black'];
+const VISUAL_THEMES = ['light', 'light-gray', 'gray', 'sepia', ...DARK_THEMES];
+const STORED_THEMES = [...VISUAL_THEMES, 'auto'];
+const THEME_LABELS = {
+    'light': 'Light',
+    'light-gray': 'Light Gray',
+    'gray': 'Gray',
+    'dark': 'Dark',
+    'warm-dark': 'Warm Dark',
+    'true-black': 'True Black',
+    'sepia': 'Sepia',
+    'auto': 'Auto'
+};
+const THEME_META_COLORS = {
+    'light': '#2196f3',
+    'light-gray': '#9e9e9e',
+    'gray': '#757575',
+    'dark': '#1e1e1e',
+    'warm-dark': '#1a1612',
+    'true-black': '#000000',
+    'sepia': '#8d6e63'
+};
+
+function isDarkTheme(theme) {
+    return DARK_THEMES.includes(theme);
+}
+
+function resolveAutoTheme() {
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        return 'dark';
+    }
+    const hour = new Date().getHours();
+    return (hour >= 18 || hour < 6) ? 'dark' : 'light';
+}
+
+function getEffectiveTheme(storedTheme) {
+    if (storedTheme === 'auto') {
+        return resolveAutoTheme();
+    }
+    if (VISUAL_THEMES.includes(storedTheme)) {
+        return storedTheme;
+    }
+    return 'light';
+}
+
+function applyTheme(storedTheme) {
+    const preference = STORED_THEMES.includes(storedTheme) ? storedTheme : 'light';
+    const theme = getEffectiveTheme(preference);
+
+    document.documentElement.setAttribute('data-theme', theme);
+    document.documentElement.setAttribute('data-bs-theme', isDarkTheme(theme) ? 'dark' : 'light');
+    localStorage.setItem(THEME_STORAGE_KEY, preference);
+
+    const themeLabel = document.getElementById('themeLabel');
+    if (themeLabel) {
+        themeLabel.textContent = THEME_LABELS[preference] || THEME_LABELS.light;
+    }
+
+    document.querySelectorAll('.dropdown-item[data-theme]').forEach(function(el) {
+        el.classList.toggle('active-theme', el.getAttribute('data-theme') === preference);
+    });
+
+    const metaThemeColor = document.querySelector('meta[name="theme-color"]');
+    if (metaThemeColor) {
+        metaThemeColor.setAttribute('content', THEME_META_COLORS[theme] || THEME_META_COLORS.light);
+    }
+}
+
+function setTheme(theme) {
+    applyTheme(theme);
+}
+
+function initTheme() {
+    let saved = localStorage.getItem(THEME_STORAGE_KEY);
+    if (!saved && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        saved = 'dark';
+    }
+    applyTheme(saved || 'light');
+
+    if (!window._autoThemeListenerAdded) {
+        window._autoThemeListenerAdded = true;
+        const onAutoCheck = function() {
+            if (localStorage.getItem(THEME_STORAGE_KEY) === 'auto') {
+                applyTheme('auto');
+            }
+        };
+        const mq = window.matchMedia('(prefers-color-scheme: dark)');
+        if (mq.addEventListener) {
+            mq.addEventListener('change', onAutoCheck);
+        } else if (mq.addListener) {
+            mq.addListener(onAutoCheck);
+        }
+        setInterval(onAutoCheck, 60000);
+    }
+}
+
 // Friendly names for known dictionary slugs returned by the getDictionaries API
 const DICTIONARY_LABELS = {
     'tamil-bible-dictionary': 'Tamil Bible Dictionary',
@@ -1022,12 +1120,12 @@ function makeTextWordsClickable(text, bibleAbbr, book, chapter, verse) {
 function processStrongsNumbers(text, bibleAbbr, book, chapter, verse) {
     // Process Hebrew Strong's numbers <WH####>
     text = text.replace(/<WH(\d+)>/g, (match, number) => {
-        return `<span class="strongs-number clickable-word" data-strongs="H${number}" data-bible="${bibleAbbr}" data-book="${book}" data-chapter="${chapter}" data-verse="${verse}" style="color: blueviolet; cursor: pointer; font-size: 90%;" title="Strong's H${number} - Click for concordance/dictionary">H${number}</span>`;
+        return `<span class="strongs-number clickable-word" data-strongs="H${number}" data-bible="${bibleAbbr}" data-book="${book}" data-chapter="${chapter}" data-verse="${verse}" style="cursor: pointer;" title="Strong's H${number} - Click for concordance/dictionary">H${number}</span>`;
     });
 
     // Process Greek Strong's numbers <WG####>
     text = text.replace(/<WG(\d+)>/g, (match, number) => {
-        return `<span class="strongs-number clickable-word" data-strongs="G${number}" data-bible="${bibleAbbr}" data-book="${book}" data-chapter="${chapter}" data-verse="${verse}" style="color: blueviolet; cursor: pointer; font-size: 90%;" title="Strong's G${number} - Click for concordance/dictionary">G${number}</span>`;
+        return `<span class="strongs-number clickable-word" data-strongs="G${number}" data-bible="${bibleAbbr}" data-book="${book}" data-chapter="${chapter}" data-verse="${verse}" style="cursor: pointer;" title="Strong's G${number} - Click for concordance/dictionary">G${number}</span>`;
     });
 
     return text;
@@ -1991,7 +2089,7 @@ function highlightWordInText(text, searchWord) {
         
         // Check if this word matches our search term
         if (cleanWord && shouldHighlightWord(cleanWord, cleanSearchWord)) {
-            return word.replace(cleanWord, `<span style="color: deeppink; font-weight: 600;">${cleanWord}</span>`);
+            return word.replace(cleanWord, `<span class="word-highlight">${cleanWord}</span>`);
         }
         
         return word;
