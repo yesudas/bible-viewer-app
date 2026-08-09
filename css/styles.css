@@ -693,13 +693,19 @@ footer.app-footer {
     flex-shrink: 0;
 }
 
-.copy-btn {
+.copy-btn,
+.study-btn {
     opacity: 0.7;
     transition: opacity 0.3s ease;
 }
 
-.copy-btn:hover {
+.copy-btn:hover,
+.study-btn:hover {
     opacity: 1;
+}
+
+.verse-actions {
+    flex-shrink: 0;
 }
 
 @media (max-width: 768px) {

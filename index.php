@@ -347,25 +347,25 @@ if (!empty($languagesStr)) {
             </div>
         </div>
 
-        <!-- Books Selection Section -->
-        <div class="row mb-4">
+        <!-- Books Selection Section (Top) -->
+        <div class="row mb-4 book-chapter-nav" id="bookChapterNavTop">
             <div class="col-md-6 mb-3">
                 <label for="bookSelect" class="form-label">
                     <i class="bi bi-book me-1"></i>Select Book:
                 </label>
                 <div class="book-navigation-container">
-                    <button class="book-nav-btn" id="prevBookBtn" onclick="previousBook()" title="Previous Book">
+                    <button class="book-nav-btn prev-book-btn" id="prevBookBtn" onclick="previousBook()" title="Previous Book">
                         <span class="d-none d-md-inline"><< Prev</span>
                         <span class="d-md-none"><<</span>
                     </button>
-                    <select class="form-select book-select-with-nav" id="bookSelect" onchange="updateChapters()">
+                    <select class="form-select book-select-with-nav book-select" id="bookSelect" onchange="onBookSelectChange(this)">
                         <?php foreach ($bookNames as $bookNo => $bookName): ?>
                             <option value="<?php echo $bookNo; ?>" <?php echo ($bookNo == $selectedBook) ? 'selected' : ''; ?>>
                                 <?php echo htmlspecialchars($bookName); ?>
                             </option>
                         <?php endforeach; ?>
                     </select>
-                    <button class="book-nav-btn" id="nextBookBtn" onclick="nextBook()" title="Next Book">
+                    <button class="book-nav-btn next-book-btn" id="nextBookBtn" onclick="nextBook()" title="Next Book">
                         <span class="d-none d-md-inline">Next >></span>
                         <span class="d-md-none">>></span>
                     </button>
@@ -376,14 +376,14 @@ if (!empty($languagesStr)) {
                     <i class="bi bi-list-ol me-1"></i>Select Chapter:
                 </label>
                 <div class="chapter-navigation-container">
-                    <button class="chapter-nav-btn" id="prevChapterBtn" onclick="previousChapter()" title="Previous Chapter">
+                    <button class="chapter-nav-btn prev-chapter-btn" id="prevChapterBtn" onclick="previousChapter()" title="Previous Chapter">
                         <span class="d-none d-md-inline">< Prev</span>
                         <span class="d-md-none"><</span>
                     </button>
-                    <select class="form-select chapter-select-with-nav" id="chapterSelect" onchange="loadVerses()">
+                    <select class="form-select chapter-select-with-nav chapter-select" id="chapterSelect" onchange="onChapterSelectChange(this)">
                         <!-- Dynamically populated based on selected book -->
                     </select>
-                    <button class="chapter-nav-btn" id="nextChapterBtn" onclick="nextChapter()" title="Next Chapter">
+                    <button class="chapter-nav-btn next-chapter-btn" id="nextChapterBtn" onclick="nextChapter()" title="Next Chapter">
                         <span class="d-none d-md-inline">Next ></span>
                         <span class="d-md-none">></span>
                     </button>
@@ -407,6 +407,61 @@ if (!empty($languagesStr)) {
             <div class="col-12">
                 <div id="versesContainer">
                     <!-- Verses will be loaded here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Books Selection Section (Bottom) -->
+        <div class="row mt-4 mb-2 book-chapter-nav" id="bookChapterNavBottom">
+            <div class="col-md-6 mb-3">
+                <label for="bookSelectBottom" class="form-label">
+                    <i class="bi bi-book me-1"></i>Select Book:
+                </label>
+                <div class="book-navigation-container">
+                    <button class="book-nav-btn prev-book-btn" id="prevBookBtnBottom" onclick="previousBook()" title="Previous Book">
+                        <span class="d-none d-md-inline"><< Prev</span>
+                        <span class="d-md-none"><<</span>
+                    </button>
+                    <select class="form-select book-select-with-nav book-select" id="bookSelectBottom" onchange="onBookSelectChange(this)">
+                        <?php foreach ($bookNames as $bookNo => $bookName): ?>
+                            <option value="<?php echo $bookNo; ?>" <?php echo ($bookNo == $selectedBook) ? 'selected' : ''; ?>>
+                                <?php echo htmlspecialchars($bookName); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                    <button class="book-nav-btn next-book-btn" id="nextBookBtnBottom" onclick="nextBook()" title="Next Book">
+                        <span class="d-none d-md-inline">Next >></span>
+                        <span class="d-md-none">>></span>
+                    </button>
+                </div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label for="chapterSelectBottom" class="form-label">
+                    <i class="bi bi-list-ol me-1"></i>Select Chapter:
+                </label>
+                <div class="chapter-navigation-container">
+                    <button class="chapter-nav-btn prev-chapter-btn" id="prevChapterBtnBottom" onclick="previousChapter()" title="Previous Chapter">
+                        <span class="d-none d-md-inline">< Prev</span>
+                        <span class="d-md-none"><</span>
+                    </button>
+                    <select class="form-select chapter-select-with-nav chapter-select" id="chapterSelectBottom" onchange="onChapterSelectChange(this)">
+                        <!-- Dynamically populated based on selected book -->
+                    </select>
+                    <button class="chapter-nav-btn next-chapter-btn" id="nextChapterBtnBottom" onclick="nextChapter()" title="Next Chapter">
+                        <span class="d-none d-md-inline">Next ></span>
+                        <span class="d-md-none">></span>
+                    </button>
+                    
+                    <!-- Zoom Controls -->
+                    <button class="chapter-nav-btn ms-2" onclick="zoomOut()" title="Zoom Out">
+                        <i class="bi bi-zoom-out"></i>
+                    </button>
+                    <button class="chapter-nav-btn" onclick="resetZoom()" title="Reset Zoom">
+                        <i class="bi bi-arrow-counterclockwise"></i>
+                    </button>
+                    <button class="chapter-nav-btn" onclick="zoomIn()" title="Zoom In">
+                        <i class="bi bi-zoom-in"></i>
+                    </button>
                 </div>
             </div>
         </div>
