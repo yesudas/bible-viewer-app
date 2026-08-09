@@ -399,7 +399,7 @@ footer.app-footer {
     white-space: nowrap;
 }
 
-/* Tab Styles for Bible Selection */
+/* Tab Styles for Bible Selection (legacy / other tabs) */
 .nav-tabs {
     border-bottom: 1px solid var(--border-color);
     background: var(--bg-muted);
@@ -440,6 +440,43 @@ footer.app-footer {
     margin-bottom: -1px;
 }
 
+/* Collapsible Bible Selection */
+.bible-selection-card {
+    overflow: hidden;
+}
+
+.bible-selection-toggle {
+    padding: 0.85rem 1rem;
+    background-color: var(--bg-muted);
+    border: none;
+    border-radius: 0;
+    color: var(--text-primary);
+}
+
+.bible-selection-toggle:hover,
+.bible-selection-toggle:focus {
+    background-color: var(--bg-hover);
+    color: var(--text-primary);
+    box-shadow: none;
+}
+
+.bible-selection-toggle-icon {
+    transition: transform 0.2s ease;
+    flex-shrink: 0;
+}
+
+.bible-selection-toggle.collapsed .bible-selection-toggle-icon {
+    transform: rotate(-90deg);
+}
+
+#bibleSelectionSummary {
+    font-weight: 400;
+}
+
+#bibleSelect option.bible-option-selected {
+    font-weight: 600;
+}
+
 /* Mobile responsiveness for tabs */
 @media (max-width: 768px) {
     .nav-tabs {
@@ -455,9 +492,13 @@ footer.app-footer {
         font-size: 13px;
         padding: 6px 12px;
     }
+
+    .bible-selection-toggle {
+        padding: 0.75rem 0.85rem;
+    }
 }
 
-/* Bible Selection Buttons */
+/* Bible Selection Buttons (legacy) */
 .bible-tab-btn {
     border: 2px solid var(--border-color);
     background: var(--bg-surface);

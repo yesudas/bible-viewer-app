@@ -1,25 +1,5 @@
 {
   "biblesByLanguage" : {
-    "Interlinear" : {
-      "languageCode" : "IL",
-      "languageName" : "Interlinear",
-      "bibles" : [ {
-        "abbr" : "BIB2020+",
-        "isDefault" : false,
-        "commonName" : "Berean Interlinear Bible. Old and New Testament. 2016, 2020.",
-        "hide" : false
-      }, {
-        "abbr" : "HSB+",
-        "isDefault" : true,
-        "commonName" : "Hebrew Study Bible with Strong's Numbers & Interlinear",
-        "hide" : false
-      }, {
-        "abbr" : "HSB2+",
-        "isDefault" : false,
-        "commonName" : "Hebrew Study Bible with Strong's Numbers & Interlinear",
-        "hide" : false
-      } ]
-    },
     "தமிழ்" : {
       "languageCode" : "ta",
       "languageName" : "தமிழ்",
@@ -84,6 +64,26 @@
         "commonName" : "தமிழ் இலங்கை சமகால/இலகு தமிழ் மொழிபெயர்ப்பு 2022 NT",
         "hide" : false
       }]
+    },
+    "Interlinear" : {
+      "languageCode" : "IL",
+      "languageName" : "Interlinear",
+      "bibles" : [ {
+        "abbr" : "BIB2020+",
+        "isDefault" : false,
+        "commonName" : "Berean Interlinear Bible. Old and New Testament. 2016, 2020.",
+        "hide" : false
+      }, {
+        "abbr" : "HSB+",
+        "isDefault" : true,
+        "commonName" : "Hebrew Study Bible with Strong's Numbers & Interlinear",
+        "hide" : false
+      }, {
+        "abbr" : "HSB2+",
+        "isDefault" : false,
+        "commonName" : "Hebrew Study Bible with Strong's Numbers & Interlinear",
+        "hide" : false
+      } ]
     },
     "ಕನ್ನಡ" : {
       "languageCode" : "kn",

@@ -403,16 +403,13 @@ function selectLanguage(language) {
 }
 
 function updateLanguageButtons() {
-    // Update tab-style language buttons
-    document.querySelectorAll('.language-tab').forEach(btn => {
-        btn.classList.remove('active');
-        if (selectedLanguages.includes(btn.dataset.language)) {
-            btn.classList.add('active');
-        }
-    });
-    
-    // Also update old-style buttons if they exist
-    document.querySelectorAll('.language-btn').forEach(btn => {
+    const languageSelect = document.getElementById('languageSelect');
+    if (languageSelect && currentLanguage) {
+        languageSelect.value = currentLanguage;
+    }
+
+    // Legacy tab/button support (if present)
+    document.querySelectorAll('.language-tab, .language-btn').forEach(btn => {
         btn.classList.remove('active');
         if (selectedLanguages.includes(btn.dataset.language)) {
             btn.classList.add('active');
@@ -420,31 +417,48 @@ function updateLanguageButtons() {
     });
 }
 
+function getBibleDisplayName(bible) {
+    const commonName = bible.commonName || bible.longName || '';
+    return commonName ? `${bible.abbr} - ${commonName}` : bible.abbr;
+}
+
 function loadBiblesForLanguage(language) {
-    const biblesContainer = document.getElementById('biblesTabsContainer');
-    if (!biblesContainer) return;
-    
-    biblesContainer.innerHTML = '';
-    
+    const bibleSelect = document.getElementById('bibleSelect');
+    if (!bibleSelect) return;
+
+    currentLanguage = language || currentLanguage;
+    bibleSelect.innerHTML = '';
+
+    const placeholder = document.createElement('option');
+    placeholder.value = '';
+    placeholder.textContent = 'Select a Bible translation...';
+    bibleSelect.appendChild(placeholder);
+
     if (biblesByLanguage[language] && biblesByLanguage[language].bibles) {
         biblesByLanguage[language].bibles.forEach(bible => {
-            // Skip hidden bibles
             if (bible.hide) return;
 
-            const button = document.createElement('button');
-            button.type = 'button';
-            button.className = 'bible-tab-btn';
-            button.textContent = bible.abbr;
-            button.title = bible.longName || bible.abbr;
-            button.onclick = () => toggleBible(bible.abbr);
-            
-            if (selectedBibles.includes(bible.abbr)) {
-                button.classList.add('active');
+            const option = document.createElement('option');
+            option.value = bible.abbr;
+            const isSelected = selectedBibles.includes(bible.abbr);
+            option.textContent = (isSelected ? '✓ ' : '') + getBibleDisplayName(bible);
+            if (isSelected) {
+                option.classList.add('bible-option-selected');
             }
-            
-            biblesContainer.appendChild(button);
+            bibleSelect.appendChild(option);
         });
     }
+
+    bibleSelect.value = '';
+}
+
+function onBibleSelectChange(selectEl) {
+    const bibleAbbr = selectEl.value;
+    if (!bibleAbbr) return;
+
+    toggleBible(bibleAbbr);
+    // Keep the dropdown on the placeholder so users can keep adding translations
+    selectEl.value = '';
 }
 
 function toggleBible(bibleAbbr) {
@@ -506,21 +520,32 @@ function updateSelectedLanguages() {
 }
 
 function updateBibleButtons() {
-    // Update tab-style bible buttons
-    document.querySelectorAll('.bible-tab-btn').forEach(btn => {
+    // Refresh translation dropdown markers for the current language
+    if (currentLanguage) {
+        loadBiblesForLanguage(currentLanguage);
+    }
+
+    // Legacy button support (if present)
+    document.querySelectorAll('.bible-tab-btn, .bible-btn').forEach(btn => {
         btn.classList.remove('active');
         if (selectedBibles.includes(btn.textContent)) {
             btn.classList.add('active');
         }
     });
-    
-    // Also update old-style buttons if they exist
-    document.querySelectorAll('.bible-btn').forEach(btn => {
-        btn.classList.remove('active');
-        if (selectedBibles.includes(btn.textContent)) {
-            btn.classList.add('active');
-        }
-    });
+}
+
+function updateBibleSelectionSummary() {
+    const summary = document.getElementById('bibleSelectionSummary');
+    if (!summary) return;
+
+    if (selectedBibles.length === 0) {
+        summary.textContent = 'Select language & translation';
+        return;
+    }
+
+    const preview = selectedBibles.slice(0, 3).join(', ');
+    const more = selectedBibles.length > 3 ? ` +${selectedBibles.length - 3} more` : '';
+    summary.textContent = preview + more;
 }
 
 function updateSelectedBiblesDisplay() {
@@ -540,6 +565,8 @@ function updateSelectedBiblesDisplay() {
     } else {
         container.style.display = 'none';
     }
+
+    updateBibleSelectionSummary();
 }
 
 function removeBible(bibleAbbr) {
@@ -2160,18 +2187,27 @@ function initializeGlobalVariables(phpData) {
     biblesByLanguage = phpData.biblesByLanguage || {};
     booksData = phpData.booksData || [];
     chapterCounts = phpData.chapterCounts || {};
+
+    // Prefer a language that has a selected bible; otherwise first dropdown option
+    if (selectedLanguages.length > 0) {
+        currentLanguage = selectedLanguages[0];
+    } else {
+        const languageSelect = document.getElementById('languageSelect');
+        if (languageSelect && languageSelect.options.length > 0) {
+            currentLanguage = languageSelect.options[0].value;
+        }
+    }
     
     // Initialize the interface after data is loaded
-    if (selectedBibles.length > 0) {
-        updateSelectedBiblesDisplay();
-        updateLanguageButtons();
-        updateBibleButtons();
-        
-        // If we have books data, update the dropdowns
-        if (booksData.length > 0) {
-            updateBookDropdown();
-            updateChapters();
-        }
+    updateSelectedBiblesDisplay();
+    updateLanguageButtons();
+    if (currentLanguage) {
+        loadBiblesForLanguage(currentLanguage);
+    }
+
+    if (selectedBibles.length > 0 && booksData.length > 0) {
+        updateBookDropdown();
+        updateChapters();
     }
     
     // Initialize keyboard shortcuts

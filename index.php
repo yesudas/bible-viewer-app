@@ -288,46 +288,58 @@ if (!empty($languagesStr)) {
         <!-- Bible Selection Section -->
         <div class="row mb-4">
             <div class="col-12">
-                <div class="card">
+                <div class="card bible-selection-card">
                     <div class="card-body p-0">
-                        <!-- Languages Tabs (First Row) -->
-                        <div class="border-bottom">
-                            <ul class="nav nav-tabs" id="languagesTabs" role="tablist">
-                                <?php $firstLanguage = true; ?>
-                                <?php foreach ($supportedLanguages as $langKey): ?>
-                                    <?php if (isset($biblesByLanguage[$langKey])): ?>
-                                        <li class="nav-item" role="presentation">
-                                            <button class="nav-link language-tab" 
-                                                    id="lang-<?php echo htmlspecialchars($langKey); ?>-tab"
-                                                    data-language="<?php echo htmlspecialchars($langKey); ?>"
-                                                    type="button" 
-                                                    role="tab"
-                                                    onclick="selectLanguage('<?php echo htmlspecialchars($langKey); ?>')">
-                                                <?php echo htmlspecialchars($langKey); ?>
-                                            </button>
-                                        </li>
-                                        <?php $firstLanguage = false; ?>
-                                    <?php endif; ?>
-                                <?php endforeach; ?>
-                            </ul>
-                        </div>
-                        
-                        <!-- Bibles Tabs (Second Row) -->
-                        <div class="p-3">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <h6 class="text-muted mb-0">Available Bibles:</h6>
-                                <small class="text-muted">Click to select/deselect</small>
-                            </div>
-                            <div id="biblesTabsContainer" class="d-flex flex-wrap gap-2">
-                                <!-- Dynamically populated based on selected language -->
-                            </div>
-                        </div>
-                        
-                        <!-- Selected Bibles Display (Compact) -->
-                        <div class="border-top p-3" id="selectedBiblesContainer" style="display: none;">
-                            <div class="d-flex flex-column">
-                                <h6 class="text-muted mb-2">Selected:</h6>
-                                <div id="selectedBiblesList" class="d-flex flex-wrap gap-1"></div>
+                        <button class="btn bible-selection-toggle w-100 text-start d-flex justify-content-between align-items-center collapsed"
+                                type="button"
+                                data-bs-toggle="collapse"
+                                data-bs-target="#bibleSelectionCollapse"
+                                aria-expanded="false"
+                                aria-controls="bibleSelectionCollapse">
+                            <span class="d-flex flex-column flex-md-row align-items-md-center gap-1 gap-md-3">
+                                <span class="fw-semibold">
+                                    <i class="bi bi-journals me-1"></i>Bible Selection
+                                </span>
+                                <small class="text-muted" id="bibleSelectionSummary">Select language &amp; translation</small>
+                            </span>
+                            <i class="bi bi-chevron-down bible-selection-toggle-icon"></i>
+                        </button>
+
+                        <div id="bibleSelectionCollapse" class="collapse">
+                            <div class="p-3 border-top">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label for="languageSelect" class="form-label mb-1">
+                                            <i class="bi bi-translate me-1"></i>Language
+                                        </label>
+                                        <select class="form-select" id="languageSelect" onchange="selectLanguage(this.value)">
+                                            <?php foreach ($supportedLanguages as $langKey): ?>
+                                                <?php if (isset($biblesByLanguage[$langKey])): ?>
+                                                    <option value="<?php echo htmlspecialchars($langKey); ?>">
+                                                        <?php echo htmlspecialchars($langKey); ?>
+                                                    </option>
+                                                <?php endif; ?>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="bibleSelect" class="form-label mb-1">
+                                            <i class="bi bi-book me-1"></i>Translation
+                                        </label>
+                                        <select class="form-select" id="bibleSelect" onchange="onBibleSelectChange(this)">
+                                            <option value="">Select a Bible translation...</option>
+                                        </select>
+                                        <small class="text-muted">Choose a translation to add or remove it</small>
+                                    </div>
+                                </div>
+
+                                <!-- Selected Bibles Display (Compact) -->
+                                <div class="mt-3" id="selectedBiblesContainer" style="display: none;">
+                                    <div class="d-flex flex-column">
+                                        <h6 class="text-muted mb-2">Selected:</h6>
+                                        <div id="selectedBiblesList" class="d-flex flex-wrap gap-1"></div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -468,31 +480,9 @@ if (!empty($languagesStr)) {
                     chapterCounts: <?php echo json_encode($chapterCounts); ?>
                 });
 
-                // Update UI components after initialization in correct order
-                if (typeof updateLanguageButtons === 'function') {
-                    updateLanguageButtons();
-                }
-                
-                // Load Bibles for the default selected language
-                if (typeof loadBiblesForLanguage === 'function' && selectedLanguages.length > 0) {
-                    loadBiblesForLanguage(selectedLanguages[0]);
-                }
-                
-                if (typeof updateBibleButtons === 'function') {
-                    updateBibleButtons();
-                }
-                
-                if (typeof updateSelectedBiblesDisplay === 'function') {
-                    updateSelectedBiblesDisplay();
-                }
-
                 if (typeof initTheme === 'function') {
                     initTheme();
                 }
-                
-                // The updateChapters() and loadVerses() are now called from initializeGlobalVariables()
-                // when booksData is available, ensuring proper initialization order
-                
             } else {
                 // JavaScript may not have loaded properly
             }
