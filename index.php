@@ -133,6 +133,25 @@ $pageKeywords = "bible, online bible, {$currentBookName}, scripture, biblical te
 if (!empty($languagesStr)) {
     $pageKeywords .= ", {$languagesStr} bible";
 }
+
+// Canonical URL (always https + www)
+$canonicalQuery = [];
+if (!empty($_GET['bibles'])) {
+    $canonicalQuery['bibles'] = $_GET['bibles'];
+}
+if (!empty($_GET['langs'])) {
+    $canonicalQuery['langs'] = $_GET['langs'];
+}
+if ($selectedBook > 0) {
+    $canonicalQuery['book'] = $selectedBook;
+}
+if ($selectedChapter > 0) {
+    $canonicalQuery['chapter'] = $selectedChapter;
+}
+if ($selectedVerse) {
+    $canonicalQuery['verse'] = $selectedVerse;
+}
+$canonicalUrl = 'https://www.wordofgod.in/bibles/' . (empty($canonicalQuery) ? '' : '?' . http_build_query($canonicalQuery));
 ?>
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
@@ -168,7 +187,8 @@ if (!empty($languagesStr)) {
     <title><?php echo htmlspecialchars($pageTitle); ?></title>
     <meta name="description" content="<?php echo htmlspecialchars($pageDescription); ?>">
     <meta name="keywords" content="<?php echo htmlspecialchars($pageKeywords); ?>">
-    
+    <link rel="canonical" href="<?php echo htmlspecialchars($canonicalUrl); ?>">
+
     <!-- PWA Support -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#2196f3">

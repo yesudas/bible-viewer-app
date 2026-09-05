@@ -1,11 +1,10 @@
 // The word-study features (Dictionary, Devotions, Commentary, Cross References) fetch from
 // sibling paths on wordofgod.in that don't send CORS headers, so those fetches only work when
-// same-origin. The site is reachable at both the bare and www hosts without a forced redirect,
-// so hardcoding either one breaks fetches for visitors on the other - derive the origin actually
-// in use instead, falling back to the bare host for any other environment (e.g. local testing).
+// same-origin. Production redirects to www, but derive the origin actually in use instead of
+// hardcoding it — keeps fetches working during local testing and any non-canonical host access.
 const WORDOFGOD_ORIGIN = /(^|\.)wordofgod\.in$/.test(window.location.hostname)
     ? window.location.origin
-    : 'https://wordofgod.in';
+    : 'https://www.wordofgod.in';
 
 // Global variables
 let selectedBibles = [];

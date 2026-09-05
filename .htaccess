@@ -1,74 +1,22 @@
 RewriteEngine On
 
-# Force correct MIME types for CSS and JS files
-<FilesMatch "\.(css)$">
-    Header set Content-Type "text/css"
-    ForceType text/css
-</FilesMatch>
+# Canonical URL: force HTTPS and www on production (skip on localhost)
+RewriteCond %{HTTP_HOST} ^(www\.)?wordofgod\.in$ [NC]
+RewriteCond %{HTTPS} off [OR]
+RewriteCond %{HTTP_HOST} !^www\.wordofgod\.in$ [NC]
+RewriteRule ^ https://www.wordofgod.in%{REQUEST_URI} [R=301,L]
 
-<FilesMatch "\.(js)$">
-    Header set Content-Type "application/javascript"
-    ForceType application/javascript
-</FilesMatch>
+# WordOfGod.in - AI Scraper Rate Limiting
+# Updated: 2026-01-31
+# Strategy: Allow all crawlers but limit them to 10 requests per minute
 
-# Add MIME type declarations
-AddType text/css .css
-AddType application/javascript .js
-AddType application/json .json
+# Identify AI/LLM crawlers and set environment variable for stricter limiting
+RewriteCond %{HTTP_USER_AGENT} (crawl|GPTBot|ChatGPT|Claude|ClaudeBot|anthropic|CCBot|Google-Extended|Omgilibot|Amazonbot|Bytespider|PerplexityBot|Applebot-Extended|Diffbot|ImagesiftBot|img2dataset|cohere-ai|FacebookBot) [NC]
+RewriteRule .* - [E=AI_CRAWLER:1]
 
-# Prevent rewriting of static files
-RewriteCond %{REQUEST_FILENAME} \.(css|js|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$ [NC]
-RewriteRule ^ - [L]
-
-# Enable compression
-<IfModule mod_deflate.c>
-    AddOutputFilterByType DEFLATE text/plain
-    AddOutputFilterByType DEFLATE text/html
-    AddOutputFilterByType DEFLATE text/xml
-    AddOutputFilterByType DEFLATE text/css
-    AddOutputFilterByType DEFLATE application/xml
-    AddOutputFilterByType DEFLATE application/xhtml+xml
-    AddOutputFilterByType DEFLATE application/rss+xml
-    AddOutputFilterByType DEFLATE application/javascript
-    AddOutputFilterByType DEFLATE application/x-javascript
-    AddOutputFilterByType DEFLATE application/json
-</IfModule>
-
-# Browser caching
-<IfModule mod_expires.c>
-    ExpiresActive On
-    ExpiresByType text/css "access plus 1 month"
-    ExpiresByType application/javascript "access plus 1 month"
-    ExpiresByType image/png "access plus 1 month"
-    ExpiresByType image/jpg "access plus 1 month"
-    ExpiresByType image/jpeg "access plus 1 month"
-    ExpiresByType image/gif "access plus 1 month"
-    ExpiresByType image/ico "access plus 1 month"
-    ExpiresByType image/icon "access plus 1 month"
-    ExpiresByType text/plain "access plus 1 month"
-    ExpiresByType application/pdf "access plus 1 month"
-</IfModule>
-
-# Security headers
-<IfModule mod_headers.c>
-    Header always set X-Content-Type-Options nosniff
-    Header always set X-Frame-Options DENY
-    Header always set X-XSS-Protection "1; mode=block"
-    Header always set Referrer-Policy "strict-origin-when-cross-origin"
-</IfModule>
-
-# Prevent access to sensitive files
-<Files ~ "^\.">
-    Order allow,deny
-    Deny from all
-</Files>
-
-<Files ~ "\.(bak|config|sql|log|fla|psd|ini|sh|inc|swp|dist)$">
-    Order allow,deny
-    Deny from all
-</Files>
-
-RewriteEngine On
+# Log AI crawler requests separately for monitoring
+RewriteCond %{ENV:AI_CRAWLER} =1
+RewriteRule .* - [E=log_ai_crawler:1]
 
 # Force correct MIME types for CSS and JS files
 <FilesMatch "\.(css)$">
@@ -119,13 +67,70 @@ RewriteRule ^ - [L]
     ExpiresByType application/pdf "access plus 1 month"
 </IfModule>
 
-# Security headers
+# Rate limiting for AI crawlers (requires mod_ratelimit)
+# Limit to ~10 requests per minute = 166 bytes per second for average 1KB pages
+<IfModule mod_ratelimit.c>
+    <If "%{ENV:AI_CRAWLER} == '1'">
+        # Very slow rate for AI crawlers: 200 bytes/sec ≈ 12 requests/min for 1KB pages
+        SetOutputFilter RATE_LIMIT
+        SetEnv rate-limit 200
+    </If>
+
+    <Else>
+        # Normal rate for legitimate users: no limiting
+        # (or set a higher limit like 10000 bytes/sec if needed)
+    </Else>
+</IfModule>
+
+# Alternative: Use mod_qos for more precise per-IP rate limiting
+# Uncomment if mod_qos is available (better than mod_ratelimit)
+# <IfModule mod_qos.c>
+#     # Maximum 10 requests per minute per IP
+#     QS_SrvMaxConnPerIP 10
+#
+#     # Maximum concurrent connections
+#     QS_SrvMaxConn 100
+#
+#     # Request rate: 10 requests per 60 seconds per IP
+#     QS_LocRequestPerSecLimit 10 60
+# </IfModule>
+
+# Connection limiting (alternative approach using mod_limitipconn)
+# Uncomment if available - limits concurrent connections per IP
+# <IfModule mod_limitipconn.c>
+#     # Maximum 3 concurrent connections per IP
+#     MaxConnPerIP 3
+#
+#     # Only apply to certain file types
+#     <Location />
+#         MaxConnPerIP 3
+#     </Location>
+# </IfModule>
+
+# Security and crawler headers
 <IfModule mod_headers.c>
     Header always set X-Content-Type-Options nosniff
     Header always set X-Frame-Options DENY
     Header always set X-XSS-Protection "1; mode=block"
     Header always set Referrer-Policy "strict-origin-when-cross-origin"
+
+    # Suggest crawl delay to well-behaved bots
+    Header set X-Crawl-Delay "6"
+
+    # Prevent AI training on your content (some crawlers respect this)
+    Header set X-Robots-Tag "noai, noimageai"
+
+    # For AI crawlers, set more aggressive delay hint
+    <If "%{ENV:AI_CRAWLER} == '1'">
+        Header set X-Crawl-Delay "30"
+        Header set Retry-After "30"
+    </If>
 </IfModule>
+
+# Cache control for sitemap files
+<FilesMatch "sitemap\.xml$">
+    Header set Cache-Control "max-age=86400, public"
+</FilesMatch>
 
 # Prevent access to sensitive files
 <Files ~ "^\.">
@@ -140,3 +145,7 @@ RewriteRule ^ - [L]
 
 # Set DirectoryIndex
 DirectoryIndex index.php
+
+# Custom log format for AI crawlers (add to your Apache config if needed)
+# LogFormat "%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\"" ai_crawler_log
+# CustomLog /var/log/apache2/ai_crawlers.log ai_crawler_log env=log_ai_crawler

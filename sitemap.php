@@ -5,10 +5,7 @@
 // through a browser/web server where a request timeout may still apply regardless.
 set_time_limit(0);
 
-$baseUrl = "https://wordofgod.in/bibles/";
-// The general sitemap has no bibles/langs of its own, so its URLs use the bare app URL as
-// given in the request for this feature.
-$generalUrlBase = "https://www.wordofgod.in/bibles/";
+$baseUrl = "https://www.wordofgod.in/bibles/";
 $languagesFile = __DIR__ . "/data/languages.json";
 
 // Reference bible used only to determine the book/chapter/verse structure (how many chapters
@@ -162,18 +159,18 @@ foreach ($generalBooks as $book) {
     $chapters = $book['chapterCount'];
 
     // Book-level URL: ?book=BOOKNO
-    addSitemapUrl($generalXml, $generalUrlBase . "?book=" . $bookNo, $today, 'yearly', '0.8');
+    addSitemapUrl($generalXml, $baseUrl . "?book=" . $bookNo, $today, 'yearly', '0.8');
     $generalUrlCount++;
 
     for ($ch = 1; $ch <= $chapters; $ch++) {
         // Chapter-level URL: ?book=BOOKNO&chapter=CH
-        addSitemapUrl($generalXml, $generalUrlBase . "?book=" . $bookNo . "&chapter=" . $ch, $today, 'yearly', '0.8');
+        addSitemapUrl($generalXml, $baseUrl . "?book=" . $bookNo . "&chapter=" . $ch, $today, 'yearly', '0.8');
         $generalUrlCount++;
 
         // Verse-level URL: ?book=BOOKNO&chapter=CH&verse=V
         $verseCount = getVerseCount($generalLanguage, $generalBibleAbbr, $bookFolder, $ch);
         for ($v = 1; $v <= $verseCount; $v++) {
-            addSitemapUrl($generalXml, $generalUrlBase . "?book=" . $bookNo . "&chapter=" . $ch . "&verse=" . $v, $today, 'yearly', '0.8');
+            addSitemapUrl($generalXml, $baseUrl . "?book=" . $bookNo . "&chapter=" . $ch . "&verse=" . $v, $today, 'yearly', '0.8');
             $generalUrlCount++;
         }
     }
