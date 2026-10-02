@@ -295,6 +295,8 @@ $canonicalUrl = 'https://www.wordofgod.in/bibles/' . (empty($canonicalQuery) ? '
                     <li class="nav-item">
                             <a class="nav-link" href="https://wordofgod.in/" target="_blank"><i class="bi bi-gift me-1"></i>Free Christian Resources</a></li>
                     <li class="nav-item">
+                            <a class="nav-link" href="https://www.wordofgodteam.com/" target="_blank"><i class="bi bi-people me-1"></i>About Us</a></li>
+                    <li class="nav-item">
                             <button class="btn btn-primary btn-sm ms-2 install-app-btn" id="installAppBtnHeader" style="display: none;">
                                 <i class="bi bi-download me-1"></i>Install App
                             </button>
@@ -510,6 +512,7 @@ $canonicalUrl = 'https://www.wordofgod.in/bibles/' . (empty($canonicalQuery) ? '
                 <a href="https://wordofgod.in/bible-wallpapers/" target="_blank" class="text-decoration-none"><i class="bi bi-card-image me-1"></i>Bible Wallpapers</a> | 
                 <a href="https://wordofgod.in/bible-app-modules/" target="_blank" class="text-decoration-none"><i class="bi bi-phone me-1"></i>Bible App Modules</a> | 
                 <a href="https://wordofgod.in" target="_blank" class="text-decoration-none"><i class="bi bi-gift me-1"></i>Free Christian Resources</a> | 
+                <a href="https://www.wordofgodteam.com/" target="_blank" class="text-decoration-none"><i class="bi bi-people me-1"></i>About Us</a> | 
                 <span class="text-primary"><i class="bi bi-emoji-heart-eyes me-1"></i>Visitors: <?= $visitors2 ?></span>
             </p>    
             <div style="position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; opacity: 0; pointer-events: none;" aria-hidden="true">
