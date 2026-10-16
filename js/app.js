@@ -959,6 +959,11 @@ function displayVerses(results, selectedBook, selectedChapter) {
                             title="Cross references, Devotions, Commentary &amp; Quiz">
                         <i class="bi bi-journal-text"></i>
                     </button>
+                    <button class="btn btn-outline-primary btn-sm quiz-btn"
+                            onclick="openVerseQuiz(${selectedBook}, ${selectedChapter}, ${verseNumber})"
+                            title="Chapter quiz">
+                        <i class="bi bi-question-circle"></i>
+                    </button>
                 </div>
             </div>
         `;
@@ -1032,6 +1037,26 @@ function openVerseStudy(book, chapter, verse) {
     loadedDevotionsKey = ''; loadedQuizKey = '';
 
     openCrossReferences(book, chapter, verse);
+}
+
+function openVerseQuiz(book, chapter, verse) {
+    currentModalBook = String(book);
+    currentModalChapter = String(chapter);
+    currentModalVerse = String(verse);
+    currentModalLanguage = getBibleLanguage(selectedBibles[0]);
+    loadedDevotionsKey = '';
+
+    const tabsEl = document.getElementById('concordanceTabs');
+    if (tabsEl) tabsEl.classList.add('mode-crossref');
+
+    const bookInfo = booksData.find(b => b.bookNo === Number(book));
+    const bookName = bookInfo ? bookInfo.longName : `Book ${book}`;
+    document.getElementById('concordanceModalLabel').textContent = `Quiz: ${bookName} ${chapter}`;
+
+    bootstrap.Tab.getOrCreateInstance(document.getElementById('quiz-tab')).show();
+    bootstrap.Modal.getOrCreateInstance(document.getElementById('concordanceModal')).show();
+
+    loadQuizData(book, chapter);
 }
 
 function updateURL() {
