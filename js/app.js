@@ -21,6 +21,7 @@ let currentModalChapter = null;
 let currentModalVerse = null;
 let currentModalLanguage = '';
 let loadedDevotionsKey = '';
+let loadedQuizKey = '';
 let currentVerseNumber = null; // verse to highlight/keep in the URL for the current chapter view
 
 // Theme support
@@ -267,7 +268,7 @@ document.addEventListener('DOMContentLoaded', function() {
             currentModalChapter = event.target.getAttribute('data-chapter');
             currentModalVerse = event.target.getAttribute('data-verse');
             currentModalLanguage = getBibleLanguage(bible);
-            loadedDevotionsKey = '';
+            loadedDevotionsKey = ''; loadedQuizKey = '';
 
             // Word clicks always use the full 3-tab (Concordance/Dictionary/Devotions) mode
             const tabsEl = document.getElementById('concordanceTabs');
@@ -292,7 +293,7 @@ document.addEventListener('DOMContentLoaded', function() {
             currentModalChapter = chapter;
             currentModalVerse = verse;
             currentModalLanguage = getBibleLanguage(selectedBibles[0]);
-            loadedDevotionsKey = '';
+            loadedDevotionsKey = ''; loadedQuizKey = '';
 
             openCrossReferences(book, chapter, verse);
             return;
@@ -335,6 +336,16 @@ document.addEventListener('DOMContentLoaded', function() {
         devotionsTabEl.addEventListener('shown.bs.tab', function() {
             if (currentModalBook && currentModalChapter && currentModalVerse) {
                 loadDevotionsData(currentModalBook, currentModalChapter, currentModalVerse, currentModalLanguage);
+            }
+        });
+    }
+
+    // Load the chapter quiz when the Quiz tab is shown
+    const quizTabEl = document.getElementById('quiz-tab');
+    if (quizTabEl) {
+        quizTabEl.addEventListener('shown.bs.tab', function() {
+            if (currentModalBook && currentModalChapter) {
+                loadQuizData(currentModalBook, currentModalChapter);
             }
         });
     }
@@ -945,7 +956,7 @@ function displayVerses(results, selectedBook, selectedChapter) {
                     </button>
                     <button class="btn btn-outline-primary btn-sm study-btn"
                             onclick="openVerseStudy(${selectedBook}, ${selectedChapter}, ${verseNumber})"
-                            title="Cross references, Devotions &amp; Commentary">
+                            title="Cross references, Devotions, Commentary &amp; Quiz">
                         <i class="bi bi-journal-text"></i>
                     </button>
                 </div>
@@ -1018,7 +1029,7 @@ function openVerseStudy(book, chapter, verse) {
     currentModalChapter = String(chapter);
     currentModalVerse = String(verse);
     currentModalLanguage = getBibleLanguage(selectedBibles[0]);
-    loadedDevotionsKey = '';
+    loadedDevotionsKey = ''; loadedQuizKey = '';
 
     openCrossReferences(book, chapter, verse);
 }
@@ -1528,6 +1539,21 @@ function displayDictionaryEntry(sectionId, entryData, word) {
         html += `<div class="dictionary-paragraph mb-2">${section.paragraph}</div>`;
     });
     sectionEl.innerHTML = html;
+}
+
+function loadQuizData(book, chapter) {
+    const quizContent = document.getElementById('quizContent');
+    if (!quizContent) return;
+
+    const bookNum = String(parseInt(book, 10)).padStart(2, '0');
+    const chapterNum = String(parseInt(chapter, 10)).padStart(3, '0');
+    const lang = currentModalLanguage || 'English';
+    const key = `${lang}|${bookNum}|${chapterNum}`;
+    if (loadedQuizKey === key) return;
+    loadedQuizKey = key;
+
+    const src = `https://wordofgod.in/bible-quiz/embed-quiz.php?lang=${encodeURIComponent(lang)}&type=chapter&set_size=100&embed=1&books=${bookNum}&chapters=${bookNum}-${chapterNum}`;
+    quizContent.innerHTML = `<div style="text-align:center"><iframe src="${src}" width="100%" height="1100" style="border:0;max-width:600px;" loading="lazy" title="Bible Quiz"></iframe></div>`;
 }
 
 function loadDevotionsData(book, chapter, verse, language) {

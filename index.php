@@ -603,6 +603,11 @@ $canonicalUrl = 'https://www.wordofgod.in/bibles/' . (empty($canonicalQuery) ? '
                                 Cross References
                             </button>
                         </li>
+                        <li class="nav-item nav-item-quiz" role="presentation">
+                            <button class="nav-link" id="quiz-tab" data-bs-toggle="tab" data-bs-target="#quiz" type="button" role="tab" aria-controls="quiz" aria-selected="false">
+                                Quiz
+                            </button>
+                        </li>
                     </ul>
 
                     <!-- Tab Content -->
@@ -632,6 +637,11 @@ $canonicalUrl = 'https://www.wordofgod.in/bibles/' . (empty($canonicalQuery) ? '
                                 <div id="commentarySections">
                                     <!-- Commentary sections will be loaded here -->
                                 </div>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="quiz" role="tabpanel" aria-labelledby="quiz-tab">
+                            <div id="quizContent">
+                                <!-- Quiz iframe will be loaded here -->
                             </div>
                         </div>
                         <div class="tab-pane fade" id="crossreferences" role="tabpanel" aria-labelledby="crossreferences-tab">
