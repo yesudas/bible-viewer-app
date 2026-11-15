@@ -16,7 +16,7 @@
     <div class="test-section">
         <h3>Test Instructions:</h3>
         <ol>
-            <li>Open the <a href="index.php" target="_blank">main Bible app</a></li>
+            <li>Open the <a href="../index.php" target="_blank">main Bible app</a></li>
             <li>Check if the chapter dropdown is populated</li>
             <li>Verify that verses are displayed</li>
             <li>Test different book and chapter selections</li>
@@ -50,9 +50,9 @@
     <div class="test-section">
         <h3>Quick Test Links:</h3>
         <ul>
-            <li><a href="index.php">Default (should load TOV2017, Genesis 1)</a></li>
-            <li><a href="index.php?bibles=TOV2017&langs=தமிழ்&book=19&chapter=23">Psalm 23</a></li>
-            <li><a href="index.php?bibles=TCB1973&langs=English&book=40&chapter=5">Matthew 5</a></li>
+            <li><a href="../index.php">Default (should load TOV2017, Genesis 1)</a></li>
+            <li><a href="../index.php?bibles=TOV2017&langs=தமிழ்&book=19&chapter=23">Psalm 23</a></li>
+            <li><a href="../index.php?bibles=TCB1973&langs=English&book=40&chapter=5">Matthew 5</a></li>
             <li><a href="debug-defaults.php">Debug Default Values</a></li>
         </ul>
     </div>

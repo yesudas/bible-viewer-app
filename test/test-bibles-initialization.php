@@ -53,7 +53,7 @@
     <div class="test-section info">
         <h3>🧪 Test the Fix:</h3>
         <ol>
-            <li>Open <a href="index.php" target="_blank">fresh Bible app page</a></li>
+            <li>Open <a href="../index.php" target="_blank">fresh Bible app page</a></li>
             <li><strong>Check Language Section:</strong> Tamil should be highlighted</li>
             <li><strong>Check Bibles Section:</strong> Should show Tamil Bible buttons (TOV2017, TCVIN2022, etc.)</li>
             <li><strong>Check Default Bible:</strong> TOV2017 should be highlighted as active</li>
@@ -113,9 +113,9 @@ updateSelectedBiblesDisplay();
     <div class="test-section">
         <h3>🔗 Test Different Scenarios:</h3>
         <ul>
-            <li><a href="index.php">Default Load (Tamil, TOV2017)</a></li>
-            <li><a href="index.php?langs=English&bibles=TCB1973">English Load (TCB1973)</a></li>
-            <li><a href="index.php?langs=தமிழ்,English&bibles=TOV2017,TCB1973">Multi-Language Load</a></li>
+            <li><a href="../index.php">Default Load (Tamil, TOV2017)</a></li>
+            <li><a href="../index.php?langs=English&bibles=TCB1973">English Load (TCB1973)</a></li>
+            <li><a href="../index.php?langs=தமிழ்,English&bibles=TOV2017,TCB1973">Multi-Language Load</a></li>
             <li><a href="debug-defaults.php">Debug Default Values</a></li>
         </ul>
     </div>

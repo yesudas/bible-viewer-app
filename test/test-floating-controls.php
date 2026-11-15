@@ -27,7 +27,7 @@
     <div class="demo-section info">
         <h3>🎯 Test the Floating Controls:</h3>
         <ol>
-            <li>Open the <a href="index.php" target="_blank">main Bible app</a></li>
+            <li>Open the <a href="../index.php" target="_blank">main Bible app</a></li>
             <li>Scroll down to see verses content</li>
             <li>Look at bottom-right corner for horizontal floating controls</li>
             <li>Test zoom controls (+ and -) - should stay within screen</li>
@@ -83,9 +83,9 @@ body {
     <div class="demo-section">
         <h3>🔗 Quick Test Links:</h3>
         <ul>
-            <li><a href="index.php">Main Bible App (Default)</a></li>
-            <li><a href="index.php?bibles=TOV2017&langs=தமிழ்&book=19&chapter=23">Psalm 23 (Tamil)</a></li>
-            <li><a href="index.php?bibles=TCB1973&langs=English&book=40&chapter=5">Matthew 5 (English)</a></li>
+            <li><a href="../index.php">Main Bible App (Default)</a></li>
+            <li><a href="../index.php?bibles=TOV2017&langs=தமிழ்&book=19&chapter=23">Psalm 23 (Tamil)</a></li>
+            <li><a href="../index.php?bibles=TCB1973&langs=English&book=40&chapter=5">Matthew 5 (English)</a></li>
         </ul>
     </div>
 </body>

@@ -22,7 +22,7 @@
     <div class="test-section info">
         <h3>🧪 Test Steps:</h3>
         <ol>
-            <li>Open the <a href="index.php" target="_blank">main Bible app</a></li>
+            <li>Open the <a href="../index.php" target="_blank">main Bible app</a></li>
             <li>Note the current book and verses displayed</li>
             <li>Change the book selection from the dropdown</li>
             <li><strong>Expected:</strong> Chapter dropdown updates AND verses automatically refresh</li>
@@ -60,10 +60,10 @@ function updateChapters() {
     <div class="test-section">
         <h3>📚 Quick Test Books:</h3>
         <ul>
-            <li><a href="index.php?bibles=TOV2017&langs=தமிழ்&book=1&chapter=1">Genesis (Creation)</a></li>
-            <li><a href="index.php?bibles=TOV2017&langs=தமிழ்&book=19&chapter=1">Psalms (David's Prayers)</a></li>
-            <li><a href="index.php?bibles=TOV2017&langs=தமிழ்&book=40&chapter=1">Matthew (Gospel)</a></li>
-            <li><a href="index.php?bibles=TOV2017&langs=தமிழ்&book=66&chapter=1">Revelation (Prophecy)</a></li>
+            <li><a href="../index.php?bibles=TOV2017&langs=தமிழ்&book=1&chapter=1">Genesis (Creation)</a></li>
+            <li><a href="../index.php?bibles=TOV2017&langs=தமிழ்&book=19&chapter=1">Psalms (David's Prayers)</a></li>
+            <li><a href="../index.php?bibles=TOV2017&langs=தமிழ்&book=40&chapter=1">Matthew (Gospel)</a></li>
+            <li><a href="../index.php?bibles=TOV2017&langs=தமிழ்&book=66&chapter=1">Revelation (Prophecy)</a></li>
         </ul>
         <p><em>Use these links, then try changing books via dropdown to test the fix</em></p>
     </div>

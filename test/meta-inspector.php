@@ -22,16 +22,16 @@
                     </div>
                     <div class="card-body">
                         <div class="d-grid gap-2">
-                            <a href="index.php" target="_blank" class="btn btn-primary">
+                            <a href="../index.php" target="_blank" class="btn btn-primary">
                                 Default Configuration
                             </a>
-                            <a href="index.php?bibles=TOV2017&book=1&chapter=1" target="_blank" class="btn btn-primary">
+                            <a href="../index.php?bibles=TOV2017&book=1&chapter=1" target="_blank" class="btn btn-primary">
                                 Single Bible - Genesis 1
                             </a>
-                            <a href="index.php?bibles=TOV2017,TCVIN2022&book=19&chapter=23" target="_blank" class="btn btn-primary">
+                            <a href="../index.php?bibles=TOV2017,TCVIN2022&book=19&chapter=23" target="_blank" class="btn btn-primary">
                                 Multiple Bibles - Psalms 23
                             </a>
-                            <a href="index.php?bibles=TOV2017,TCVIN2022,TCB1973&book=43&chapter=3" target="_blank" class="btn btn-primary">
+                            <a href="../index.php?bibles=TOV2017,TCVIN2022,TCB1973&book=43&chapter=3" target="_blank" class="btn btn-primary">
                                 Three Bibles - John 3
                             </a>
                         </div>

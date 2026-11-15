@@ -133,6 +133,11 @@ RewriteRule ^ - [L]
 </FilesMatch>
 
 # Prevent access to sensitive files
+# Admin config (admin emails, test mode) is never served over HTTP
+<Files "config.php">
+    Require all denied
+</Files>
+
 <Files ~ "^\.">
     Order allow,deny
     Deny from all

@@ -11,7 +11,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
     
     <style>
-        <?php echo file_get_contents('css/styles.css'); ?>
+        <?php echo file_get_contents(__DIR__ . '/../css/styles.css'); ?>
     </style>
 </head>
 <body>
@@ -139,7 +139,7 @@
                 </div>
                 
                 <div class="mt-4">
-                    <a href="index.php" class="btn btn-primary">
+                    <a href="../index.php" class="btn btn-primary">
                         <i class="bi bi-arrow-left me-2"></i>Back to Main App
                     </a>
                     <a href="test-complete.php" class="btn btn-secondary">

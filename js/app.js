@@ -24,6 +24,43 @@ let loadedDevotionsKey = '';
 let loadedQuizKey = '';
 let currentVerseNumber = null; // verse to highlight/keep in the URL for the current chapter view
 
+// Anonymous usage counters (aggregate only, no personal data) — received by track.php, shown in a.php.
+let lastTrackedChapterKey = '';
+let lastTrackedBiblesKey = '';
+
+function trackEvent(payload) {
+    try {
+        const body = JSON.stringify(payload);
+        if (navigator.sendBeacon) {
+            navigator.sendBeacon('track.php', new Blob([body], { type: 'text/plain;charset=UTF-8' }));
+        } else {
+            fetch('track.php', { method: 'POST', body: body, keepalive: true, headers: { 'Content-Type': 'text/plain;charset=UTF-8' } });
+        }
+    } catch (e) { /* tracking must never break the app */ }
+}
+
+function trackFeature(name, extra) {
+    trackEvent(Object.assign({ type: 'feature', name: name }, extra || {}));
+}
+
+// Per-item counters: concordance-word, dictionary, devotion (brand), commentary (source), crossref (source).
+function trackItem(kind, key) {
+    if (key) trackEvent({ type: 'item', kind: kind, key: String(key) });
+}
+
+// A chapter counts once per book+chapter change; changing only the translations on the same chapter counts translation usage only.
+function trackChapterView(book, chapter) {
+    const chapterKey = book + ':' + chapter;
+    const biblesKey = selectedBibles.join(',');
+    if (chapterKey !== lastTrackedChapterKey) {
+        trackEvent({ type: 'chapter', book: book, chapter: chapter, bibles: selectedBibles });
+    } else if (biblesKey !== lastTrackedBiblesKey) {
+        trackEvent({ type: 'bibles', bibles: selectedBibles });
+    }
+    lastTrackedChapterKey = chapterKey;
+    lastTrackedBiblesKey = biblesKey;
+}
+
 // Theme support
 const THEME_STORAGE_KEY = 'bibleViewerTheme';
 const DARK_THEMES = ['dark', 'warm-dark', 'true-black'];
@@ -96,6 +133,7 @@ function applyTheme(storedTheme) {
 
 function setTheme(theme) {
     applyTheme(theme);
+    trackFeature('theme-change', { value: theme });
 }
 
 function initTheme() {
@@ -340,6 +378,25 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // Count modal tabs the user clicks (opening a tab through a verse button is counted by that button instead).
+    // The Quiz tab also records the book being studied.
+    ['concordance', 'dictionary', 'devotions', 'commentary', 'crossreferences', 'quiz'].forEach(function(name) {
+        const tabBtn = document.getElementById(name + '-tab');
+        if (!tabBtn) return;
+        tabBtn.addEventListener('click', function() {
+            if (tabBtn.classList.contains('active')) return; // already showing
+            trackFeature('tab-' + name, name === 'quiz' ? { book: Number(currentModalBook) || 0 } : null);
+        });
+    });
+
+    // Dictionary / devotion sections expanded from their collapsed state (data-track-key = dictionary slug / devotion brand)
+    document.addEventListener('shown.bs.collapse', function(e) {
+        const el = e.target;
+        if (!el || !el.dataset || !el.dataset.trackKey) return;
+        if (el.id.indexOf('dictionary-collapse-') === 0) trackItem('dictionary', el.dataset.trackKey);
+        else if (el.id.indexOf('devotion-collapse-') === 0) trackItem('devotion', el.dataset.trackKey);
+    });
+
     // Load the chapter quiz when the Quiz tab is shown
     const quizTabEl = document.getElementById('quiz-tab');
     if (quizTabEl) {
@@ -356,6 +413,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const crossreferencesTabEl = document.getElementById('crossreferences-tab');
     if (crossreferencesTabEl) {
         crossreferencesTabEl.addEventListener('shown.bs.tab', function() {
+            trackItem('crossref', currentCrossRefSource); // opening the tab shows the current (default) source
             if (currentModalBook && currentModalChapter && currentModalVerse) {
                 loadCrossReferencesData(currentModalBook, currentModalChapter, currentModalVerse);
             }
@@ -367,6 +425,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const commentaryTabEl = document.getElementById('commentary-tab');
     if (commentaryTabEl) {
         commentaryTabEl.addEventListener('shown.bs.tab', function() {
+            trackItem('commentary', currentCommentarySource); // opening the tab shows the current (default) commentary
             if (currentModalBook && currentModalChapter) {
                 loadCommentaryData(currentModalBook, currentModalChapter);
             }
@@ -886,6 +945,7 @@ function loadVerses() {
     Promise.all(promises)
         .then(results => {
             displayVerses(results, selectedBook, selectedChapter);
+            if (results.some(r => r.success)) trackChapterView(selectedBook, selectedChapter);
             updateURL();
             updateMetaTags();
             updateChapterNavigationButtons(); // Update navigation buttons after loading verses
@@ -991,6 +1051,7 @@ function scrollToInitialVerseIfNeeded() {
 }
 
 function copyVerse(verseIndex) {
+    trackFeature('verse-copy'); // Copy button clicked
     const verseContainer = document.querySelectorAll('.verse-container')[verseIndex];
     const verseNumber = verseContainer.querySelector('.verse-number').textContent;
     const verseTexts = verseContainer.querySelectorAll('.verse-text');
@@ -1030,6 +1091,7 @@ function copyVerse(verseIndex) {
 }
 
 function openVerseStudy(book, chapter, verse) {
+    trackFeature('verse-study'); // Study button (next to the verse) clicked
     currentModalBook = String(book);
     currentModalChapter = String(chapter);
     currentModalVerse = String(verse);
@@ -1040,6 +1102,7 @@ function openVerseStudy(book, chapter, verse) {
 }
 
 function openVerseQuiz(book, chapter, verse) {
+    trackFeature('verse-quiz', { book: Number(book) || 0 }); // Quiz button (next to the verse) clicked
     currentModalBook = String(book);
     currentModalChapter = String(chapter);
     currentModalVerse = String(verse);
@@ -1150,6 +1213,7 @@ function zoomIn() {
     if (currentFontSize < 40) {
         currentFontSize += 2;
         updateFontSize();
+        trackFeature('zoom');
     }
 }
 
@@ -1158,12 +1222,14 @@ function zoomOut() {
     if (currentFontSize > 12) {
         currentFontSize -= 2;
         updateFontSize();
+        trackFeature('zoom');
     }
 }
 
 function resetZoom() {
     currentFontSize = 16;
     updateFontSize();
+    trackFeature('zoom');
 }
 
 function updateFontSize() {
@@ -1318,6 +1384,8 @@ function getBibleLanguage(bibleAbbr) {
 }
 
 function openConcordance(word, bibleAbbr) {
+    trackFeature('word-study');
+    trackItem('concordance-word', word);
     
     // Check if this is a Strong's number
     if (word.match(/^[HG]\d+$/)) {
@@ -1502,7 +1570,7 @@ function renderDictionarySections(dictionaries, word) {
                         <i class="bi bi-chevron-down dictionary-toggle-icon"></i>
                     </button>
                 </h6>
-                <div id="${collapseId}" class="collapse" data-bs-parent="#dictionaryAccordion">
+                <div id="${collapseId}" class="collapse" data-bs-parent="#dictionaryAccordion" data-track-key="${escapeHtml(String(entry.dictionary || ''))}">
                     <div id="${sectionId}" class="dictionary-section-body p-2">
                         <div class="text-center"><div class="spinner-border spinner-border-sm" role="status"><span class="visually-hidden">Loading...</span></div></div>
                     </div>
@@ -1647,7 +1715,7 @@ function renderDevotionSections(devotions, language, key) {
                         <i class="bi bi-chevron-down devotion-toggle-icon"></i>
                     </button>
                 </h6>
-                <div id="${collapseId}" class="collapse" data-bs-parent="#devotionsAccordion">
+                <div id="${collapseId}" class="collapse" data-bs-parent="#devotionsAccordion" data-track-key="${escapeHtml(String(entry.brand || ''))}">
                     <div id="${sectionId}" class="devotion-section-body p-2">
                         <div class="text-center"><div class="spinner-border spinner-border-sm" role="status"><span class="visually-hidden">Loading...</span></div></div>
                     </div>
@@ -1764,6 +1832,7 @@ function populateCommentarySourceSelect() {
 
     select.addEventListener('change', function() {
         currentCommentarySource = select.value;
+        trackItem('commentary', currentCommentarySource); // switched to another commentary
         loadCommentaryData(currentModalBook, currentModalChapter);
     });
 }
@@ -1990,6 +2059,8 @@ function openCrossReferences(book, chapter, verse) {
     document.getElementById('concordanceModalLabel').textContent = `Cross References: ${bookName} ${chapter}:${verse}`;
 
     const crossrefTabEl = document.getElementById('crossreferences-tab');
+    // If the tab is already the active one, Bootstrap fires no 'shown' event, so count this open here
+    if (crossrefTabEl.classList.contains('active')) trackItem('crossref', currentCrossRefSource);
     bootstrap.Tab.getOrCreateInstance(crossrefTabEl).show();
 
     const modalEl = document.getElementById('concordanceModal');
@@ -2009,6 +2080,7 @@ function populateCrossRefSourceSelect() {
 
     select.addEventListener('change', function() {
         currentCrossRefSource = select.value;
+        trackItem('crossref', currentCrossRefSource); // switched to another cross-reference source
         loadCrossReferencesData(currentModalBook, currentModalChapter, currentModalVerse);
     });
 }
@@ -2164,6 +2236,7 @@ function loadCrossRefVersesForBible(bibleAbbr, sectionId, key) {
 }
 
 function navigateToCrossReference(bookNo, chapterNo, verseNo) {
+    trackFeature('crossref-navigate');
     const bookSelects = getBookSelects();
     const chapterSelects = getChapterSelects();
     if (!bookSelects.length || !chapterSelects.length) return;

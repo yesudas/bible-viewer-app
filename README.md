@@ -66,6 +66,13 @@ bible-viewer-app/
 ├── index.php              # Main application file
 ├── api.php                # API endpoint for data requests
 ├── shared-menus.php       # Loads ../shared/menus.json for the header/footer links
+├── counter.php            # Records each page load (included at the top of index.php)
+├── track.php              # Receives anonymous usage events from js/app.js
+├── a.php                  # Admin screen: Tracking + Sitemap (Google sign-in, admins only)
+├── sitemap.php            # Sitemap generator (CLI, or admin-only from a.php)
+├── config.example.php     # Copy to config.php: admin emails + test mode
+├── includes/              # app-config, google-auth-client, counters, tracking, books
+├── counters/              # Tracking data as JSON (*.txt, gitignored; only .htaccess is tracked)
 ├── .htaccess              # URL rewriting and security
 ├── README.md              # This documentation
 ├── AGENTS.md              # Guidance for AI coding agents
@@ -77,6 +84,19 @@ bible-viewer-app/
     │       └── [n].json  # Chapter files with verses
     └── [other bibles]/   # Additional Bible versions
 ```
+
+## Admin screen & tracking
+
+`a.php` is a Google-sign-in admin screen with three views:
+
+- **Tracking** – page loads and unique visitors (today / 7 / 30 days / all-time, per day and per month), new vs returning visitors, chapters viewed, top books, translations and languages used, translations shown side by side, feature usage (Copy / Study / Quiz button clicks next to each verse, modal tabs clicked, zoom, themes, app installs), Quiz opens by book, modal-panel detail (words opened in the concordance, dictionaries and devotion brands expanded, commentary and cross-reference source views — the default source counts when the tab opens, others when selected), devices, browsers, operating systems, traffic sources and crawler hits.
+- **Users** – every Google account that has opened (or tried to open) the admin screen: searchable list, detail view (first/last seen, visits, denied attempts), **Block / Unblock** and **Delete record**. Access itself is still decided only by `config.php`; blocking turns a listed admin away, and the default admin can't be blocked. Records are JSON files in `users/` (gitignored, web access denied).
+- **Sitemap** – a link that regenerates `sitemap.xml` and all `sitemap-*.xml` files, plus a list of the generated files.
+
+Setup: copy `config.example.php` to `config.php`. **Only the built-in default admin (see `viewerAdmins()` in `includes/app-config.php`) and the emails listed under `admins` in `config.php` can open the admin screen**; any other signed-in account gets "no access". Sign-in uses the shared `../auth` service (a sibling folder of this app, as on wordofgod.in).
+For local testing set `'test_mode' => true` in `config.php`: on `localhost` only, you are treated as signed in as `test_user`. Never enable it on a public server (it is ignored off localhost anyway).
+
+Tracking is anonymous. Counters are small JSON files in `counters/` (blocked from the web by `counters/.htaccess`); no IP addresses or user ids are stored. A first-party cookie `bv_seen` holds just two dates (first visit | last visit) to tell new from returning visitors and to count a browser once per day. `counter.php` records page loads and `track.php` records events that `js/app.js` sends (`trackEvent` / `trackFeature` / `trackChapterView`). The all-time page-load total lives in `counters/counter.txt` (`{"total":N}`). If you deploy over an old install, the former root `counter.txt` is imported once — only while `counters/counter.txt` doesn't exist — and can then be deleted.
 
 ## Installation & Setup
 

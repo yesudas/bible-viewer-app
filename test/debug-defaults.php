@@ -1,4 +1,5 @@
 <?php
+chdir(__DIR__ . '/..'); // these pages use paths relative to the app root
 // Debug script to check default values
 $selectedLanguages = isset($_GET['langs']) ? explode(',', $_GET['langs']) : [];
 $selectedBibles = isset($_GET['bibles']) ? explode(',', $_GET['bibles']) : [];
@@ -57,5 +58,5 @@ foreach ($biblesByLanguage as $langKey => $langData) {
     echo "<br>";
 }
 
-echo "<p><a href='index.php'>Back to Main App</a></p>";
+echo "<p><a href='../index.php'>Back to Main App</a></p>";
 ?>

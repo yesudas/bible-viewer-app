@@ -1,4 +1,5 @@
 <?php
+chdir(__DIR__ . '/..'); // these pages use paths relative to the app root
 // Simple test script to check MIME types and file accessibility
 header('Content-Type: text/html; charset=utf-8');
 
@@ -30,7 +31,7 @@ foreach ($files as $file => $expectedMime) {
         }
         
         // Test HTTP access
-        $url = (isset($_SERVER['HTTPS']) ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . dirname($_SERVER['REQUEST_URI']) . '/' . $file;
+        $url = (isset($_SERVER['HTTPS']) ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . dirname(dirname($_SERVER['REQUEST_URI'])) . '/' . $file;
         
         echo "🌐 Testing HTTP access: <a href='{$url}' target='_blank'>{$url}</a><br>";
         

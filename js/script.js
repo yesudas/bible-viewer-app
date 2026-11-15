@@ -56,6 +56,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Check if app is already installed
   window.addEventListener('appinstalled', () => {
     console.log('PWA was installed');
+    if (window.trackFeature) window.trackFeature('install-app');
     // Hide all install buttons
     installButtons.forEach(btn => {
       if (btn) btn.style.display = "none";

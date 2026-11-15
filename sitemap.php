@@ -1,4 +1,20 @@
 <?php
+// From the web this is admin-only (a POST form on a.php → Sitemap, with a CSRF token); the CLI is unrestricted.
+if (PHP_SAPI !== 'cli') {
+    require_once __DIR__ . '/includes/google-auth-client.php';
+    if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST' || !viewerIsAdmin(viewerGoogleUser()) || !viewerCheckCsrf($_POST['t'] ?? null)) {
+        http_response_code(403);
+        header('Content-Type: text/plain; charset=UTF-8');
+        exit('Forbidden. Generate sitemaps from the admin screen (a.php).');
+    }
+    header('Content-Type: text/html; charset=UTF-8');
+    header('Cache-Control: no-store');
+    header('X-Robots-Tag: noindex, nofollow');
+    echo '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Generate sitemaps</title></head>'
+        . '<body style="font-family:system-ui,sans-serif;margin:1.5rem;line-height:1.6"><p><a href="a.php?view=sitemap">&larr; Back to admin</a></p><h3>Generating sitemaps&hellip;</h3>' . "\n";
+}
+chdir(__DIR__); // the XML files are written relative to the working directory
+
 // Generating book+chapter+verse level URLs for every Bible means reading every chapter file
 // (not just bibles.json) for every bible - this can take a while, so don't let the default
 // 30s PHP execution limit cut it short. Run this from the CLI (php sitemap.php) rather than
@@ -199,3 +215,6 @@ foreach ($sitemapFiles as $file) {
 $index->asXML("sitemap.xml");
 echo "Generated sitemap.xml (index of " . count($sitemapFiles) . " sitemaps)\n<br>";
 echo "Done!\n<br>";
+if (PHP_SAPI !== 'cli') {
+    echo '<p><a href="a.php?view=sitemap">&larr; Back to admin</a></p></body></html>';
+}

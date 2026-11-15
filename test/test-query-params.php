@@ -47,16 +47,16 @@
     
     <div class="test-url">
         <strong>Main App:</strong><br>
-        <a href="index.php">Back to Bible App</a>
+        <a href="../index.php">Back to Bible App</a>
     </div>
     
     <h3>API Test:</h3>
     <div class="test-url">
-        <a href="api.php?action=getBooks&bible=TCB1973">Test API - Get Books for TCB1973</a>
+        <a href="../api.php?action=getBooks&bible=TCB1973">Test API - Get Books for TCB1973</a>
     </div>
     
     <div class="test-url">
-        <a href="api.php?action=getVerses&bible=TCB1973&book=1&chapter=1">Test API - Get Genesis Chapter 1 from TCB1973</a>
+        <a href="../api.php?action=getVerses&bible=TCB1973&book=1&chapter=1">Test API - Get Genesis Chapter 1 from TCB1973</a>
     </div>
 </body>
 </html>

@@ -191,7 +191,7 @@
                 </div>
                 
                 <div class="mt-4">
-                    <a href="index.php" class="btn btn-primary me-2">
+                    <a href="../index.php" class="btn btn-primary me-2">
                         <i class="bi bi-arrow-left me-2"></i>Back to Main App
                     </a>
                     <a href="test-complete.php" class="btn btn-secondary">

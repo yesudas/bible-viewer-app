@@ -1,4 +1,5 @@
 <?php
+chdir(__DIR__ . '/..'); // these pages use paths relative to the app root
 // Debug Meta Tags Implementation
 
 echo "<h2>Meta Tags Debug</h2>";

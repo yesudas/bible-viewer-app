@@ -40,7 +40,7 @@
     
     <div class="test-section primary">
         <h3>🧪 Complete Functionality Test</h3>
-        <p><strong>Main App:</strong> <a href="index.php" target="_blank">Open Bible App</a></p>
+        <p><strong>Main App:</strong> <a href="../index.php" target="_blank">Open Bible App</a></p>
         
         <h4>📋 Test Checklist:</h4>
         <ul class="test-checklist">
@@ -81,14 +81,14 @@
         
         <h4>Scenario 1: Fresh Load</h4>
         <ol>
-            <li>Visit <a href="index.php">main page</a></li>
+            <li>Visit <a href="../index.php">main page</a></li>
             <li>Should show TOV2017, Genesis Chapter 1</li>
             <li>Verses should be visible immediately</li>
         </ol>
         
         <h4>Scenario 2: Book Navigation</h4>
         <ol>
-            <li>Start with <a href="index.php?bibles=TOV2017&langs=தமிழ்&book=1&chapter=1">Genesis</a></li>
+            <li>Start with <a href="../index.php?bibles=TOV2017&langs=தமிழ்&book=1&chapter=1">Genesis</a></li>
             <li>Change book to "Psalms" from dropdown</li>
             <li>Should reset to Psalms Chapter 1</li>
             <li>Verses should update automatically</li>
@@ -104,7 +104,7 @@
         
         <h4>Scenario 4: URL Parameters</h4>
         <ol>
-            <li>Test: <a href="index.php?bibles=TOV2017,TCB1973&langs=தமிழ்,English&book=40&chapter=5">Matthew 5 (Multi-Bible)</a></li>
+            <li>Test: <a href="../index.php?bibles=TOV2017,TCB1973&langs=தமிழ்,English&book=40&chapter=5">Matthew 5 (Multi-Bible)</a></li>
             <li>Should load specified book, chapter, and Bibles</li>
             <li>All UI elements should reflect URL parameters</li>
         </ol>
@@ -116,16 +116,16 @@
             <div>
                 <strong>Default Tests:</strong>
                 <ul>
-                    <li><a href="index.php">Default Load</a></li>
+                    <li><a href="../index.php">Default Load</a></li>
                     <li><a href="debug-defaults.php">Debug Values</a></li>
                 </ul>
             </div>
             <div>
                 <strong>Content Tests:</strong>
                 <ul>
-                    <li><a href="index.php?book=1&chapter=1">Genesis 1</a></li>
-                    <li><a href="index.php?book=19&chapter=23">Psalm 23</a></li>
-                    <li><a href="index.php?book=40&chapter=5">Matthew 5</a></li>
+                    <li><a href="../index.php?book=1&chapter=1">Genesis 1</a></li>
+                    <li><a href="../index.php?book=19&chapter=23">Psalm 23</a></li>
+                    <li><a href="../index.php?book=40&chapter=5">Matthew 5</a></li>
                 </ul>
             </div>
             <div>

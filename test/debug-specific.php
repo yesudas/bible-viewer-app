@@ -1,4 +1,5 @@
 <?php
+chdir(__DIR__ . '/..'); // these pages use paths relative to the app root
 // Debug the meta tags issue
 
 $selectedBibles = ['TOV2017', 'TCB1973'];

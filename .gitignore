@@ -10,3 +10,12 @@ error_log
 /.claude/
 /.vscode/
 sitemap*.xml
+
+# Local admin config (copy config.example.php); tracking counters are live server data - only the .htaccess guard is tracked
+/config.php
+counters/*
+!counters/.htaccess
+
+# Admin account records (Users tab) - live server data
+users/*
+!users/.htaccess

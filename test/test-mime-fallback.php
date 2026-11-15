@@ -1,4 +1,5 @@
 <?php
+chdir(__DIR__ . '/..'); // these pages use paths relative to the app root
 // Test file to demonstrate the MIME type fallback functionality
 
 echo "<!DOCTYPE html>\n";
@@ -13,7 +14,7 @@ echo "<h3>CSS File Test:</h3>\n";
 echo "<p>CSS file exists: " . (file_exists($cssPath) ? 'Yes' : 'No') . "</p>\n";
 
 if (file_exists($cssPath)) {
-    $testUrl = (isset($_SERVER['HTTPS']) ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . dirname($_SERVER['REQUEST_URI']) . '/' . $cssUrl;
+    $testUrl = (isset($_SERVER['HTTPS']) ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . dirname(dirname($_SERVER['REQUEST_URI'])) . '/' . $cssUrl;
     echo "<p>Test URL: $testUrl</p>\n";
     
     $headers = @get_headers($testUrl, 1);
@@ -43,7 +44,7 @@ echo "<h3>JavaScript File Test:</h3>\n";
 echo "<p>JS file exists: " . (file_exists($jsPath) ? 'Yes' : 'No') . "</p>\n";
 
 if (file_exists($jsPath)) {
-    $testUrl = (isset($_SERVER['HTTPS']) ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . dirname($_SERVER['REQUEST_URI']) . '/' . $jsUrl;
+    $testUrl = (isset($_SERVER['HTTPS']) ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . dirname(dirname($_SERVER['REQUEST_URI'])) . '/' . $jsUrl;
     echo "<p>Test URL: $testUrl</p>\n";
     
     $headers = @get_headers($testUrl, 1);
@@ -68,8 +69,8 @@ if (file_exists($jsPath)) {
 echo "</head>\n<body>\n";
 echo "<h1>MIME Type Fallback Test Complete</h1>\n";
 echo "<p><strong>URL Structure:</strong> Now using query parameters like ?bibles=TOV2017,TCB1973&langs=English&book=1&chapter=1</p>\n";
-echo "<p><a href='index.php?bibles=TOV2017,TCB1973&langs=English&book=1&chapter=1'>Test Bible App with Query Parameters</a></p>\n";
+echo "<p><a href='../index.php?bibles=TOV2017,TCB1973&langs=English&book=1&chapter=1'>Test Bible App with Query Parameters</a></p>\n";
 echo "<p><a href='test-query-params.php'>Test Query Parameter URLs</a></p>\n";
-echo "<p><a href='index.php'>Back to Bible App (Default)</a></p>\n";
+echo "<p><a href='../index.php'>Back to Bible App (Default)</a></p>\n";
 echo "</body>\n</html>";
 ?>

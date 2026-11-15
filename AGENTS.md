@@ -13,7 +13,7 @@ php -S localhost:8000      # from the repo root; open http://localhost:8000/
 php -l index.php           # syntax check any PHP file you touched
 ```
 
-- There is no automated test suite. The `test-*.php`, `debug-*.php`, `direct-test.php`, `raw-test.php`, `meta-inspector.php` files in the root are old ad-hoc manual pages from Oct 2025; they are not run by anything. Don't treat them as a test harness and don't extend them.
+- There is no automated test suite. The `test-*.php`, `debug-*.php`, `direct-test.php`, `raw-test.php`, `meta-inspector.php` files in `test/` (moved out of the root) are old ad-hoc manual pages from Oct 2025; they are not run by anything. `test/.htaccess` limits them to local requests (`Require local`), so they are blocked on the production server; pages that read app files `chdir()` to the app root first, and their links to `index.php` / `api.php` use `../`. Don't treat them as a test harness and don't extend them.
 - Verify UI changes in a browser (also check the mobile width and a dark theme). `php -l` only proves syntax.
 - External features (concordance, dictionary, devotions, commentary, cross references, quiz) call wordofgod.in; from `localhost` some of them show "no data" because of CORS. That is expected, not a bug.
 
@@ -27,9 +27,15 @@ php -l index.php           # syntax check any PHP file you touched
 | `js/script.js` | PWA install buttons/banner + service-worker registration. |
 | `css/styles.css` | All styling, including the 7 themes (CSS variables). |
 | `shared-menus.php` | `viewerSharedMenus()` / `viewerMenuLink()` — header and footer links, read from `../shared/menus.json` with a built-in fallback. |
-| `counter.php` | Visitor counter (`counter.txt`), skips bots by User-Agent. Included at the top of `index.php`. |
+| `counter.php` | Calls `viewerTrackPageLoad()` (`includes/tracking.php`) and sets `$visitors2` (all-time page loads, shown in the footer — do not add anything else to the footer). Included at the top of `index.php`, before output (it may set the `bv_seen` cookie). |
+| `track.php` | POST-only, same-origin, bot-ignoring endpoint for the anonymous events `js/app.js` sends (`chapter`, `bibles`, `feature`); always 204. Validates book/chapter ranges, Bible abbreviations against `languages.json`, and feature/theme names against whitelists. |
+| `a.php` | Admin screen (views `tracking`, `users`, `sitemap`; add new admin features as new entries in `$views`). Access = signed in via `../auth` **and** email in `viewerAdmins()` (built-in default admin + `config.php` `admins`). Others get 403. |
+| `includes/` | `app-config.php` (config, test mode, admins), `google-auth-client.php` (bridge to `../auth/session.php`, CSRF token), `counters.php` (locked JSON counter read/write), `tracking.php` (UA parsing, page-load + event recording), `books.php` (book names). |
+| `counters/` | Runtime tracking data, `{name}.txt` as `{"total":N}` or `{"items":{key:N}}`. Gitignored except `.htaccess` (denies web access). Per-day maps are capped at 800 keys. |
+| `users/` | One JSON per Google account that opened/tried a.php (`includes/admin-users.php`): name, first/last seen, visits, denied, `blocked`. Gitignored except `.htaccess`. `viewerIsAdmin()` = listed in config **and** not blocked; the default admin is never blockable. Adding admins stays config-only by design. |
+| `config.php` | Local/server config, gitignored (`config.example.php` is the template): `admins`, `test_mode`, `test_user`. `test_mode` only works on a loopback connection to `localhost`. |
 | `bot.php` | Honeypot that logs to `bot.log`. |
-| `sitemap.php` | CLI generator (`php sitemap.php`) for the `sitemap-*.xml` files. |
+| `sitemap.php` | Generator for `sitemap.xml` + `sitemap-*.xml`: CLI (`php sitemap.php`) or from the web, where it requires a POST from an admin session carrying the CSRF token (the form on a.php → Sitemap). |
 | `sw.js` | Deliberately a no-op service worker (no caching). |
 | `.htaccess` | www+https redirect, AI-crawler detection/rate limiting, MIME types, caching, security headers. Apache only. |
 | `data/` | All Bible text (see below). Very large. |
@@ -131,7 +137,8 @@ Reads `../shared/menus.json` (sibling folder on the production server, **not in 
 ## PWA and analytics
 
 - `manifest.json` (standalone, start URL `./?f=app`, icons in `images/`) + the no-op `sw.js`. Install prompt UI is the `.install-app-btn` buttons (header, footer, banner) driven by `js/script.js`. The service worker intentionally doesn't cache; don't add offline caching without discussing it, since data and wordofgod.in calls must stay fresh.
-- Google Analytics (gtag) is loaded in `index.php`; the visitor counter in `counter.php` is separate. Don't add other trackers or send user data to new third parties.
+- Google Analytics (gtag) is loaded in `index.php`; our own anonymous counters (`counter.php`, `track.php`, `counters/`) are separate. Don't add other trackers or send user data to new third parties. Keep the counters anonymous: no IPs, no user ids, only aggregate counts and whitelisted keys.
+- New metric = call `viewerIncrementMap()` / `viewerIncrementCounter()` from `includes/tracking.php`, validate/whitelist any client-supplied key, and add a table for it in the `tracking` view of `a.php`. Client side, use `trackFeature(name)` and add the name to `viewerFeatureNames()`. Per-item counts (a word, a dictionary/devotion/commentary/cross-reference source) use `trackItem(kind, key)` and `viewerItemKinds()`; their keys come from the client, so they are sanitised and the maps are size-capped.
 
 ## Server config worth knowing (`.htaccess`)
 
@@ -140,7 +147,7 @@ Reads `../shared/menus.json` (sibling folder on the production server, **not in 
 
 ## Things to be careful about
 
-- **Do not commit or hand-edit generated/runtime files**: `counter.txt`, `bot.log`, `error_log`, `.sync.ffs_db`, `sitemap-*.xml` (all in `.gitignore`, but `.sync.ffs_db` and `error_log` are still tracked, so they show up as modified/deleted in `git status` — leave them out of your changes).
+- **Do not commit or hand-edit generated/runtime files**: `counters/*` (the page-load total is `counters/counter.txt`; a root `counter.txt` is legacy and only imported if the former is missing), `config.php`, `bot.log`, `error_log`, `.sync.ffs_db`, `sitemap-*.xml` (all in `.gitignore`, but `.sync.ffs_db` and `error_log` are still tracked, so they show up as modified/deleted in `git status` — leave them out of your changes).
 - **`data/` is huge** (hundreds of thousands of files). Never `grep -r`/`find` across it without narrowing to one Bible, and never list it into a tool result. Exclude it from searches (`--glob '!data/**'`).
 - `index.php` **inlines** `css/styles.css` and `js/app.js` into the HTML (`file_get_contents` inside `<style>`/`<script>`), falling back to `<link>`/`<script src>` only if the file is missing. So edits ship with the next page load and there is no asset cache-busting to manage; `js/script.js` is the only separately loaded script. Don't put `</script>` or `</style>` sequences inside those files.
 - `.htaccess` is Apache-specific; the PHP built-in server ignores it (no rewrite, no headers).

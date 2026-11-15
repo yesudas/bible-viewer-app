@@ -1,4 +1,5 @@
 <?php
+chdir(__DIR__ . '/..'); // these pages use paths relative to the app root
 // Test the fixed meta tags logic
 
 echo "<h2>Testing Fixed Meta Tags</h2>";

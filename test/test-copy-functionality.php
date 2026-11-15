@@ -50,7 +50,7 @@ https://www.wordofgod.in/bibles</div>
     <div class="test-section warning">
         <h3>🧪 Test the Copy Functionality:</h3>
         <ol>
-            <li>Open the <a href="index.php" target="_blank">main Bible app</a></li>
+            <li>Open the <a href="../index.php" target="_blank">main Bible app</a></li>
             <li>Navigate to any chapter with verses</li>
             <li>Click the copy button (📋) next to any verse</li>
             <li>Paste the content somewhere to verify the format</li>
@@ -99,10 +99,10 @@ function copyVerse(verseIndex) {
     <div class="test-section">
         <h3>📚 Quick Test Links:</h3>
         <ul>
-            <li><a href="index.php?bibles=TOV2017&langs=தமிழ்&book=1&chapter=1">Genesis 1 (Tamil)</a></li>
-            <li><a href="index.php?bibles=TCB1973&langs=English&book=19&chapter=23">Psalm 23 (English)</a></li>
-            <li><a href="index.php?bibles=TOV2017,TCB1973&langs=தமிழ்,English&book=40&chapter=5">Matthew 5 (Multi-Bible)</a></li>
-            <li><a href="index.php?bibles=TOV2017&langs=தமிழ்&book=66&chapter=1">Revelation 1 (Tamil)</a></li>
+            <li><a href="../index.php?bibles=TOV2017&langs=தமிழ்&book=1&chapter=1">Genesis 1 (Tamil)</a></li>
+            <li><a href="../index.php?bibles=TCB1973&langs=English&book=19&chapter=23">Psalm 23 (English)</a></li>
+            <li><a href="../index.php?bibles=TOV2017,TCB1973&langs=தமிழ்,English&book=40&chapter=5">Matthew 5 (Multi-Bible)</a></li>
+            <li><a href="../index.php?bibles=TOV2017&langs=தமிழ்&book=66&chapter=1">Revelation 1 (Tamil)</a></li>
         </ul>
         <p><em>Click copy buttons in these chapters to test the new format</em></p>
     </div>
