@@ -23,17 +23,22 @@ A responsive, mobile-first web application for reading and comparing multiple Bi
 - Dynamic book and chapter dropdowns
 - Intelligent default selection based on availability
 - URL-based navigation with history support
+- Header menu stays tidy: on desktop only the first 7 links show, the rest sit in a **More** dropdown (mobile shows all links in the collapsed menu)
 
 ### 📚 Word Study Tools
-Clicking any word (or Strong's number) in a verse opens a modal with five tabs:
+Clicking any word (or Strong's number) in a verse opens a modal with six tabs:
 - **Concordance**: Every other verse where that word appears
 - **Dictionary**: Matching entries from available Bible dictionaries
 - **Devotions**: Devotional readings available for that specific verse, grouped into collapsible panels (one per devotion, titled with the devotion's title). Opening a panel automatically closes any other open panel.
 - **Commentary**: Verse-by-verse commentary sections for the current chapter, with a dropdown to switch between available commentaries (see below)
 - **Cross References**: Hidden in this word-click mode (see below) — surfaced through its own entry point instead.
+- **Quiz**: An embedded chapter quiz from wordofgod.in for the clicked word's chapter (see below)
 
 ### 🔗 Cross References
-Every verse shows a line of short citations underneath it (e.g. `Joh 1:1-3; Heb 11:3; Isa 45:18 … click for more`), sourced from a configurable default cross-reference set. Clicking any citation, or the trailing "click for more" link, opens the same word-study modal in a dedicated 3-tab mode — **Cross References** first, **Devotions** second, **Commentary** third, with Concordance/Dictionary hidden (word clicks continue to use the full 5-tab mode, unaffected).
+Every verse shows a line of short citations underneath it (e.g. `Joh 1:1-3; Heb 11:3; Isa 45:18 … click for more`), sourced from a configurable default cross-reference set. Clicking any citation, or the trailing "click for more" link, opens the same word-study modal in a dedicated 4-tab mode — **Cross References** first, then **Devotions**, **Commentary** and **Quiz**, with Concordance/Dictionary hidden (word clicks continue to use the full 6-tab mode, unaffected).
+
+### ❓ Quiz
+The **Quiz** tab embeds the wordofgod.in chapter quiz in an iframe (centered, max 600px wide). Besides the word-click and cross-reference modes, every verse has a quiz button (question-mark icon, below the copy and study buttons) that opens the modal directly on the Quiz tab. The quiz is per chapter, so every verse's button in a chapter loads the same quiz. The iframe is lazy-loaded when the tab is shown and only reloaded when the language or chapter changes.
 
 Inside the Cross References tab:
 - A dropdown lets you switch between the available cross-reference sources (OB, RST, TSK)
@@ -60,8 +65,10 @@ The **Commentary** tab is always available, in both the word-click and cross-ref
 bible-viewer-app/
 ├── index.php              # Main application file
 ├── api.php                # API endpoint for data requests
+├── shared-menus.php       # Loads ../shared/menus.json for the header/footer links
 ├── .htaccess              # URL rewriting and security
 ├── README.md              # This documentation
+├── AGENTS.md              # Guidance for AI coding agents
 └── data/
     ├── languages.json     # Language and Bible configuration
     ├── TCB1973/          # Bible version folder
@@ -167,6 +174,9 @@ https://yourdomain.com/?book=19&chapter=119&verse=6
 - Reference targets can fall outside the canon of whichever Bible currently drives the book/chapter dropdown (e.g. an Old-Testament-only edition and a New-Testament reference) — navigation falls back to a static 66-book table (`CROSSREF_BOOKS`) so it still works, and the reader simply omits any selected Bible that doesn't have that book
 - The tab lazy-loads the same way when entered via a word click and the user switches to it manually (not just via an inline citation click), so it never stays blank regardless of how the modal was opened
 
+#### Quiz
+- `loadQuizData()` in `js/app.js` builds the iframe URL from the current modal book/chapter (zero-padded) and the Bible's language; `openVerseQuiz()` backs the per-verse quiz button
+
 #### Commentary
 - A configurable default source (`DEFAULT_COMMENTARY_SOURCE` in `js/app.js`, alongside the full `COMMENTARY_SOURCES` list) is lazy-fetched per chapter the first time the tab is shown
 - The dropdown lets you switch between available commentaries; switching reloads the sections for the current chapter
@@ -205,12 +215,13 @@ The application uses a JSON-based data structure:
 - `POST /api.php?action=getVersesByRefs` - Batch-resolve cross-reference targets into verse text. Body: `{"bible": "{abbr}", "refs": [{"book": num, "chapter": num, "verseStart": num, "verseEnd": num}, ...]}`. Reads each distinct book/chapter file only once even if many refs share it, and returns `{success, verses: [{book, chapter, verseStart, verseEnd, bookName, text}, ...]}` in the same order as the request (`text`/`bookName` are `null` for a ref the given Bible doesn't have).
 
 ### External Word Study APIs
-The Concordance, Dictionary, Devotions, Commentary, and Cross References features pull data live from wordofgod.in. Dictionary, Devotions, Commentary, and Cross References use a shared `WORDOFGOD_ORIGIN` constant (`js/app.js`) that resolves to whichever host (`wordofgod.in` or `www.wordofgod.in`) the page itself was loaded from — those sibling paths don't send CORS headers, so the fetch must be same-origin, and the site is reachable at both hosts without a forced redirect. On any other host (e.g. local testing) it falls back to the bare `https://wordofgod.in` domain.
+The Concordance, Dictionary, Devotions, Commentary, Cross References, and Quiz features pull data live from wordofgod.in. Dictionary, Devotions, Commentary, and Cross References use a shared `WORDOFGOD_ORIGIN` constant (`js/app.js`) that resolves to whichever host (`wordofgod.in` or `www.wordofgod.in`) the page itself was loaded from — those sibling paths don't send CORS headers, so the fetch must be same-origin, and the site is reachable at both hosts without a forced redirect. On any other host (e.g. local testing) it falls back to the bare `https://wordofgod.in` domain.
 - Concordance: `https://.../bible-concordance/data/{language}/{bible}/words/...`
 - Dictionary: `{WORDOFGOD_ORIGIN}/bibledictionary/api.php?action=getDictionaries&word={word}`
 - Devotions: `{WORDOFGOD_ORIGIN}/bible-devotions/api.php?action=getDevotions&lang={language}&book={num}&chapter={num}&verse={num}`
 - Commentary: `{WORDOFGOD_ORIGIN}/bible-commentaries/data/{source}/{book:2digits}/{chapter:3digits}.json` — `{source}` is `MHWBC` (Matthew Henry's Whole Bible Commentary, default) or `GNTBC` (Good News தமிழ் வேதாகம விளக்கவுரை); book/chapter numbers are zero-padded (e.g. `data/MHWBC/01/001.json` for Genesis 1)
 - Cross References: `{WORDOFGOD_ORIGIN}/bible-cross-references/data/{source}/{book:2digits}/{chapter:3digits}.json` — `{source}` is `OB` (Open Bible), `RST` (Russian Synodal Bible), or `TSK` (Treasury of Scripture Knowledge); book/chapter numbers are zero-padded (e.g. `data/OB/01/001.json` for Genesis 1)
+- Quiz (iframe): `https://wordofgod.in/bible-quiz/embed-quiz.php?lang={language}&type=chapter&set_size=100&embed=1&books={book:2digits}&chapters={book:2digits}-{chapter:3digits}` (e.g. `books=01&chapters=01-001` for Genesis 1)
 
 These require the app to be served from a domain the wordofgod.in APIs allow via CORS; testing from an arbitrary local origin (e.g. `http://localhost`) may show "no data found" for the per-entry lookups even though the list APIs succeed.
 
@@ -258,6 +269,77 @@ Add new languages by updating `data/languages.json`:
     "bibles": [...]
 }
 ```
+
+## Shared menu (header and footer)
+
+The WordOfGod.in links in the header menu and the footer are not hard-coded. They come from `menus.json`, which is maintained by the site owner and kept in the `shared/` folder that sits beside this app on the server:
+
+```
+wordofgod.in/
+├── shared/menus.json
+├── bibles/   (this app)
+└── ...
+```
+
+`shared-menus.php` (`viewerSharedMenus()`) reads `../shared/menus.json`, re-validates every item, and returns the list to `index.php`, which uses it twice: for the navbar links and for the `|`-separated links in the footer. In the navbar, desktop (lg and up) shows the first 7 links inline and puts the rest in a **More** dropdown; the collapsed mobile menu lists every link. To change the limit, edit the `array_slice($navItems, 0, 7)` call in `index.php`. The footer always lists all links. It:
+
+- skips items with `"enabled": false` (a missing flag means enabled),
+- skips this app's own link (any URL whose last path segment is `bibles`),
+- rejects URLs that are not `http(s)://` or a single-slash path, and icons that are not `bi-…` classes,
+- escapes every label, URL and icon on output,
+- falls back to a built-in copy of the original links if the file is missing or invalid, so the menu never disappears.
+
+This repository does not contain the `shared/` folder. To run the app on your own machine, either create `../shared/menus.json` next to the app (using the sample below) or do nothing and the built-in fallback list is used.
+
+### Keeping `menus.json` inside this app
+
+To ship the menu with the app instead of reading the sibling `shared/` folder, only one file needs to change:
+
+1. Copy `menus.json` into the app root (next to `index.php`).
+2. In `shared-menus.php`, change the path in the `$file = …` line from `__DIR__ . '/../shared/menus.json'` to `__DIR__ . '/menus.json'`.
+
+Nothing else reads the file, so the templates, validation and fallback list stay as they are. Keep in mind that the copy is then edited and updated by hand, and no longer follows changes made to the shared menu. If the app's folder is web-readable, the file is public anyway (it only holds the same links shown on the site), but you can still deny direct access with a `.htaccess` rule if you prefer.
+
+### `menus.json` schema (sample)
+
+```json
+{
+  "version": 1,
+  "updated": "2026-11-12T13:49:50+00:00",
+  "items": [
+    {
+      "id": "0512665a7c5e",
+      "label": "About Us",
+      "url": "https://www.wordofgodteam.com/",
+      "icon": "bi-people",
+      "newTab": true,
+      "enabled": true
+    },
+    {
+      "id": "4e5081ceadbb",
+      "label": "Online Bibles",
+      "url": "https://wordofgod.in/bibles/",
+      "icon": "bi-book-half",
+      "newTab": true,
+      "enabled": false
+    }
+  ]
+}
+```
+
+| Field | Type | Meaning |
+|---|---|---|
+| `version` | number | Schema version (currently `1`). |
+| `updated` | string | ISO-8601 time of the last save (informational). |
+| `items` | array | Menu entries; **array order = menu order**. |
+| `items[].id` | string | Unique 12-character hex id (used by the admin page only). |
+| `items[].label` | string | Text shown, up to 60 characters. |
+| `items[].url` | string | `http://`, `https://` or a path starting with a single `/`. |
+| `items[].icon` | string | Optional [Bootstrap Icons](https://icons.getbootstrap.com/) class such as `bi-book-half`; `""` for none. |
+| `items[].newTab` | boolean | `true` opens the link in a new tab (`target="_blank" rel="noopener"`). |
+| `items[].enabled` | boolean | `false` hides the link everywhere; missing means `true`. |
+
+The file is maintained by the site owner; don't edit it by hand from this app. `shared/` must be readable by PHP; `menus.json` is written by the site owner's admin tooling. App-specific entries (Install App) stay in `index.php`.
 
 ## Troubleshooting
 

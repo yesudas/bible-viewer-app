@@ -1,6 +1,7 @@
 <?php
 
 include 'counter.php';
+require_once __DIR__ . '/shared-menus.php';
 
 $version = "2026.07";
 
@@ -282,20 +283,28 @@ $canonicalUrl = 'https://www.wordofgod.in/bibles/' . (empty($canonicalQuery) ? '
             </div>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                            <a class="nav-link" href="https://wordofgod.in/good-news-collections/" target="_blank"><i class="bi bi-box-seam me-1"></i>Good News Collections</a> </li>
-                    <li class="nav-item">
-                            <a class="nav-link" href="https://wordofgod.in/bibledictionary/" target="_blank"><i class="bi bi-collection me-1"></i>Bible Dictionaries</a> </li>
-                    <li class="nav-item">
-                            <a class="nav-link" href="https://wordofgod.in/bible-concordance/" target="_blank"><i class="bi bi-search me-1"></i>Bible Concordances</a></li>
-                    <li class="nav-item">
-                            <a class="nav-link" href="https://wordofgod.in/bible-wallpapers/" target="_blank"><i class="bi bi-card-image me-1"></i>Bible Wallpapers</a></li>
-                    <li class="nav-item">
-                            <a class="nav-link" href="https://wordofgod.in/bible-app-modules/" target="_blank"><i class="bi bi-phone me-1"></i>Bible App Modules</a></li>
-                    <li class="nav-item">
-                            <a class="nav-link" href="https://wordofgod.in/" target="_blank"><i class="bi bi-gift me-1"></i>Free Christian Resources</a></li>
-                    <li class="nav-item">
-                            <a class="nav-link" href="https://www.wordofgodteam.com/" target="_blank"><i class="bi bi-people me-1"></i>About Us</a></li>
+                    <?php
+                    $navItems = viewerSharedMenus();
+                    $navVisible = array_slice($navItems, 0, 7);
+                    $navMore = array_slice($navItems, 7);
+                    foreach ($navVisible as $mi): ?>
+                    <li class="nav-item"><?= viewerMenuLink($mi, 'nav-link') ?></li>
+                    <?php endforeach; ?>
+                    <?php if ($navMore): ?>
+                    <?php foreach ($navMore as $mi): ?>
+                    <li class="nav-item d-lg-none"><?= viewerMenuLink($mi, 'nav-link') ?></li>
+                    <?php endforeach; ?>
+                    <li class="nav-item dropdown d-none d-lg-block">
+                        <a class="nav-link dropdown-toggle" href="#" id="moreMenuDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-three-dots me-1"></i>More
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="moreMenuDropdown">
+                            <?php foreach ($navMore as $mi): ?>
+                            <li><?= viewerMenuLink($mi, 'dropdown-item') ?></li>
+                            <?php endforeach; ?>
+                        </ul>
+                    </li>
+                    <?php endif; ?>
                     <li class="nav-item">
                             <button class="btn btn-primary btn-sm ms-2 install-app-btn" id="installAppBtnHeader" style="display: none;">
                                 <i class="bi bi-download me-1"></i>Install App
@@ -506,13 +515,9 @@ $canonicalUrl = 'https://www.wordofgod.in/bibles/' . (empty($canonicalQuery) ? '
                 </button>
             </div>
             <p class="mb-0 text-muted">
-                <a href="https://wordofgod.in/good-news-collections/" target="_blank" class="text-decoration-none"><i class="bi bi-box-seam me-1"></i>Good News Collections</a> | 
-                <a href="https://wordofgod.in/bibledictionary/" target="_blank" class="text-decoration-none"><i class="bi bi-collection me-1"></i>Bible Dictionaries</a> | 
-                <a href="https://wordofgod.in/bible-concordance/" target="_blank" class="text-decoration-none"><i class="bi bi-search me-1"></i>Bible Concordances</a> | 
-                <a href="https://wordofgod.in/bible-wallpapers/" target="_blank" class="text-decoration-none"><i class="bi bi-card-image me-1"></i>Bible Wallpapers</a> | 
-                <a href="https://wordofgod.in/bible-app-modules/" target="_blank" class="text-decoration-none"><i class="bi bi-phone me-1"></i>Bible App Modules</a> | 
-                <a href="https://wordofgod.in" target="_blank" class="text-decoration-none"><i class="bi bi-gift me-1"></i>Free Christian Resources</a> | 
-                <a href="https://www.wordofgodteam.com/" target="_blank" class="text-decoration-none"><i class="bi bi-people me-1"></i>About Us</a> | 
+                <?php foreach (viewerSharedMenus() as $mi): ?>
+                <?= viewerMenuLink($mi, 'text-decoration-none') ?> |
+                <?php endforeach; ?>
                 <span class="text-primary"><i class="bi bi-emoji-heart-eyes me-1"></i>Visitors: <?= $visitors2 ?></span>
             </p>    
             <div style="position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; opacity: 0; pointer-events: none;" aria-hidden="true">
